@@ -27,3 +27,16 @@ Theme/global settings persist, validators and audit views tested.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains all units below, including microtasks.** Select next with `python3 tools/agent_tasks.py next`.
+
+- [P12-01](../tasks/P12-01.md)
+- [P12-02](../tasks/P12-02.md)
+- [P12-03](../tasks/P12-03.md)
+- [P12-04](../tasks/P12-04.md)
+- [P12-05](../tasks/P12-05.md)
+- [P12-06](../tasks/P12-06.md)
+- [P12-07](../tasks/P12-07.md)
+- [P12-08](../tasks/P12-08.md)
