@@ -28,3 +28,17 @@ Admin shell renders four menu groups with RBAC filtered navigation and Salt & Pe
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P06-01](../tasks/P06-01.md)
+- [P06-02A](../tasks/P06-02A.md)
+- [P06-02B](../tasks/P06-02B.md)
+- [P06-02](../tasks/P06-02.md)
+- [P06-03](../tasks/P06-03.md)
+- [P06-04](../tasks/P06-04.md)
+- [P06-05](../tasks/P06-05.md)
+- [P06-06](../tasks/P06-06.md)
+- [P06-07](../tasks/P06-07.md)
