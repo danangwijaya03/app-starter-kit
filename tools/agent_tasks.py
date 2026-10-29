@@ -104,7 +104,7 @@ def show(t,m):
  for s in t.get("steps",[]):print(" STEP:",s)
  if t.get("blocked_reason"):print("BLOCKED:",t["blocked_reason"])
 def is_safe_command(cmd):
- if not cmd or cmd[0] not in ("npm","npx","node","python3","python","pytest"):return False
+ if not cmd or cmd[0] not in ("npm","npx","node","python3","python","pytest",".venv-agent/bin/python","./.venv-agent/bin/python"):return False
  if any(arg in cmd for arg in ("--pass-with-no-tests","--passWithNoTests")):return False
  # A validation wrapper is NOT a sandbox; reject obvious arbitrary-eval and misleading no-test modes.
  if any(flag in cmd for flag in ("-e","--eval","-c","--require","--import","--passWithNoTests","--pass-with-no-tests")):return False

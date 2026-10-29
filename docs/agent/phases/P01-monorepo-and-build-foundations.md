@@ -6,7 +6,7 @@
 Existing Next.js moved into apps/web without recreation; npm ci/lint/build work; root npm lockfile consistent.
 
 ## Instructions for low-reasoning agent
-1. Run `python3 tools/agent_tasks.py doctor` then `next`; do not manually skip dependencies.
+1. Run `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor` then `next`; do not manually skip dependencies.
 2. Read and execute **one** [task card](../tasks/) at a time. Use npm/npx only.
 3. Keep scope narrow, record real test evidence, update checkpoint; stop on ambiguous or unsafe operations.
 4. Run the real integration/phase test before marking phase verified. Documentation validation alone is not an implementation test.
@@ -43,7 +43,7 @@ Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before res
 
 ## Complete task index from TASKS.yaml
 
-The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next`, not by visual order in this guide.
 
 - [P01-01A](../tasks/P01-01A.md)
 - [P01-01B](../tasks/P01-01B.md)

@@ -39,6 +39,11 @@ for p in ("docs/agent/START-AGENT-PROMPT.md","docs/agent/RESUME-SESSION-PROMPT.m
           "docs/agent/LOW-REASONING-RUNBOOK.md","docs/agent/TEST-AND-REVIEW-POLICY.md",
           "tools/agent_tasks.py","tools/split_agent_task.py","tools/validate_plan.py"):
  expect((ROOT/p).is_file(),"Referenced agent tool/document missing: "+p)
+expect((ROOT/"tools/bootstrap_agent.py").is_file(),"Missing shell-independent agent bootstrap.")
+expect("python3 tools/bootstrap_agent.py" in agents,"AGENTS.md must require automatic bootstrap.")
+expect("python3 tools/bootstrap_agent.py" in read("docs/agent/START-AGENT-PROMPT.md"),"START prompt must bootstrap agent before tasks.")
+expect("python3 tools/bootstrap_agent.py" in read("docs/agent/RESUME-SESSION-PROMPT.md"),"RESUME prompt must bootstrap agent before tasks.")
+expect("source .venv-agent/bin/activate" not in read("docs/agent/START-AGENT-PROMPT.md"),"START prompt must not require POSIX activation.")
 expect("Node.js 26" in agents and "npm/npx" in agents,"Runtime/package-manager instruction mismatch.")
 # Check obvious root README claims against actual package scripts (not future P16 CLI placeholders).
 readme=read("README.md")

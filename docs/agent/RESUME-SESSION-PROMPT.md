@@ -5,14 +5,17 @@
 ```text
 Lanjutkan app-starter-kit dari keadaan repository yang sebenarnya. JANGAN mengulang task yang sudah tervalidasi.
 
-Baca AGENTS.md dan docs/agent/LOW-REASONING-RUNBOOK.md. Periksa:
+Baca AGENTS.md dan docs/agent/LOW-REASONING-RUNBOOK.md. Dari root repository, jalankan bootstrap idempotent terlebih dahulu:
+python3 tools/bootstrap_agent.py
+
+Gunakan .venv-agent/bin/python untuk semua task CLI; jangan source activate (Fish/Bash/Zsh tidak diperlukan). Bila bootstrap gagal, laporkan blocker dan jangan memulai task. Sesudah sukses, periksa:
 git status --short
 git diff
 git log -5 --oneline
 docs/agent/CHECKPOINT.md
-python3 tools/agent_tasks.py doctor
-python3 tools/agent_tasks.py next
-python3 tools/agent_tasks.py summary
+.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next
+.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary
 
 Jika task in_progress, cocokkan file berubah, source fingerprint dan evidence sebelum editing. Jika tidak ada, ambil satu task ready. Baca hanya card aktif dan referensi terkait.
 

@@ -36,28 +36,26 @@ npm run dev
 
 Buka `http://localhost:3000`; gunakan `Ctrl+C` untuk menghentikan proses. Perintah `npm run lint` dan `npm run build` tersedia pada instalasi awal. Setelah migrasi P01, command dapat berubah mengikuti npm workspace yang diimplementasikan dan diuji oleh agent.
 
-## 3. Siapkan pemantauan task (sekali)
+## 3. Setup tooling dilakukan Codex secara otomatis
 
-Tooling task memakai Python, bukan pnpm:
+**Anda tidak perlu membuat virtual environment, menginstal PyYAML, atau mengaktifkan `.venv-agent` secara manual.** Setelah START prompt diberikan, coding agent menjalankan `python3 tools/bootstrap_agent.py` di root project. Script otomatis membuat/memeriksa virtualenv, memasang dependency Python bila diperlukan, memvalidasi dokumentasi dan repository, lalu menampilkan task berikutnya.
+
+Ini **tidak bergantung pada shell**: Fish, Bash, dan Zsh menggunakan interpreter `.venv-agent/bin/python` secara langsung. Jangan menjalankan `source .venv-agent/bin/activate` pada Fish.
+
+Jika ingin memeriksa setup sendiri secara opsional:
 
 ```bash
-python3 -m venv .venv-agent
-source .venv-agent/bin/activate
-python -m pip install -r tools/requirements-agent.txt
-python tools/validate_plan.py
-python tools/agent_tasks.py doctor
-python tools/agent_tasks.py next
-python tools/agent_tasks.py summary
+python3 tools/bootstrap_agent.py
 ```
 
-Jika virtualenv tidak tersedia, pasang dukungan `venv` sesuai distro OS, bukan menggunakan `--break-system-packages`. `validate_plan.py` hanya memverifikasi dokumentasi dan dependency; ini **bukan pengujian aplikasi**.
+Jika bootstrap gagal (misalnya Python venv belum tersedia, internet tidak tersedia untuk instalasi dependency, atau permission tidak memadai), agent akan melaporkan penyebabnya dan **tidak** menandai task selesai. Jangan memakai `--break-system-packages` untuk memaksa instalasi.
 
 ## 4. Jalankan Codex Low
 
 1. Buka folder **app-starter-kit** di editor/Codex CLI; gunakan branch dan working tree yang benar.
 2. Pilih reasoning **Low**.
 3. Salin isi [START-AGENT-PROMPT.md](docs/agent/START-AGENT-PROMPT.md) sebagai pesan pertama kepada agent.
-4. Biarkan agent membaca `AGENTS.md`, memilih **satu task aktif**, mengimplementasikan, menguji, dan menyimpan checkpoint. Tidak perlu menempelkan semua task card dalam satu prompt.
+4. Agent otomatis melakukan bootstrap Python terlebih dahulu, lalu membaca `AGENTS.md`, memilih **satu task aktif**, mengimplementasikan, menguji, dan menyimpan checkpoint. Tidak perlu menempelkan semua task card dalam satu prompt.
 
 **Jangan gunakan panduan pengguna ini sebagai prompt implementasi agent.** Petunjuk teknis ditetapkan dalam dokumen khusus agent.
 
@@ -66,8 +64,8 @@ Jika virtualenv tidak tersedia, pasang dukungan `venv` sesuai distro OS, bukan m
 Lihat status dengan:
 
 ```bash
-python tools/agent_tasks.py doctor
-python tools/agent_tasks.py next
+.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/python tools/agent_tasks.py next
 git status --short
 git log -5 --oneline
 ```

@@ -91,4 +91,10 @@ with tempfile.TemporaryDirectory(prefix="agent-tooling-") as tmp:
  assert (temp/"docs/agent/tasks/P00-01-S01.md").exists()
  call(*cli,"start","P00-01",cwd=temp,ok=False) # Parent remains blocked by children.
  call(*cli,"split","P00-01","--plan","plan.json",cwd=temp,ok=False) # No double split.
-print("OK: task summary, high-risk evidence+review gate, stale proof, and safe task splitting.")
+import importlib.util
+spec=importlib.util.spec_from_file_location("agent_tasks", ROOT/"tools/agent_tasks.py")
+module=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+assert module.is_safe_command([".venv-agent/bin/python","tools/validate_plan.py"])
+assert not module.is_safe_command(["/some/other/venv/bin/python","tools/validate_plan.py"])
+print("OK: task summary, high-risk evidence+review gate, stale proof, safe task splitting, and venv interpreter command.")

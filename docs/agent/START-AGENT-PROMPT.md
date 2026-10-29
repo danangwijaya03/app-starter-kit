@@ -7,10 +7,15 @@ Mulai implementasi app-starter-kit pada repository yang SUDAH ADA.
 
 Baca AGENTS.md sebagai instruksi utama dan docs/agent/LOW-REASONING-RUNBOOK.md sebagai SOP. Gunakan npm/npx, Lerd, Node.js 26, MySQL/Redis yang sudah tersedia. Jangan menjalankan create-next-app atau memasang database kedua.
 
-Periksa git status --short dan docs/agent/CHECKPOINT.md. Jalankan:
-python3 tools/agent_tasks.py doctor
-python3 tools/agent_tasks.py next
-python3 tools/agent_tasks.py summary
+Dari root repo, periksa git status --short dan docs/agent/CHECKPOINT.md. LAKUKAN BOOTSTRAP PYTHON TOOLING SENDIRI SEBELUM P00:
+python3 tools/bootstrap_agent.py
+
+Jangan gunakan source activate, bahkan bila terminal Fish; gunakan interpreter .venv-agent/bin/python secara langsung. Bootstrap melakukan instalasi dependency ke virtualenv hanya bila perlu, lalu validasi, doctor, next, dan summary. Setelah sukses, jalankan bila perlu:
+.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next
+.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary
+
+Jika bootstrap gagal, hentikan pekerjaan sebelum mengubah status task; laporkan error yang nyata tanpa mengubah Python sistem atau Lerd.
 
 Jika ada task in_progress, lanjutkan setelah audit perubahan dan bukti tes. Jika tidak ada, pilih hanya task ready pertama dari CLI. Baca card task itu dan referensi relevan saja. Implementasikan scope kecil, jalankan tes nyata setelah edit terakhir, verifikasi acceptance criteria, dan catat status/checkpoint melalui CLI.
 

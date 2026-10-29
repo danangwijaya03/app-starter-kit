@@ -50,6 +50,7 @@ for path in ("tools/split_agent_task.py","tools/check_repo_contracts.py","docs/a
 for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md"):
  if not (R/n).is_file():errors.append("Missing "+n)
 for path in R.rglob("*.md"):
+ if any(part in (".venv-agent", "node_modules", ".git", ".next", "dist", "build") for part in path.relative_to(R).parts):continue
  s=re.sub(r"```.*?```","",path.read_text(encoding="utf-8"),flags=re.S)
  for target in re.findall(r"(?<!!)\[[^\]]+\]\(([^)]+)\)",s):
   target=target.split("#",1)[0].split(" ",1)[0]

@@ -20,6 +20,7 @@
 | [LOW-REASONING-RUNBOOK.md](agent/LOW-REASONING-RUNBOOK.md) | SOP CLI dan checkpoint per task |
 | [IMPLEMENTATION-CONTRACTS.md](agent/IMPLEMENTATION-CONTRACTS.md) | Ketetapan arsitektur dan keamanan |
 | [LOCAL-LERD-NODE26.md](agent/LOCAL-LERD-NODE26.md) | Referensi teknis lingkungan development |
+| [bootstrap_agent.py](../tools/bootstrap_agent.py) | Bootstrap otomatis Python venv lintas shell sebelum P00/RESUME |
 | [TASKS.yaml](agent/TASKS.yaml) | Sumber status task dan dependency resmi |
 | [TEST-AND-REVIEW-POLICY.md](agent/TEST-AND-REVIEW-POLICY.md) | Bukti tes minimum dan review independen |
 | [TASK-SPLITTING.md](agent/TASK-SPLITTING.md) | Prosedur pemecahan task pending tanpa merusak dependency |

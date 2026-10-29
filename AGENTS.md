@@ -4,16 +4,23 @@
 
 **Baseline:** Next.js 16.4.3 + React 19.3.0 sudah ada di root repository. P01 yang nanti memigrasikan aplikasi ke `apps/web`, bukan `create-next-app` ulang. Gunakan npm/npx, satu `package-lock.json`. Lingkungan lokal: Lerd + Node.js 26 + MySQL/Redis yang sudah tersedia.
 
+## Bootstrap tooling otomatis (wajib sebelum P00, termasuk sesi RESUME)
+
+1. Dari root repository, periksa `git status --short` dan jalankan **`python3 tools/bootstrap_agent.py`** sendiri. Script ini tidak membutuhkan PyYAML, tidak menggunakan `source`/aktivasi, serta mendukung Fish, Bash, dan Zsh.
+2. Script memastikan `.venv-agent/bin/python` tersedia, memasang `tools/requirements-agent.txt` **hanya jika dependency belum cocok**, lalu menjalankan validator, `doctor`, `next`, dan `summary`. Script aman untuk dijalankan ulang. Ia tidak menjalankan `npm install`, mengatur service Lerd, atau memodifikasi database.
+3. Sesudah bootstrap lulus, **semua perintah Python tooling** gunakan `.venv-agent/bin/python tools/<nama_script>.py`. Jangan gunakan `python3 tools/agent_tasks.py` tanpa environment yang benar, jangan `source .venv-agent/bin/activate`, dan jangan pakai `pip --break-system-packages`.
+4. Jika bootstrap gagal karena Python/venv/pip, jaringan atau izin terminal, **hentikan P00** dan laporkan blocker yang faktual. Jangan mengklaim task dimulai/selesai, menurunkan keamanan, atau memperbaiki Python sistem tanpa izin operator.
+
 ## Alur tunggal untuk seluruh sesi
 
-1. Periksa `git status --short`, checkpoint dan pekerjaan yang tersisa.
-2. Baca [LOW-REASONING-RUNBOOK.md](docs/agent/LOW-REASONING-RUNBOOK.md) untuk **command task yang otoritatif**. Jalankan `python3 tools/agent_tasks.py doctor` dan `python3 tools/agent_tasks.py next`.
+1. Jalankan bootstrap di atas, periksa `git status --short`, checkpoint, dan pekerjaan yang tersisa.
+2. Baca [LOW-REASONING-RUNBOOK.md](docs/agent/LOW-REASONING-RUNBOOK.md) untuk **command task yang otoritatif**. Jalankan `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor` dan `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next`.
 3. Jika ada `in_progress`, audit Git/file/evidence dan **lanjutkan task itu**. Kalau tidak ada, pilih hanya task `ready`.
 4. Baca **satu** card `docs/agent/tasks/<ID>.md`, referensi `spec_refs` dan source terkait, bukan seluruh spesifikasi/task cards.
 5. Implementasikan satu task kecil dalam scope, jalankan test yang relevan **setelah edit terakhir**, periksa acceptance criteria, simpan evidence dan `complete`/`progress`/`block`.
 6. Lanjut ke task siap berikutnya secara otomatis saat aman. Simpan checkpoint sebelum sesi berakhir; jangan meminta user mengetik "lanjutkan" untuk pekerjaan rutin.
 
-**Bukti tes dan review risiko:** Sebelum menyelesaikan task, jalankan bukti dengan `agent_tasks.py run <ID> --kind docs|unit|integration|negative|build -- COMMAND`. Task high-risk memerlukan tes integrasi, negative test, dan review independen yang direkam melalui `review`; agent Low dilarang menyetujui pekerjaannya sendiri. Baca [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md). Task terlalu besar boleh [dipecah secara resmi](docs/agent/TASK-SPLITTING.md) hanya selama masih `pending`. Untuk status fase gunakan `python3 tools/agent_tasks.py summary`.
+**Bukti tes dan review risiko:** Sebelum menyelesaikan task, jalankan bukti dengan `agent_tasks.py run <ID> --kind docs|unit|integration|negative|build -- COMMAND`. Task high-risk memerlukan tes integrasi, negative test, dan review independen yang direkam melalui `review`; agent Low dilarang menyetujui pekerjaannya sendiri. Baca [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md). Task terlalu besar boleh [dipecah secara resmi](docs/agent/TASK-SPLITTING.md) hanya selama masih `pending`. Untuk status fase gunakan `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary`.
 
 **Sumber status tunggal:** `docs/agent/TASKS.yaml` melalui `tools/agent_tasks.py`. Jumlah task awal 157, tetapi jangan menganggap semuanya tetap pending setelah development berlangsung. Validator dokumentasi tidak membuktikan kode aplikasi sudah lolos test; exit code 0 juga tidak menjamin cakupan test benar.
 

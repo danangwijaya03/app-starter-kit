@@ -40,8 +40,8 @@ A task needs splitting if it requests more than one independently testable respo
 }
 \`\`\`
 
-3. Run \`python3 tools/agent_tasks.py split <PARENT_ID> --plan /path/to/plan.json\`. This invokes \`tools/split_agent_task.py\`.
-4. Review generated child cards, parent integration checkpoint, phase index, metadata count and DAG using \`python3 tools/validate_plan.py\` and \`git diff --check\`.
+3. Run \`.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py split <PARENT_ID> --plan /path/to/plan.json\`. This invokes \`tools/split_agent_task.py\`.
+4. Review generated child cards, parent integration checkpoint, phase index, metadata count and DAG using \`.venv-agent/bin/.venv-agent/bin/python tools/validate_plan.py\` and \`git diff --check\`.
 5. Commit split-plan changes separately from code work. The original parent ID remains an **integration checkpoint**; existing downstream tasks keep depending on it. New child IDs are \`<PARENT>-S01\`, \`-S02\`, etc. Each child has positive/negative scenarios; parent is completed only after all children and an integration check.
 6. Tool cannot undo all filesystem writes atomically if interrupted. On interrupted split, inspect \`git status\` and generated files; never use \`git reset --hard\` blindly.
 
