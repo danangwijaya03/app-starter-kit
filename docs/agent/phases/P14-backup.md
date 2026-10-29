@@ -28,3 +28,17 @@ Backups encrypted, verified, consistent and safely stored off webroot.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent units. The **complete authoritative list** includes microtasks below; always use `python3 tools/agent_tasks.py next` for execution order.
+
+- [P14-01](../tasks/P14-01.md)
+- [P14-02A](../tasks/P14-02A.md)
+- [P14-02B](../tasks/P14-02B.md)
+- [P14-02](../tasks/P14-02.md)
+- [P14-03](../tasks/P14-03.md)
+- [P14-04](../tasks/P14-04.md)
+- [P14-05](../tasks/P14-05.md)
+- [P14-06](../tasks/P14-06.md)
+- [P14-07](../tasks/P14-07.md)
