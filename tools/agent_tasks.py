@@ -172,11 +172,21 @@ def main():
   pp=x.phase.upper();tasks=[t for t in d["tasks"] if t["phase"]==pp]
   if not tasks:sys.exit("Unknown phase "+pp)
   if any(t["status"]!="completed" for t in tasks):sys.exit("Phase gate requires every task completed.")
-  if x.action=="gate-run":sys.exit(run_check(x.command,pp+"-gate.json",phase=pp,kind=x.kind)[0])
-  file=EVID/(pp+"-gate.json")
-  if not file.exists():sys.exit("Missing successful phase gate evidence.")
-  v=json.loads(file.read_text())
-  if v.get("exit_code")!=0 or v.get("phase")!=pp or v.get("source_fingerprint")!=source_fingerprint():sys.exit("Phase gate evidence missing, failed or stale; rerun gate-run on current code.")
+  if x.action=="gate-run":
+   if pp=="P00" and x.kind!="docs":sys.exit("P00 gate must use docs validation.")
+   if pp!="P00" and x.kind=="docs":sys.exit("Documentation validation is not an application phase gate.")
+   sys.exit(run_check(x.command,pp+"-gate-"+x.kind+".json",phase=pp,kind=x.kind)[0])
+  current=source_fingerprint()
+  kinds=set()
+  for file in EVID.glob(pp+"-gate-*.json"):
+   try:v=json.loads(file.read_text(encoding="utf-8"))
+   except (OSError,ValueError):continue
+   if v.get("exit_code")==0 and v.get("phase")==pp and v.get("source_fingerprint")==current:kinds.add(v.get("kind"))
+  if pp in RISK_HIGH_PHASES and not {"integration","negative"}.issubset(kinds):
+   sys.exit("High-risk phase gate requires CURRENT integration and negative evidence.")
+  if pp=="P00" and "docs" not in kinds:sys.exit("P00 gate needs current docs evidence.")
+  if pp not in RISK_HIGH_PHASES and pp!="P00" and not (kinds & {"unit","integration","build"}):
+   sys.exit("Missing current application phase gate evidence.")
   if any(not t.get("tests_evidence") for t in tasks):sys.exit("Each task requires evidence.")
   for t in tasks:
    if effective_risk(t)=="high" and not t.get("review_record"):sys.exit("Phase contains unreviewed high-risk task.")
