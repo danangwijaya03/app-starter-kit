@@ -48,7 +48,8 @@ def main():
   tid=x.parent+"-S%02d"%index
   if tid in lookup or (CARD/(tid+".md")).exists():fail("Child ID/card collision: "+tid)
   t={k:v for k,v in parent.items() if k not in ("status","tests_evidence","completed_commit","blocked_reason","review_record","started_at_utc","depends_on")}
-  t.update({"id":tid,"title":c["title"],"scope":c["scope"],"steps":c["steps"],"acceptance_criteria":c["acceptance_criteria"],
+  parent_high=(parent.get("risk") in ("high","critical") or parent["phase"] in ("P04","P05","P14","P15","P16") or bool(re.search(r"auth|session|password|credential|rbac|role|permission|super.?admin|privilege|migrat|backup|restore|recover|release|deploy|rollback|bootstrap|publish",parent.get("title",""),re.I)))
+  t.update({"risk":"high" if parent_high else parent.get("risk","low"),"id":tid,"title":c["title"],"scope":c["scope"],"steps":c["steps"],"acceptance_criteria":c["acceptance_criteria"],
      "validation":["Run real positive and negative focused tests"],"output_artifact":c["output_artifact"],"test_cases":cases,
      "depends_on":list(parent["depends_on"]) if not new else [new[-1]["id"]],"status":"pending",
      "tests_evidence":[],"completed_commit":None,"blocked_reason":None,"split_from":x.parent,"card":"docs/agent/tasks/"+tid+".md"})
