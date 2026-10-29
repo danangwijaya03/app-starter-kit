@@ -24,3 +24,13 @@ All documents and task graph valid; existing Next.js scaffold preserved.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P00-01](../tasks/P00-01.md)
+- [P00-02](../tasks/P00-02.md)
+- [P00-03](../tasks/P00-03.md)
+- [P00-04](../tasks/P00-04.md)
+- [P00-05](../tasks/P00-05.md)
