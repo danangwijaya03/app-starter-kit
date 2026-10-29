@@ -40,3 +40,21 @@ Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before res
 - Create npm workspace root and apps/web package identity in task order; **move existing files** using Git moves, not recreated scaffolds.
 - Regenerate single root package-lock using npm install, then verify npm ci and scoped web build/lint.
 - Keep cacheComponents, partialPrefetching, experimental.agentFeedback and Turbopack loader config unless explicitly tested incompatible.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P01-01A](../tasks/P01-01A.md)
+- [P01-01B](../tasks/P01-01B.md)
+- [P01-01C](../tasks/P01-01C.md)
+- [P01-01](../tasks/P01-01.md)
+- [P01-02](../tasks/P01-02.md)
+- [P01-03](../tasks/P01-03.md)
+- [P01-04A](../tasks/P01-04A.md)
+- [P01-04B](../tasks/P01-04B.md)
+- [P01-04C](../tasks/P01-04C.md)
+- [P01-04](../tasks/P01-04.md)
+- [P01-05](../tasks/P01-05.md)
+- [P01-06](../tasks/P01-06.md)
+- [P01-07](../tasks/P01-07.md)
