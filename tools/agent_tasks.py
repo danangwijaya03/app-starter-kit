@@ -52,6 +52,9 @@ def show(t,m):
  if t.get("blocked_reason"):print("BLOCKED:",t["blocked_reason"])
 def is_safe_command(cmd):
  if not cmd or cmd[0] not in ("npm","npx","node","python3","python","pytest"):return False
+ # A validation wrapper is NOT a sandbox; reject obvious arbitrary-eval and misleading no-test modes.
+ if any(flag in cmd for flag in ("-e","--eval","-c","--require","--import","--passWithNoTests","--pass-with-no-tests")):return False
+ if cmd[0]=="npx" and "--no-install" not in cmd:return False
  s=" ".join(cmd).lower()
  if re.search(r"password|secret|token|database_url|://[^\\s]+:[^\\s]+@",s):return False
  if any(re.search(r"\\b"+w+r"\\b",s) for w in ("restore","migrate","deploy","bootstrap-admin","drop","delete","reset","rm","clean","install","publish")):return False
