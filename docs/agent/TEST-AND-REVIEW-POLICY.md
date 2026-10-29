@@ -54,6 +54,18 @@ Review pekerjaan yang berdampak pada live database atau deployment **tidak** oto
 | Restore | staging restore test terisolasi | manifest invalid, lock overlap, kegagalan import, maintenance tetap aman |
 | Release | archive standalone hasil build | checksum/arsitektur/Node ABI salah ditolak, rollback kode tidak dianggap rollback DB |
 
+## Phase gate (wajib sebelum status verified)
+
+Untuk fase berisiko tinggi P04, P05, P14, P15, dan P16, gate memerlukan **dua pengujian pada source terkini**: integration dan negative. Catatan per-task dan review harus sudah selesai. Contoh hanya bila npm test script sesuai telah dibuat:
+
+```bash
+python3 tools/agent_tasks.py gate-run P04 --kind integration -- npm run test --workspace=@repo/api -- auth
+python3 tools/agent_tasks.py gate-run P04 --kind negative -- npm run test --workspace=@repo/api -- auth-denied
+python3 tools/agent_tasks.py gate P04
+```
+
+Fase P00 menggunakan gate dengan `--kind docs`. Fase non-high lain membutuhkan salah satu dari `unit/integration/build`. Semua gate menolak bukti yang fingerprint source-nya sudah berubah. Test label bukan bukti semantik: reviewer harus memeriksa assertion sesuai kasus.
+
 ## Makna Status
 
 `completed` = implementasi dan tes minimum terekam (serta review bila high). `verified` = gate fase lulus sesuai cakupan dan tidak ada bukti usang. Hasil otomatis tetap harus diaudit untuk konteks keamanan.
