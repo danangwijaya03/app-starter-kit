@@ -1,5 +1,7 @@
 # README-SERVER — Instalasi Hasil Build di Server aaPanel (Tanpa Docker)
 
+**Ditujukan untuk: USER / ADMINISTRATOR SERVER.** Panduan operasi setelah artifact benar-benar dibuat dan diuji. Hingga Phase P16 selesai, perintah installer di dokumen ini masih **target implementasi** dan tidak boleh diasumsikan tersedia.
+
 **Runtime consistency:** Node 26 is the current development baseline; server Node must match the release artifact's tested runtime and native ABI. Do not upload a Node 26 binary artifact to an untested Node 24 host.
 
 **Dokumen kontrak untuk release yang akan diimplementasikan pada P16.** Dokumentasi ini disertakan sekarang agar coding agent mengetahui persis installer apa yang harus dibuat. **Belum ada release archive/source code aplikasi yang dihasilkan dalam paket dokumentasi ini.** Perintah `cli/cli.js` dan script release di bawah adalah **target implementasi**; agent wajib memperbarui dan menguji setiap perintah/struktur saat P16 selesai, sebelum menyatakan manual siap dipakai.

@@ -87,7 +87,7 @@ def main():
  possible=[t for t in d["tasks"] if ready(t,m)]
  if x.action=="doctor":
   print("Tasks:",len(m),"active:",len(active),"ready:",len(possible),"completed:",sum(t["status"] in ("completed","verified") for t in m.values()))
-  print("Existing Next.js npm root scaffold; future features not yet built. Git:",git("status","--short")[:800])
+  print("Inspect actual repository files; task registry is authoritative. Git:",git("status","--short")[:800])
   print("RESUME:" if active else "NEXT:",active[0]["id"] if active else possible[0]["id"] if possible else "(none)");return
  if x.action=="ready":
   for t in possible:print(t["id"],t["title"])

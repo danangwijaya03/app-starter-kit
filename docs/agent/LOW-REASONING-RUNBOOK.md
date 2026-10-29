@@ -1,53 +1,50 @@
-# Low-Reasoning Agent — Standard Operating Procedure
+# SOP Coding Agent Low — Satu Task per Unit
 
-> **Use this page first** after `AGENTS.md`. This is a **documentation-only specification**, not a completed Next.js application.
+**Ditujukan untuk: CODING AGENT.** Perilaku wajib diatur [AGENTS.md](../../AGENTS.md). Dokumen untuk manusia adalah [PANDUAN-MULAI-LOW-AGENT.md](../../PANDUAN-MULAI-LOW-AGENT.md); jangan jadikan user guide sebagai instruksi implementasi.
 
-Local developer environment: **Lerd, Node.js 26, MySQL and Lerd Redis**. Read [LOCAL-LERD-NODE26.md](LOCAL-LERD-NODE26.md) before P02. Never provision duplicate services, and never let tests target development/production DB. Test evidence must match the final current code state.
+## Startup setiap sesi
 
-## The only workflow
+```bash
+git status --short
+python3 tools/agent_tasks.py doctor
+python3 tools/agent_tasks.py next
+```
 
-1. Install once: `python3 -m pip install -r tools/requirements-agent.txt` (prefer a virtual environment).
-2. Inspect: `python3 tools/agent_tasks.py doctor`.
-3. Select: `python3 tools/agent_tasks.py next`.
-4. Open the **one task card** indicated in `docs/agent/tasks/<ID>.md`.
-5. Inspect Git worktree (`git status --short`, `git diff --stat`) and existing implementation. **Do not assume missing or completed files**.
-6. Read `docs/agent/IMPLEMENTATION-CONTRACTS.md` and only the specifications named in the task card. **Do not read all 157 cards.**
-7. Begin: `python3 tools/agent_tasks.py start <ID>`. This refuses tasks with incomplete dependencies.
-8. Implement card microsteps in order. Never invent API permissions or database columns. When exact schema/API isn't specified, mark blocked.
-9. Run focused actual tests and save evidence: `python3 tools/agent_tasks.py run <ID> -- npm --workspace @repo/api test -- rbac` (replace example with a **real command relevant to your task**).
-10. Complete: `python3 tools/agent_tasks.py complete <ID> --note "API guard rejects missing grants; tests passing"`. The CLI refuses completion without passing check evidence, but **the agent must additionally verify acceptance criteria honestly**.
-11. Select next with `python3 tools/agent_tasks.py next`. Repeat until out of time. No user confirmation for safe routine work.
+1. Jika task `in_progress`, periksa checkpoint, Git diff dan pekerjaan yang telah ada; **resume** task itu terlebih dahulu.
+2. Jika tidak ada, ambil task pertama dengan status `pending` yang semua dependency-nya `completed/verified`.
+3. Baca **satu** card `docs/agent/tasks/<ID>.md`, `spec_refs` terkait dan source yang diperlukan saja. Jangan baca seluruh 157 card atau enam spesifikasi sekaligus.
+4. Periksa file dan npm script sebelum dijalankan. **Saat ini** Next.js root memiliki `npm run dev`, `npm run lint`, `npm run build`; command npm workspace/migration/release baru ada setelah tugas implementasinya selesai.
 
-**Never run an example command containing `<placeholder>` literally.** Do not use `validate_plan.py` alone as proof of application implementation. In P00, documentation validation is relevant; elsewhere use actual implementation tests.
+## Kerjakan dan validasi satu task
 
-## Small-session strategy
+```bash
+python3 tools/agent_tasks.py show <ID>
+python3 tools/agent_tasks.py start <ID>
+# Edit hanya scope task, penuhi acceptance criteria
+python3 tools/agent_tasks.py run <ID> -- <VALIDASI_YANG_BENAR_BENAR_ADA>
+git diff --check
+python3 tools/agent_tasks.py complete <ID> --note "<ringkasan hasil nyata tanpa rahasia>"
+```
 
-- Plan at most **one card** at a time. Additional ready tasks are optional only after checkpointing.
-- If a card is still too large, first write an in-progress checkpoint identifying completed substeps; break into child tasks only if necessary and validate the dependency DAG.
-- Finish in a valid state. If a unit cannot be finished, capture WIP: `python3 tools/agent_tasks.py progress <ID> --note "Implemented ... ; test ... pending"`.
-- After interruption, run `doctor`, inspect Git, then resume the same `in_progress` task. **Never blindly repeat a non-idempotent operation**.
-- If the test environment is missing, `block <ID> --reason "<sanitized reason>"`, and select independent ready work if available.
+Teks dalam tanda `<...>` adalah placeholder, jangan dijalankan literal. Periksa `doctor/next` untuk mengetahui ID dan state nyata.
 
-## Status rules
+- Pada P00, validasi dokumentasi `python3 tools/validate_plan.py` boleh menjadi sebagian bukti.
+- Task kode memerlukan test nyata dan relevan, termasuk negative test bila berkaitan dengan auth/RBAC/database. Exit code 0 **belum membuktikan cakupan benar**.
+- Jalankan tes **setelah edit terakhir**; bukti lama harus dianggap kedaluwarsa ketika fingerprint source berubah.
+- `agent_tasks.py run` hanya mencatat bukti, **bukan sandbox keamanan**. Jangan menjalankan skrip yang berpotensi memutasi database nyata.
+- Jika tidak selesai karena limit sesi: `python3 tools/agent_tasks.py progress <ID> --note "<file berubah, hasil, langkah selanjutnya>"`. Jika blocked: `python3 tools/agent_tasks.py block <ID> --reason "<alasan aman>"`.
+- Jangan menyatakan `complete` hanya karena file dibuat atau status validator dokumentasi hijau.
 
-| State | Meaning | Allowed transition |
-|---|---|---|
-| `pending` | Not started | `start` or `block` |
-| `in_progress` | Agent owns one unit | `progress`, `run`, `complete`, `block` |
-| `blocked` | Unmet dependency, environment, risk gate | `unblock` to pending |
-| `completed` | Code + relevant tests passed with evidence | Phase `gate` only |
-| `verified` | Phase-level tests passed | No automatic rewrites |
+## Kontrak lingkungan dan scope
 
-## Completion evidence, not wishful thinking
+- npm/npx, satu `package-lock.json`. Jangan jalankan `npx create-next-app` lagi; migrasi root ke `apps/web` hanya ketika task P01 menginstruksikannya.
+- Untuk task runtime/DB/queue baca [LOCAL-LERD-NODE26.md](LOCAL-LERD-NODE26.md): Lerd, Node 26, **existing** MySQL/Redis. Host/port dari Node di host berbeda dengan hostname di jaringan container. Database test berbeda dari dev/production dan wajib aman sebelum test yang menulis data.
+- Jangan install service MySQL/Redis kedua, mengubah global Lerd routing/LAN, atau memodifikasi modul yang tidak relevan.
+- `TASKS.yaml` adalah source of truth status; card adalah spesifikasi implementasi. Jangan menciptakan permission atau schema berbeda dari BSD.
+- Setelah task: periksa status Git, test evidence dan checkpoint. Commit perubahan satu unit tervalidasi jika aman; lanjut task berikutnya otomatis sesuai dependency.
 
-Use `run` to execute real non-destructive verification commands and record JSON containing command, UTC time, exit code and commit. The tool **cannot** independently determine that tests cover all acceptance criteria, so the agent must inspect real assertions and actual outcomes. Never record secrets in command arguments.
+## Recovery & eskalasi
 
-The task registry is `docs/agent/TASKS.yaml`. The CLI is the supported writer. The task card is instruction text, not the source of task state. Checkpoint files summarize work and are never authoritative over source files/Git/database state.
+Pada sesi baru ikuti [RESUME-SESSION-PROMPT.md](RESUME-SESSION-PROMPT.md); **cek state sebelum mengulang migration/seed/bootstrap/job**. Jangan gunakan `git reset --hard` atau `git clean -fd` untuk pemulihan.
 
-## Escalation: when Low reasoning is insufficient
-
-Stop the affected unit and request higher-reasoning review (or a human decision) when dealing with: auth/session security bypasses, super-admin concurrency invariants, destructive migrations, database restore, publishing data integrity violations, production release migration compatibility, or library version/API contradictions. Continue independent safe units if any.
-
-## Commands that are **not** available in a docs-only repository
-
-`npm run dev`, `npm run db:migrate`, `npm run release:build`, `npm run release:verify` and `node current/cli/cli.js ...` are **targets to be implemented by the assigned cards**. Never mark them passed before code and tests exist.
+Block dan minta review independen/high reasoning pada bypass auth/session, race condition Super Admin, destructive migration, restore, secret, atau operasi production. Jalankan task independen lain hanya jika benar-benar aman.

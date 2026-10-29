@@ -1,37 +1,26 @@
-# app-starter-kit — Next.js 16 + npm Workspaces roadmap
+# app-starter-kit
 
-**Currently implemented:** Fresh Next.js 16.4.3 / React 19.3.0 / Tailwind v4 app at repository root, installed using `npx create-next-app@latest`. Full-stack monorepo features are **not** implemented yet.
+**Ditujukan untuk: USER / DEVELOPER.** Repository sudah berisi Next.js 16.4.3, React 19.3.0, TypeScript, Tailwind v4, npm/npx. Aplikasi yang dibuat dengan `npx create-next-app@latest` masih berada pada root repository dan **akan dipindahkan oleh task P01**, bukan dibuat ulang.
 
-## Local environment
-
-Development uses **Lerd, Node.js 26, existing MySQL**, and Lerd Redis for BullMQ when needed. Read [PANDUAN-MULAI-LOW-AGENT.md](PANDUAN-MULAI-LOW-AGENT.md) and [Lerd development contract](docs/agent/LOCAL-LERD-NODE26.md). Never create duplicate MySQL/Redis services or reinstall Next.js.
-
-## Run existing app
+## Menjalankan Next.js saat ini
 
 ```bash
 npm ci
 npm run dev
-npm run lint
-npm run build
 ```
 
-Do not re-run create-next-app. Keep the existing Next.js code. During P01 the coding agent **moves** existing code into `apps/web`, then builds npm Workspaces + Turborepo.
+Buka `http://localhost:3000`. Pemeriksaan awal: `npm run lint` dan `npm run build`. Setelah migrasi P01, gunakan script npm workspace yang sudah benar-benar dibuat oleh agent.
 
-## Start a low-reasoning coding agent
+**Development:** Lerd + Node.js 26 + MySQL existing (Redis Lerd saat diperlukan). **Production:** upload artifact ke server aaPanel dengan Node/PM2/Nginx, tanpa Docker.
 
-```bash
-python3 -m pip install -r tools/requirements-agent.txt
-python3 tools/validate_plan.py
-python3 tools/agent_tasks.py doctor
-python3 tools/agent_tasks.py next
-```
+## Memulai development lewat Codex Low
 
-Read [AGENTS.md](AGENTS.md), [Low Agent Runbook](docs/agent/LOW-REASONING-RUNBOOK.md), and **only one** [current task card](docs/agent/tasks/). Complete each atomic task with real testing evidence. On a new session, inspect Git and checkpoint and resume safely.
+Ikuti **[Panduan Pengguna](PANDUAN-MULAI-LOW-AGENT.md)** untuk setup, memulai, memantau, dan melanjutkan sesi. Prompt pertama: [START](docs/agent/START-AGENT-PROMPT.md); prompt sesi baru: [RESUME](docs/agent/RESUME-SESSION-PROMPT.md).
 
-## Docs
-[PRD](docs/PRD.md) · [TRD](docs/TRD.md) · [AFD](docs/AFD.md) · [DBD](docs/DBD.md) · [BSD](docs/BSD.md) · [IPD](docs/IPD.md) · [Task registry](docs/agent/TASKS.yaml) · [Phases](docs/agent/PHASES.md) · [Checkpoint](docs/agent/CHECKPOINT.md).
+Coding agent membaca **[AGENTS.md](AGENTS.md)**, runbook dan task card; panduan pengguna **bukan** instruksi agent.
 
-[README-SERVER.md](README-SERVER.md) is a **future deployment runbook**. The CLI described there does not exist until its tasks are implemented and tested.
+## Dokumentasi lengkap
 
-## Production
-**No Docker.** Build release artifact compatible with Linux target, upload to server, run web/API/worker with Node/PM2 behind aaPanel/Nginx; MySQL and Redis are services. Installer bootstraps a protected `admin@codelight.id` via a secure one-time secret and mandatory password change.
+[Lihat peta dokumen berdasarkan pembaca](docs/DOCUMENTATION-MAP.md). Di sana tersedia PRD, TRD, AFD, DBD, BSD, IPD, 17 fase, task registry dan kontrak Lerd.
+
+**Belum tersedia:** aplikasi full-stack monorepo, API, CMS, RBAC, worker dan installer. [README-SERVER.md](README-SERVER.md) masih spesifikasi sampai release P16 dibangun dan diuji.

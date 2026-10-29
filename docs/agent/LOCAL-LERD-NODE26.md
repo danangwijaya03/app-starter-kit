@@ -1,5 +1,7 @@
 # Kontrak Local Development — Lerd + Node.js 26 + MySQL
 
+**Ditujukan untuk: CODING AGENT (referensi environment).** Panduan untuk USER ada di [PANDUAN-MULAI-LOW-AGENT.md](../../PANDUAN-MULAI-LOW-AGENT.md).
+
 **Dokumen wajib untuk P00/P01/P02 dan task lokal yang memakai MySQL/Redis.** Repository awal sudah memiliki Next.js di root dan menggunakan npm. Dokumen ini tidak mengubah layanan atau aplikasi secara otomatis.
 
 ## Baseline yang diketahui

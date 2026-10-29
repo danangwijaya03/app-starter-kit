@@ -7,8 +7,8 @@ except ImportError:sys.exit("Missing PyYAML: python3 -m pip install -r tools/req
 R=Path(__file__).resolve().parents[1]
 D=yaml.safe_load((R/"docs/agent/TASKS.yaml").read_text(encoding="utf-8"))
 T=D["tasks"];errors=[];ids=[x.get("id") for x in T];m={x["id"]:x for x in T}
-if len(T)!=157 or len(ids)!=len(set(ids)):errors.append("Expected 157 unique task IDs")
-if D["metadata"].get("task_count")!=157:errors.append("task_count mismatch")
+if not T or len(ids)!=len(set(ids)):errors.append("Missing or duplicate task IDs")
+if D["metadata"].get("task_count")!=len(T):errors.append("task_count mismatch; update metadata after splitting tasks")
 if {x["phase"] for x in T}!={"P"+str(i).zfill(2) for i in range(17)}:errors.append("Missing phase")
 for t in T:
  i=t["id"]
@@ -32,7 +32,7 @@ def scan(i):
  visiting.remove(i);visited.add(i)
 for i in ids:scan(i)
 if len(list((R/"docs/agent/phases").glob("P*.md")))!=17:errors.append("Expected 17 phase files")
-for n in ("AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md"):
+for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md"):
  if not (R/n).is_file():errors.append("Missing "+n)
 for path in R.rglob("*.md"):
  s=re.sub(r"```.*?```","",path.read_text(encoding="utf-8"),flags=re.S)
@@ -40,8 +40,20 @@ for path in R.rglob("*.md"):
   target=target.split("#",1)[0].split(" ",1)[0]
   if not target or target.startswith(("http:","https:","mailto:","/","sandbox:")):continue
   if not (path.parent/target).exists():errors.append("Broken local link "+str(path.relative_to(R))+" -> "+target)
+# Audience guard: keep operator guide and coding-agent instructions distinct.
+for p, audience in (
+ ("PANDUAN-MULAI-LOW-AGENT.md","USER"),
+ ("AGENTS.md","CODING AGENT"),
+ ("docs/agent/LOW-REASONING-RUNBOOK.md","CODING AGENT"),
+ ("README-SERVER.md","USER")
+):
+ path=R/p
+ if not path.is_file():continue
+ content=path.read_text(encoding="utf-8")
+ if "**Ditujukan untuk:" not in content or audience not in content.split("**Ditujukan untuk:",1)[1][:90]:
+  errors.append("Missing correct document audience: "+p)
 if errors:
  for e in errors[:50]:print("ERROR",e)
  print("Total errors:",len(errors));sys.exit(1)
-print("OK: 157 unique tasks, 17 phases, no missing dependencies/cycles, cards and local links valid.")
+print(f"OK: {len(T)} unique tasks, 17 phases, no missing dependencies/cycles, cards and local links valid.")
 print("This checks documentation only, not the Next.js app build or integration behavior.")

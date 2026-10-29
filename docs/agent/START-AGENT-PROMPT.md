@@ -1,22 +1,19 @@
-# Starting Prompt — Low Reasoning Agent
+# Start Coding Agent — Low Reasoning
 
-Use when this **documentation package has been copied into a real repository**. Not an instruction to run destructive actions automatically.
+**Ditujukan untuk: CODING AGENT (prompt disalin oleh USER).**
 
 ```text
-Implement the Codelight Next.js Monorepo Starter Kit using the repository's low-reasoning task cards.
+Mulai implementasi app-starter-kit pada repository yang SUDAH ADA.
 
-1. Read AGENTS.md, docs/agent/LOW-REASONING-RUNBOOK.md and IMPLEMENTATION-CONTRACTS.md.
-2. Run python3 tools/agent_tasks.py doctor and python3 tools/agent_tasks.py next.
-3. Inspect git status/diff and any existing work. If there is an in_progress task, resume it.
-4. Open ONLY docs/agent/tasks/<CURRENT_ID>.md and its specified references.
-5. Start the task with the agent CLI, implement its microsteps, run actual scoped tests, save evidence, and checkpoint.
-6. Never mark an untested task complete. If blocked, record the exact sanitized blocker and select a different ready task only if independent.
-7. Continue to the next ready task automatically whenever safe; use only one in_progress task at a time.
-8. Do not modify production or shared data, destructive migrations, live credentials or production deployment without explicit user authorization.
-9. Do not write the initial admin password to source, docs, commits, prompts or logs. Use secure install-time secret input.
-10. If session context/limit is nearly exhausted, use progress checkpoint and stop in a recoverable state.
+Baca AGENTS.md sebagai instruksi utama dan docs/agent/LOW-REASONING-RUNBOOK.md sebagai SOP. Gunakan npm/npx, Lerd, Node.js 26, MySQL/Redis yang sudah tersedia. Jangan menjalankan create-next-app atau memasang database kedua.
 
-Do not redesign the stack. No production Docker. Release artifact + README-SERVER.md must be tested from an isolated target-compatible environment.
+Periksa git status --short dan docs/agent/CHECKPOINT.md. Jalankan:
+python3 tools/agent_tasks.py doctor
+python3 tools/agent_tasks.py next
+
+Jika ada task in_progress, lanjutkan setelah audit perubahan dan bukti tes. Jika tidak ada, pilih hanya task ready pertama dari CLI. Baca card task itu dan referensi relevan saja. Implementasikan scope kecil, jalankan tes nyata setelah edit terakhir, verifikasi acceptance criteria, dan catat status/checkpoint melalui CLI.
+
+Lanjut otomatis ke task aman berikutnya selama sesi masih berjalan tanpa menunggu pesan "lanjutkan". Jika risikonya production/destruktif atau tidak bisa membuktikan hasil, catat blocker yang tepat. Jangan menebak schema, password, permission atau hasil tes.
 ```
 
-**First command for the user in a local developer environment:** `python3 -m pip install -r tools/requirements-agent.txt` (prefer virtualenv), then `python3 tools/agent_tasks.py next`.
+Prompt ini bukan pengganti AGENTS.md atau task card. Jangan meminta user menempelkan seluruh dokumen dalam satu sesi.

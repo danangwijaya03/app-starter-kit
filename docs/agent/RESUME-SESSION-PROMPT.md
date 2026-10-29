@@ -1,15 +1,19 @@
-# Resume Prompt — Low Reasoning Agent
+# Resume Coding Agent — Low Reasoning
+
+**Ditujukan untuk: CODING AGENT (prompt disalin oleh USER saat sesi baru).**
 
 ```text
-Resume work in the existing repository. Do NOT restart the project or duplicate completed modules.
+Lanjutkan app-starter-kit dari keadaan repository yang sebenarnya. JANGAN mengulang task yang sudah tervalidasi.
 
-1. Read AGENTS.md and LOW-REASONING-RUNBOOK.md.
-2. Run python3 tools/agent_tasks.py doctor and python3 tools/agent_tasks.py next.
-3. Inspect git status --short, git diff, recent commits and current checkpoint.
-4. If a task is in_progress, open its card and reconcile actual modified files and tests before editing.
-5. If no task is active, select only the first ready pending task and read its card.
-6. Finish the task, execute real tests, record evidence with agent_tasks.py run, then complete with factual note.
-7. Checkpoint each unit and continue automatically to the next independent ready task if safe.
-8. Never repeat migration/seed/bootstrap/restore or destructive action without checking actual state, target environment and authorization.
-9. If blocked or time/context is low, save a truthful checkpoint. Never claim tests or features that did not run.
+Baca AGENTS.md dan docs/agent/LOW-REASONING-RUNBOOK.md. Periksa:
+git status --short
+git diff
+git log -5 --oneline
+docs/agent/CHECKPOINT.md
+python3 tools/agent_tasks.py doctor
+python3 tools/agent_tasks.py next
+
+Jika task in_progress, cocokkan file berubah, source fingerprint dan evidence sebelum editing. Jika tidak ada, ambil satu task ready. Baca hanya card aktif dan referensi terkait.
+
+Jangan mengulang migration/seed/bootstrap/restore atau menghapus data tanpa pengecekan state, lingkungan, dan otorisasi. Gunakan npm/npx dan Lerd Node 26; test harus menggunakan DB khusus test. Jalankan tes nyata setelah edit terakhir, catat complete/progress/block dengan CLI. Lanjutkan otomatis jika aman, atau checkpoint saat limit mendekat.
 ```

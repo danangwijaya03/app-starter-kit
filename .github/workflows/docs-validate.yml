@@ -8,6 +8,7 @@ on:
       - "tools/**"
       - "AGENTS.md"
       - "README.md"
+      - "PANDUAN-MULAI-LOW-AGENT.md"
       - "README-SERVER.md"
       - ".github/workflows/docs-validate.yml"
   pull_request:
@@ -15,6 +16,7 @@ on:
       - "docs/**"
       - "tools/**"
       - "AGENTS.md"
+      - "PANDUAN-MULAI-LOW-AGENT.md"
       - ".github/workflows/docs-validate.yml"
 
 permissions:
