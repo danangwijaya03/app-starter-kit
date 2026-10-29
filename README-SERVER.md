@@ -1,5 +1,7 @@
 # README-SERVER — Instalasi Hasil Build di Server aaPanel (Tanpa Docker)
 
+**Runtime consistency:** Node 26 is the current development baseline; server Node must match the release artifact's tested runtime and native ABI. Do not upload a Node 26 binary artifact to an untested Node 24 host.
+
 **Dokumen kontrak untuk release yang akan diimplementasikan pada P16.** Dokumentasi ini disertakan sekarang agar coding agent mengetahui persis installer apa yang harus dibuat. **Belum ada release archive/source code aplikasi yang dihasilkan dalam paket dokumentasi ini.** Perintah `cli/cli.js` dan script release di bawah adalah **target implementasi**; agent wajib memperbarui dan menguji setiap perintah/struktur saat P16 selesai, sebelum menyatakan manual siap dipakai.
 
 ## 0. Model operasi
@@ -15,7 +17,7 @@
 
 | Requirement | Minimal validasi |
 |---|---|
-| Node.js | Node 24 LTS, patch/ABI sesuai release manifest |
+| Node.js | Node 26.x baseline; use the exact Node patch/ABI tested against the release artifact |
 | MySQL | 8.4 LTS, InnoDB, charset utf8mb4 |
 | Redis | Versi kompatibel dengan BullMQ yang dipin dan diuji |
 | PM2 | Installed under deployment user; startup on reboot |
