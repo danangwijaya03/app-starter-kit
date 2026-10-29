@@ -281,7 +281,7 @@ tasks:
   - package.json
   - packages/config
   steps:
-  - Use Node 24 LTS, npm 10.34.9 and Next.js 16.4.3 references; verify compatibility and pin tested exact versions;
+  - Use existing Lerd Node 26.x and the npm version actually installed with it; verify versions and update @types/node to match tested Node APIs; keep Next.js 16.4.3;
     configure strict TS/ESLint. Do not choose a new major version unilaterally.
   acceptance_criteria:
   - Select compatible stable versions
