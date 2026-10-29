@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# app-starter-kit — Next.js 16 + npm Workspaces roadmap
 
-## Getting Started
+**Currently implemented:** Fresh Next.js 16.4.3 / React 19.3.0 / Tailwind v4 app at repository root, installed using `npx create-next-app@latest`. Full-stack monorepo features are **not** implemented yet.
 
-First, run the development server:
+## Run existing app
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Do not re-run create-next-app. Keep the existing Next.js code. During P01 the coding agent **moves** existing code into `apps/web`, then builds npm Workspaces + Turborepo.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Start a low-reasoning coding agent
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+python3 -m pip install -r tools/requirements-agent.txt
+python3 tools/validate_plan.py
+python3 tools/agent_tasks.py doctor
+python3 tools/agent_tasks.py next
+```
 
-## Learn More
+Read [AGENTS.md](AGENTS.md), [Low Agent Runbook](docs/agent/LOW-REASONING-RUNBOOK.md), and **only one** [current task card](docs/agent/tasks/). Complete each atomic task with real testing evidence. On a new session, inspect Git and checkpoint and resume safely.
 
-To learn more about Next.js, take a look at the following resources:
+## Docs
+[PRD](docs/PRD.md) · [TRD](docs/TRD.md) · [AFD](docs/AFD.md) · [DBD](docs/DBD.md) · [BSD](docs/BSD.md) · [IPD](docs/IPD.md) · [Task registry](docs/agent/TASKS.yaml) · [Phases](docs/agent/PHASES.md) · [Checkpoint](docs/agent/CHECKPOINT.md).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+[README-SERVER.md](README-SERVER.md) is a **future deployment runbook**. The CLI described there does not exist until its tasks are implemented and tested.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Production
+**No Docker.** Build release artifact compatible with Linux target, upload to server, run web/API/worker with Node/PM2 behind aaPanel/Nginx; MySQL and Redis are services. Installer bootstraps a protected `admin@codelight.id` via a secure one-time secret and mandatory password change.
