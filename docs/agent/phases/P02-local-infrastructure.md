@@ -27,3 +27,14 @@ Use existing **Lerd** MySQL and Redis, prove Node.js 26 runtime connectivity, is
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P02-01](../tasks/P02-01.md)
+- [P02-02](../tasks/P02-02.md)
+- [P02-03](../tasks/P02-03.md)
+- [P02-04](../tasks/P02-04.md)
+- [P02-05](../tasks/P02-05.md)
+- [P02-06](../tasks/P02-06.md)
