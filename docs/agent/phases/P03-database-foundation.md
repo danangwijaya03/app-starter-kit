@@ -29,3 +29,18 @@ Migration applies on clean disposable MySQL and referential constraints validate
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P03-01](../tasks/P03-01.md)
+- [P03-02](../tasks/P03-02.md)
+- [P03-03A](../tasks/P03-03A.md)
+- [P03-03B](../tasks/P03-03B.md)
+- [P03-03](../tasks/P03-03.md)
+- [P03-04](../tasks/P03-04.md)
+- [P03-05](../tasks/P03-05.md)
+- [P03-06](../tasks/P03-06.md)
+- [P03-07](../tasks/P03-07.md)
+- [P03-08](../tasks/P03-08.md)
