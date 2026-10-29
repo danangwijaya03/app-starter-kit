@@ -31,3 +31,20 @@ RBAC denies unauthorized requests; last active super admin protected; bootstrap 
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P05-01](../tasks/P05-01.md)
+- [P05-02](../tasks/P05-02.md)
+- [P05-03](../tasks/P05-03.md)
+- [P05-04](../tasks/P05-04.md)
+- [P05-05](../tasks/P05-05.md)
+- [P05-06](../tasks/P05-06.md)
+- [P05-07A](../tasks/P05-07A.md)
+- [P05-07B](../tasks/P05-07B.md)
+- [P05-07C](../tasks/P05-07C.md)
+- [P05-07](../tasks/P05-07.md)
+- [P05-08](../tasks/P05-08.md)
+- [P05-09](../tasks/P05-09.md)
