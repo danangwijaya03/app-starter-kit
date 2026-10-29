@@ -24,3 +24,13 @@ Dashboard displays allowed widgets and correct empty/error state.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P08-01](../tasks/P08-01.md)
+- [P08-02](../tasks/P08-02.md)
+- [P08-03](../tasks/P08-03.md)
+- [P08-04](../tasks/P08-04.md)
+- [P08-05](../tasks/P08-05.md)
