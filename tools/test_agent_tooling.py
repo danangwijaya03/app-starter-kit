@@ -69,6 +69,10 @@ with tempfile.TemporaryDirectory(prefix="agent-tooling-") as tmp:
   call(*cli,"run","P04-01","--kind",kind,"--","python3","tools/check_scenario.py","--case",case,cwd=temp)
  call(*cli,"review","P04-01","--reviewer","independent tester","--evidence","docs/agent/reviews/P04-01.md",cwd=temp)
  call(*cli,"complete","P04-01",cwd=temp)
+ call(*cli,"gate-run","P04","--kind","integration","--","python3","tools/check_scenario.py","--case","good",cwd=temp)
+ call(*cli,"gate","P04",cwd=temp,ok=False) # High risk also needs a negative phase test
+ call(*cli,"gate-run","P04","--kind","negative","--","python3","tools/check_scenario.py","--case","denied",cwd=temp)
+ call(*cli,"gate","P04",cwd=temp)
  plan={"children":[
   {"title":"Create baseline","scope":["docs/base.md"],"steps":["Write doc"],
    "output_artifact":"docs/base.md","acceptance_criteria":["Doc present"],
