@@ -31,3 +31,20 @@ Immutable draft revisions and atomic publish behavior verified.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains all units below, including microtasks.** Select next with `python3 tools/agent_tasks.py next`.
+
+- [P10-01](../tasks/P10-01.md)
+- [P10-02](../tasks/P10-02.md)
+- [P10-03](../tasks/P10-03.md)
+- [P10-04](../tasks/P10-04.md)
+- [P10-05A](../tasks/P10-05A.md)
+- [P10-05B](../tasks/P10-05B.md)
+- [P10-05C](../tasks/P10-05C.md)
+- [P10-05](../tasks/P10-05.md)
+- [P10-06](../tasks/P10-06.md)
+- [P10-07](../tasks/P10-07.md)
+- [P10-08](../tasks/P10-08.md)
+- [P10-09](../tasks/P10-09.md)
