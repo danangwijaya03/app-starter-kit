@@ -26,3 +26,15 @@ Public page renderer, SEO and menu invalidation pass tests.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains all units below, including microtasks.** Select next with `python3 tools/agent_tasks.py next`.
+
+- [P11-01](../tasks/P11-01.md)
+- [P11-02](../tasks/P11-02.md)
+- [P11-03](../tasks/P11-03.md)
+- [P11-04](../tasks/P11-04.md)
+- [P11-05](../tasks/P11-05.md)
+- [P11-06](../tasks/P11-06.md)
+- [P11-07](../tasks/P11-07.md)
