@@ -25,3 +25,14 @@ Redis job processing, retry and shutdown tests pass.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains all units below, including microtasks.** Select next with `python3 tools/agent_tasks.py next`.
+
+- [P13-01](../tasks/P13-01.md)
+- [P13-02](../tasks/P13-02.md)
+- [P13-03](../tasks/P13-03.md)
+- [P13-04](../tasks/P13-04.md)
+- [P13-05](../tasks/P13-05.md)
+- [P13-06](../tasks/P13-06.md)
