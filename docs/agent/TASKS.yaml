@@ -539,12 +539,12 @@ tasks:
   - packages/config
   - .env.example
   steps:
-  - Specify NODE_ENV, app URLs, DB/Redis/storage paths, auth secrets; validate server-only env
+  - Validate server-only env for Node 26 and Lerd host-mapped DB/Redis; never overwrite Lerd-managed .env
   acceptance_criteria:
   - Specify NODE_ENV, app URLs, DB/Redis/storage paths, auth secrets
-  - Missing/invalid required env fails clearly
+  - Missing/invalid required env fails; dev/test schemas differ
   validation:
-  - Missing/invalid required env fails clearly
+  - Missing/invalid required env fails; dev/test schemas differ
   status: pending
   priority: normal
   blocked_reason: null
@@ -555,24 +555,25 @@ tasks:
   risk: low
   spec_refs: &id003
   - docs/TRD.md
+  - docs/agent/LOCAL-LERD-NODE26.md
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P02-02
   phase: P02
-  title: Provision disposable local MySQL 8.4
+  title: Reuse existing Lerd MySQL with isolated dev/test schemas
   depends_on:
   - P02-01
   scope:
   - infra/dev
   - docs/agent/RUNBOOK.md
   steps:
-  - Support native local service or optional dev-only container; create unique disposable test DB
+  - Inspect Lerd MySQL and actual version; verify host connection and unique dev/test schemas; do not create second MySQL server
   acceptance_criteria:
-  - Support native local service or optional dev-only container
-  - MySQL health and utf8mb4 tested
+  - Reuse existing Lerd MySQL; no duplicate server
+  - MySQL connectivity, server version, utf8mb4, and dev/test separation tested
   validation:
-  - MySQL health and utf8mb4 tested
+  - MySQL connectivity, server version, utf8mb4, and dev/test separation tested
   status: pending
   priority: normal
   blocked_reason: null
@@ -587,19 +588,19 @@ tasks:
     session
 - id: P02-03
   phase: P02
-  title: Provision local Redis and queue connectivity
+  title: Reuse existing Lerd Redis and isolate queue connectivity
   depends_on:
   - P02-01
   scope:
   - infra/dev
   - apps/worker
   steps:
-  - Support native/dev-only Redis; no public network exposure; test isolated Redis connection
+  - Inspect existing Lerd Redis, validate host/container routing and isolated test queue; do not open Redis to LAN
   acceptance_criteria:
-  - Support native/dev-only Redis
-  - Redis ping passes
+  - Reuse existing Lerd Redis; no duplicate instance
+  - Redis ping and isolated test queue connectivity pass
   validation:
-  - Redis ping passes
+  - Redis ping and isolated test queue connectivity pass
   status: pending
   priority: normal
   blocked_reason: null
@@ -651,9 +652,9 @@ tasks:
   - turbo.json
   - docs/agent/RUNBOOK.md
   steps:
-  - One command starts web/api/worker; DB/Redis preflight; graceful shutdown
+  - Provide npm workspace start with graceful shutdown and existing MySQL/Redis preflight; avoid duplicate Lerd-managed frontend
   acceptance_criteria:
-  - One command starts web/api/worker
+  - One command starts services without duplicate Lerd-managed process
   - Local start/stop smoke passes
   validation:
   - Local start/stop smoke passes
@@ -678,9 +679,9 @@ tasks:
   - infra/scripts
   - docs/agent
   steps:
-  - Check dev/test/prod separation, gitignore, no secrets in logs or CI artifacts
+  - Check Lerd MySQL dev/test/prod separation, test-only DB guards, gitignore, and secret/log hygiene; no unrelated Lerd proxy or LAN change
   acceptance_criteria:
-  - Check dev/test/prod separation, gitignore, no secrets in logs or CI artifacts
+  - Check Lerd MySQL dev/test/prod separation, test-only DB guards, gitignore, and secret/log hygiene; no unrelated Lerd proxy or LAN change
   - Secret scan and isolation tests pass
   validation:
   - Secret scan and isolation tests pass
