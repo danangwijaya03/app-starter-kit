@@ -42,3 +42,7 @@ jobs:
         run: python3 tools/check_repo_contracts.py
       - name: Smoke test agent tooling
         run: python3 tools/test_agent_tooling.py
+      - name: Bootstrap agent tooling without shell activation
+        run: python3 tools/bootstrap_agent.py
+      - name: Confirm bootstrap is idempotent
+        run: python3 tools/bootstrap_agent.py
