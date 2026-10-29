@@ -12,8 +12,15 @@ if D["metadata"].get("task_count")!=len(T):errors.append("task_count mismatch; u
 if {x["phase"] for x in T}!={"P"+str(i).zfill(2) for i in range(17)}:errors.append("Missing phase")
 for t in T:
  i=t["id"]
- if not re.fullmatch(r"P(?:0[0-9]|1[0-6])-\d{2}[A-Z]?",i):errors.append("Bad ID "+i)
+ if not re.fullmatch(r"P(?:0[0-9]|1[0-6])-\d{2}[A-Z]?(?:-S\d{2})?",i):errors.append("Bad ID "+i)
  if not (R/t["card"]).is_file():errors.append("Missing card "+i)
+ else:
+  card=(R/t["card"]).read_text(encoding="utf-8")
+  if "CODING AGENT" not in card:errors.append("Missing agent audience in "+i)
+  if t.get("split_from"):
+   if "## Positive tests" not in card or "## Negative tests" not in card:errors.append("Missing split child tests "+i)
+  elif "## Specific positive/negative test design" not in card or "## Acceptance checklist" not in card:errors.append("Missing acceptance/test design "+i)
+ if not t.get("scope") or not t.get("steps") or not t.get("acceptance_criteria"):errors.append("Incomplete task definition "+i)
  for dep in t.get("depends_on",[]):
   if dep not in m:errors.append("Missing dependency "+i+" -> "+dep)
   if dep==i:errors.append("Self-dependency "+i)
@@ -32,6 +39,14 @@ def scan(i):
  visiting.remove(i);visited.add(i)
 for i in ids:scan(i)
 if len(list((R/"docs/agent/phases").glob("P*.md")))!=17:errors.append("Expected 17 phase files")
+phases=(R/"docs/agent/PHASES.md").read_text(encoding="utf-8")
+for n in range(17):
+ p="P%02d"%n
+ match=re.search(r"\]\(phases/"+p+r"-[^)]+\.md\) \| (\d+) \|",phases)
+ expected=sum(t["phase"]==p for t in T)
+ if match is None or int(match.group(1))!=expected:errors.append("Phase counter mismatch "+p+" expected "+str(expected))
+for path in ("tools/split_agent_task.py","tools/check_repo_contracts.py","docs/agent/TEST-AND-REVIEW-POLICY.md","docs/agent/TASK-SPLITTING.md"):
+ if not (R/path).is_file():errors.append("Missing agent optimization "+path)
 for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md"):
  if not (R/n).is_file():errors.append("Missing "+n)
 for path in R.rglob("*.md"):

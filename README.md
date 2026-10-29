@@ -19,6 +19,8 @@ Ikuti **[Panduan Pengguna](PANDUAN-MULAI-LOW-AGENT.md)** untuk setup, memulai, m
 
 Coding agent membaca **[AGENTS.md](AGENTS.md)**, runbook dan task card; panduan pengguna **bukan** instruksi agent.
 
+**Monitoring agent:** `python3 tools/agent_tasks.py summary` menampilkan progres seluruh fase. `python3 tools/check_repo_contracts.py` memeriksa konsistensi README, script npm dan struktur aktual tanpa mengubah aplikasi. Agent harus mengikuti kebijakan tes/review pada [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md).
+
 ## Dokumentasi lengkap
 
 [Lihat peta dokumen berdasarkan pembaca](docs/DOCUMENTATION-MAP.md). Di sana tersedia PRD, TRD, AFD, DBD, BSD, IPD, 17 fase, task registry dan kontrak Lerd.

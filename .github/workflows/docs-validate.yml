@@ -38,5 +38,7 @@ jobs:
         run: python3 -m compileall -q tools
       - name: Validate task DAG and links
         run: python3 tools/validate_plan.py
+      - name: Verify repository and documentation contracts
+        run: python3 tools/check_repo_contracts.py
       - name: Smoke test agent tooling
         run: python3 tools/test_agent_tooling.py

@@ -47,6 +47,7 @@ python -m pip install -r tools/requirements-agent.txt
 python tools/validate_plan.py
 python tools/agent_tasks.py doctor
 python tools/agent_tasks.py next
+python tools/agent_tasks.py summary
 ```
 
 Jika virtualenv tidak tersedia, pasang dukungan `venv` sesuai distro OS, bukan menggunakan `--break-system-packages`. `validate_plan.py` hanya memverifikasi dokumentasi dan dependency; ini **bukan pengujian aplikasi**.
@@ -71,7 +72,7 @@ git status --short
 git log -5 --oneline
 ```
 
-`in_progress` perlu dilanjutkan, `completed` sudah memiliki bukti tes tercatat, `verified` sudah melewati gate fase. Status tidak menggantikan code review. Jika limit Codex habis, buka sesi baru di repository **yang sama** dan salin [RESUME-SESSION-PROMPT.md](docs/agent/RESUME-SESSION-PROMPT.md). Jangan reset Git atau mulai dari awal.
+`in_progress` perlu dilanjutkan, `completed` sudah memiliki bukti tes tercatat, `verified` sudah melewati gate fase. Status tidak menggantikan code review. Task dengan risiko tinggi perlu peninjau independen; Anda dapat memeriksa catatan review di `docs/agent/reviews/` sebelum task disahkan. Jika limit Codex habis, buka sesi baru di repository **yang sama** dan salin [RESUME-SESSION-PROMPT.md](docs/agent/RESUME-SESSION-PROMPT.md). Jangan reset Git atau mulai dari awal.
 
 ## 6. Kapan perlu review pengguna
 

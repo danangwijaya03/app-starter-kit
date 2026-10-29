@@ -8,6 +8,7 @@
 git status --short
 python3 tools/agent_tasks.py doctor
 python3 tools/agent_tasks.py next
+python3 tools/agent_tasks.py summary
 ```
 
 1. Jika task `in_progress`, periksa checkpoint, Git diff dan pekerjaan yang telah ada; **resume** task itu terlebih dahulu.
@@ -34,6 +35,14 @@ Teks dalam tanda `<...>` adalah placeholder, jangan dijalankan literal. Periksa 
 - `agent_tasks.py run` hanya mencatat bukti, **bukan sandbox keamanan**. Jangan menjalankan skrip yang berpotensi memutasi database nyata.
 - Jika tidak selesai karena limit sesi: `python3 tools/agent_tasks.py progress <ID> --note "<file berubah, hasil, langkah selanjutnya>"`. Jika blocked: `python3 tools/agent_tasks.py block <ID> --reason "<alasan aman>"`.
 - Jangan menyatakan `complete` hanya karena file dibuat atau status validator dokumentasi hijau.
+
+## Bukti tes, review dan pemecahan task
+
+- Baca [kebijakan uji/review](TEST-AND-REVIEW-POLICY.md) untuk menentukan jenis bukti yang wajib: gunakan flag --kind docs/unit/integration/negative/build. Untuk task high-risk diperlukan integration, negative test dan review independen sebelum complete.
+- High-reasoning/human reviewer harus melakukan peninjauan sendiri dan menulis laporan pada docs/agent/reviews/<ID>.md. Setelah itu operator merekam menggunakan: python3 tools/agent_tasks.py review <ID> --reviewer "Reviewer" --evidence docs/agent/reviews/<ID>.md. CLI tidak membuktikan identitas reviewer; agent Low tidak boleh membuat persetujuan palsu.
+- Jika task masih pending dan terlalu besar, lakukan [split plan](TASK-SPLITTING.md) setelah review. Perintah: python3 tools/agent_tasks.py split <ID> --plan /path/to/reviewed-plan.json. Parent tetap integration checkpoint.
+- Ringkasan per fase: python3 tools/agent_tasks.py summary atau summary --json. Tidak perlu membaca 157 task untuk mengetahui progres.
+- Validasi dokumentasi bukan bukti implementasi. CI juga menjalankan tools/check_repo_contracts.py untuk memeriksa instruksi npm terhadap repo sebenarnya.
 
 ## Kontrak lingkungan dan scope
 

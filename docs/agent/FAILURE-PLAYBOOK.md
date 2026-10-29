@@ -27,3 +27,12 @@ python3 tools/agent_tasks.py doctor
 ```
 
 When blocked, continue only independent ready tasks. Never guess credentials, disable security, or modify production data to make a task pass.
+## Additional optimization guardrails
+
+| Situation | Required response |
+|---|---|
+| Build passes but business assertion missing | Do not complete; write targeted positive/negative tests, rerun with correct evidence `--kind` |
+| Evidence exists but source changed | Rerun focused test after last edit, previous fingerprint cannot be reused |
+| High-risk task has no independent review | Leave in-progress/blocked, request separate High/human review, never self-approve |
+| Task too large for one session | Before starting, create reviewed split JSON, run `agent_tasks.py split`, verify DAG; never bypass risk gate |
+| README references missing npm command | Run `python3 tools/check_repo_contracts.py`; fix docs or implement command in correct task |
