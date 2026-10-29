@@ -2,35 +2,39 @@
 
 These are **blueprints for future coding tasks**, not a working implementation. Verify exact APIs against the installed versions and source-specific task card. Never copy placeholders or claim commands succeeded merely because they appear here.
 
-## Recipe A: P01-01A root workspace bootstrap
+## Recipe A: P01 — migrate the EXISTING Next.js app to npm Workspaces
 
-Create these files with no secrets.
+**Already present in repository:** `app/`, `public/`, `next.config.ts`, `eslint.config.mjs`, `tsconfig.json`, `package.json`, `package-lock.json`. Next.js **16.4.3**, React **19.3.0**, Tailwind v4. Do **not** create a fresh app.
 
-**`package.json (workspaces)`:**
+1. Before modifying source, run `npm ci`, `npm run lint`, `npm run build` at the existing repository root. Record actual outcomes, including failures.
+2. Prepare `apps/web/package.json` from the existing root package, preserving exact Next.js/React/Tailwind versions and all required scripts.
+3. Plan a private npm workspace root using `workspaces` in `package.json`. The root `package-lock.json` is authoritative and must be regenerated with `npm install`, not edited manually.
+4. Move **existing** app/public/config into `apps/web` with Git moves. Preserve Next 16 cacheComponents/partialPrefetching/agentFeedback/Turbopack settings; adapt file tracing only when build needs it.
+5. Once the workspace is complete, run `npm install`, `npm ci`, `npm run lint -w @repo/web` and `npm run build -w @repo/web`.
 
-```yaml
-packages:
-  - "apps/*"
-  - "packages/*"
-```
-
-**Root `package.json` minimal target:**
+**Root `package.json` target after P01 (illustrative, not currently installed):**
 
 ```json
 {
-  "name": "codelight-nextjs-starter-kit",
+  "name": "app-starter-kit",
   "private": true,
-  "packageManager": "npm version determined during P01",
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "agent:next": "python3 tools/agent_tasks.py next",
     "agent:validate": "python3 tools/validate_plan.py"
+  },
+  "devDependencies": {
+    "turbo": "PIN_VERIFIED_VERSION_DURING_P01"
   }
 }
 ```
 
-The `packageManager` value is the v1.1 reference; P01-02 verifies it on the chosen Node runtime, and normal build/test scripts are added by dependent tasks. Do not put `workspace:*` dependencies in root until the packages exist.
-
-**Read-only validation:** `python3 tools/validate_plan.py`; verify `package.json (workspaces)` matches both patterns; when package files exist run the actual frozen install after a lockfile has been created. Do not run `--frozen-lockfile` before generating the initial lockfile.
+Do not literally install the placeholder. P01 pins the verified Turborepo version. npm CLI and Node runtime versions are captured from the environment; avoid inventing a `packageManager` version string. No `pnpm-workspace.yaml`, `pnpm-lock.yaml` or `workspace:*` dependencies.
 
 ## Recipe B: P01-02 TypeScript strict baseline
 
