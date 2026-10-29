@@ -26,3 +26,15 @@ Better Auth login/logout/session tests pass; no custom hashing.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P04-01](../tasks/P04-01.md)
+- [P04-02](../tasks/P04-02.md)
+- [P04-03](../tasks/P04-03.md)
+- [P04-04](../tasks/P04-04.md)
+- [P04-05](../tasks/P04-05.md)
+- [P04-06](../tasks/P04-06.md)
+- [P04-07](../tasks/P04-07.md)
