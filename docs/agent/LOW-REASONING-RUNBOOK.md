@@ -2,6 +2,8 @@
 
 > **Use this page first** after `AGENTS.md`. This is a **documentation-only specification**, not a completed Next.js application.
 
+Local developer environment: **Lerd, Node.js 26, MySQL and Lerd Redis**. Read [LOCAL-LERD-NODE26.md](LOCAL-LERD-NODE26.md) before P02. Never provision duplicate services, and never let tests target development/production DB. Test evidence must match the final current code state.
+
 ## The only workflow
 
 1. Install once: `python3 -m pip install -r tools/requirements-agent.txt` (prefer a virtual environment).
