@@ -24,7 +24,7 @@ Nginx preserves original `/api/auth/*` and `/api/v1/*`. Browser receives same-or
 
 ## TRD-02 Runtime/toolchain and pinning
 
-- Node.js **24 LTS** baseline, exact patch pinned and tested; Corepack + npm exact pinned version; Turborepo; strict TS.
+- Node.js **26.x LTS** (local baseline; pin and verify exact release patch) baseline, exact patch pinned and tested; Corepack + npm exact pinned version; Turborepo; strict TS.
 - Next.js App Router with Server Components by default; client components only where interactivity required; no Next static export.
 - Hono on Node.js; `@hono/zod-openapi` for business API schemas and documented responses.
 - MySQL 8.4 LTS InnoDB and Drizzle + mysql2; Better Auth Drizzle adapter configured for MySQL. Generate Better Auth schema from installed version. Drizzle exclusively owns migrations.
@@ -119,6 +119,10 @@ Constraints:
 - Rate limit login, credential reset, invitations and sensitive endpoints; server-side pagination max `limit` (e.g. 100); body/file limits.
 - Security headers, CSP where compatible, anti-CSRF, HTTPS and secure cookies, timing-safe token validation, URL safety for nav/SSRF prevention, media malware-policy.
 - Basic deployment backups: limited disk permissions and offsite copy, audit immutable from application API.
+
+## Local development baseline
+
+Development reuses Lerd-provided MySQL and Redis; no duplicate services or Docker are required. Verify Node 26 runtime, real MySQL version, host-vs-container networking, separate dev/test databases and test-only destructive operation guards. Preserve Lerd global Nginx/DNS/LAN exposure configuration. See [LOCAL-LERD-NODE26.md](agent/LOCAL-LERD-NODE26.md).
 
 ## TRD-11 Build and production artifact
 
