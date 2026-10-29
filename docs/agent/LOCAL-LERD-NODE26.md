@@ -5,13 +5,13 @@
 ## Baseline yang diketahui
 - Developer memakai **Lerd**, **Node.js 26**, **MySQL**.
 - Lerd menyediakan MySQL dan Redis. Gunakan service existing jika tersedia; **jangan menambah Docker Compose atau database daemon kedua**.
-- Package manager **npm/npx** saja. \`package-lock.json\` root dipertahankan.
+- Package manager **npm/npx** saja. `package-lock.json` root dipertahankan.
 - DB target produksi tetap MySQL 8.4 LTS (versi lokal harus dibuktikan; jangan diklaim hanya dari nama layanan).
-- Domain \`*.test\` dan HTTPS adalah opsi local Lerd, **bukan** syarat agar Next.js dapat diuji lewat \`localhost\`.
+- Domain `*.test` dan HTTPS adalah opsi local Lerd, **bukan** syarat agar Next.js dapat diuji lewat `localhost`.
 
 ## Preflight tanpa perubahan environment
 
-\`\`\`bash
+```bash
 pwd
 git status --short
 node --version
@@ -19,7 +19,7 @@ npm --version
 lerd status
 lerd service list
 mysql --version
-\`\`\`
+```
 
 Catat versi Node patch dan MySQL aktual dalam catatan dependensi dengan menghilangkan kredensial. Node harus 26.x; jika berbeda, periksa runtime manager Lerd/mise, jangan memaksa install/uninstall.
 
@@ -27,22 +27,22 @@ Catat versi Node patch dan MySQL aktual dalam catatan dependensi dengan menghila
 
 | Aplikasi dieksekusi dari | Host service database | Perhatian |
 |---|---|---|
-| Node lokal di host | Alamat loopback dan port host dari Lerd yang benar-benar dapat diakses | Jangan asumsikan nama \`lerd-mysql\` resolve pada host |
-| App di container/network Lerd | \`lerd-mysql:3306\` dan \`lerd-redis:6379\` dapat dipakai | Harus dipastikan lewat pemeriksaan koneksi |
+| Node lokal di host | Alamat loopback dan port host dari Lerd yang benar-benar dapat diakses | Jangan asumsikan nama `lerd-mysql` resolve pada host |
+| App di container/network Lerd | `lerd-mysql:3306` dan `lerd-redis:6379` dapat dipakai | Harus dipastikan lewat pemeriksaan koneksi |
 | Production aaPanel | Endpoint MySQL dan Redis production | Sama sekali tidak menggunakan kredensial Lerd |
 
 Periksa service routing dalam dokumentasi Lerd dan hasil tes dari proses Node yang sesungguhnya. **Jangan menebak host port atau menulis password ke stdout**.
 
 ## Database dev dan test yang benar-benar terpisah
 
-- Pilih dua schema MySQL unik: satu **dev** dan satu **test** (mis. \`app_starter_kit_dev\`, \`app_starter_kit_test\`); jangan menggunakan schema milik proyek lain.
+- Pilih dua schema MySQL unik: satu **dev** dan satu **test** (mis. `app_starter_kit_dev`, `app_starter_kit_test`); jangan menggunakan schema milik proyek lain.
 - Jangan menganggap MySQL Lerd bisa dihapus total karena task menyebut kata "disposable". Yang disposable hanyalah schema khusus test yang **sudah ditandai aman**.
 - Penggunaan database test wajib memeriksa nama schema, host dan port sebelum mutasi; operasi reset/drop diblok secara default.
 - Test yang gagal koneksi harus **fail**, bukan otomatis switch ke DB dev.
 - Buat database/user baru hanya apabila telah diverifikasi tidak ada, dan bila izin operator yang sesuai tersedia.
-- Gunakan \`mysql --version\` dan query read-only \`SELECT VERSION(); SELECT DATABASE();\` pada koneksi yang diverifikasi.
-- Untuk backend \`mysql2\`, hindari membentuk URL dari password tanpa encoding; pisahkan host, user, port, database bila perlu.
-- \`.env*\` harus gitignored; \`.env.example\` hanya placeholder tanpa credential nyata.
+- Gunakan `mysql --version` dan query read-only `SELECT VERSION(); SELECT DATABASE();` pada koneksi yang diverifikasi.
+- Untuk backend `mysql2`, hindari membentuk URL dari password tanpa encoding; pisahkan host, user, port, database bila perlu.
+- `.env*` harus gitignored; `.env.example` hanya placeholder tanpa credential nyata.
 
 ## Redis
 
@@ -50,12 +50,12 @@ BullMQ membutuhkan Redis pada fase P13. P02 hanya memverifikasi service Redis Le
 
 ## Lerd-managed site dan environment
 
-- \`lerd init\`, \`lerd env\`, dan \`lerd link\` dapat menulis \`.lerd.yaml\` / \`.env\` atau mengubah pendaftaran domain. **Review perubahan sebelum menjalankan**.
+- `lerd init`, `lerd env`, dan `lerd link` dapat menulis `.lerd.yaml` / `.env` atau mengubah pendaftaran domain. **Review perubahan sebelum menjalankan**.
 - Lerd dapat membuat database project dan varian testing secara otomatis untuk konfigurasi tertentu; cek terlebih dahulu apakah nama tersebut akan bertabrakan.
-- Mulai dari \`npm run dev\` di root repo. Integrasi Lerd \`*.test\` dilakukan saat konfigurasi jelas, dan URL Better Auth/trusted origin disesuaikan setelah proxy HTTPS diverifikasi.
-- Node process di host dan DB service di container memakai aturan host berbeda. Jangan hard-code \`lerd-mysql\` dalam \`.env.example\` universal.
+- Mulai dari `npm run dev` di root repo. Integrasi Lerd `*.test` dilakukan saat konfigurasi jelas, dan URL Better Auth/trusted origin disesuaikan setelah proxy HTTPS diverifikasi.
+- Node process di host dan DB service di container memakai aturan host berbeda. Jangan hard-code `lerd-mysql` dalam `.env.example` universal.
 - Jika Lerd telah mengelola Node dev process, jangan menjalankan instance kedua pada port yang sama. Jangan mengutak-atik LAN exposure, Nginx service atau routing tanpa scope task dan izin operator.
-- Jangan commit \`.lerd.yaml\` yang memuat credential, private path, atau pengaturan spesifik komputer; review terlebih dahulu.
+- Jangan commit `.lerd.yaml` yang memuat credential, private path, atau pengaturan spesifik komputer; review terlebih dahulu.
 
 ## Checklist sebelum task P02 dinyatakan selesai
 
