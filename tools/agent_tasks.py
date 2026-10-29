@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Agent task selector and checkpoint runner. Does not replace real software tests."""
-import argparse, datetime as dt, json, os, pathlib, re, subprocess, sys
+import argparse, datetime as dt, hashlib, json, os, pathlib, re, subprocess, sys
 try:
  import yaml
 except ImportError: sys.exit("Install PyYAML: python3 -m pip install -r tools/requirements-agent.txt")
@@ -17,6 +17,27 @@ def write(data):
 def git(*args):
  p=subprocess.run(["git",*args],cwd=ROOT,text=True,capture_output=True)
  return p.stdout.strip() if p.returncode==0 else "unavailable"
+def source_fingerprint():
+ """Hash tracked and untracked project files, excluding task state/evidence and generated outputs.
+ The fingerprint makes a successful test invalid after any source/document edits.
+ """
+ p=subprocess.run(["git","ls-files","--cached","--others","--exclude-standard","-z"],cwd=ROOT,capture_output=True)
+ if p.returncode!=0:sys.exit("Cannot fingerprint repository: git ls-files failed")
+ excluded={"docs/agent/TASKS.yaml","docs/agent/CHECKPOINT.md"}
+ h=hashlib.sha256()
+ for raw in sorted(set(p.stdout.split(b"\0"))):
+  if not raw:continue
+  rel=os.fsdecode(raw)
+  if rel in excluded or rel.startswith("docs/agent/evidence/"):continue
+  file=ROOT/rel
+  if not file.is_file() or file.is_symlink():continue
+  h.update(raw+b"\0")
+  with file.open("rb") as stream:
+   while True:
+    chunk=stream.read(1024*1024)
+    if not chunk:break
+    h.update(chunk)
+ return h.hexdigest()
 def ready(t,m): return t["status"]=="pending" and all(m[x]["status"] in ("completed","verified") for x in t.get("depends_on",[]))
 def checkpoint(t,note,action):
  text="# Agent checkpoint (tool-managed)\n\n- Updated UTC: "+utc()+"\n- Last action: "+action+"\n- Current task: "+t["id"]+"\n- Status: "+t["status"]+"\n- Git: "+git("rev-parse","--short","HEAD")+"\n- Notes: "+note.replace("\n"," ")[:500]+"\n\n## Working tree\n\n```text\n"+git("status","--short")[:1500]+"\n```\n\n## Resume\nRead AGENTS.md; inspect current Git changes, task card and previous real test evidence. Do not rerun destructive operations blindly.\n"
@@ -41,7 +62,7 @@ def run_check(cmd,filename,task=None,phase=None):
  try:status=subprocess.run(cmd,cwd=ROOT,timeout=900).returncode
  except (FileNotFoundError,subprocess.TimeoutExpired):status=124
  EVID.mkdir(parents=True,exist_ok=True)
- ev={"task_id":task,"phase":phase,"command":cmd,"exit_code":status,"timestamp_utc":utc(),"git_commit":git("rev-parse","HEAD")}
+ ev={"task_id":task,"phase":phase,"command":cmd,"exit_code":status,"timestamp_utc":utc(),"git_commit":git("rev-parse","HEAD"),"source_fingerprint":source_fingerprint()}
  target=EVID/filename;target.write_text(json.dumps(ev,indent=2)+"\n",encoding="utf-8")
  print("Evidence:",target.relative_to(ROOT),"exit:",status)
  return status,str(target.relative_to(ROOT))
@@ -81,7 +102,7 @@ def main():
   file=EVID/(pp+"-gate.json")
   if not file.exists():sys.exit("Missing successful phase gate evidence.")
   v=json.loads(file.read_text())
-  if v.get("exit_code")!=0 or v.get("phase")!=pp:sys.exit("Phase gate check failed.")
+  if v.get("exit_code")!=0 or v.get("phase")!=pp or v.get("source_fingerprint")!=source_fingerprint():sys.exit("Phase gate evidence missing, failed or stale; rerun gate-run on current code.")
   if any(not t.get("tests_evidence") for t in tasks):sys.exit("Each task requires evidence.")
   for t in tasks:t["status"]="verified"
   write(d);checkpoint(tasks[-1],x.note,"phase-gate");print("Phase verified:",pp);return
@@ -109,12 +130,21 @@ def main():
  elif x.action=="complete":
   if t["status"]!="in_progress":sys.exit("Task is not in progress")
   if not t.get("tests_evidence"):sys.exit("No passing test evidence; cannot complete.")
+  current=source_fingerprint()
+  proof=[]
+  for file in t["tests_evidence"]:
+   try:
+    v=json.loads((ROOT/file).read_text(encoding="utf-8"))
+   except (OSError,ValueError):continue
+   if v.get("task_id")==x.id and v.get("exit_code")==0 and v.get("source_fingerprint")==current:
+    proof.append(file)
+  if not proof:sys.exit("Test evidence is stale or invalid for current source; rerun focused tests after latest edits.")
   if t["phase"]!="P00":
    only_docs=True
    for f in t["tests_evidence"]:
     try:
      v=json.loads((ROOT/f).read_text())
-     if "validate_plan.py" not in " ".join(v.get("command",[])):only_docs=False
+     if f in proof and "validate_plan.py" not in " ".join(v.get("command",[])):only_docs=False
     except Exception:pass
    if only_docs:sys.exit("Implementation task needs real implementation tests, not only docs graph check.")
   t["status"]="completed";t["completed_commit"]=git("rev-parse","HEAD")
