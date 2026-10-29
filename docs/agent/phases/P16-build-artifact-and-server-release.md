@@ -43,3 +43,32 @@ Offline artifact boot without source workspace, aaPanel README, update/rollback 
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent units. The **complete authoritative list** includes microtasks below; always use `python3 tools/agent_tasks.py next` for execution order.
+
+- [P16-01](../tasks/P16-01.md)
+- [P16-02A](../tasks/P16-02A.md)
+- [P16-02B](../tasks/P16-02B.md)
+- [P16-02C](../tasks/P16-02C.md)
+- [P16-02D](../tasks/P16-02D.md)
+- [P16-02](../tasks/P16-02.md)
+- [P16-03](../tasks/P16-03.md)
+- [P16-04A](../tasks/P16-04A.md)
+- [P16-04B](../tasks/P16-04B.md)
+- [P16-04C](../tasks/P16-04C.md)
+- [P16-04D](../tasks/P16-04D.md)
+- [P16-04](../tasks/P16-04.md)
+- [P16-05](../tasks/P16-05.md)
+- [P16-06](../tasks/P16-06.md)
+- [P16-07A](../tasks/P16-07A.md)
+- [P16-07B](../tasks/P16-07B.md)
+- [P16-07C](../tasks/P16-07C.md)
+- [P16-07](../tasks/P16-07.md)
+- [P16-08](../tasks/P16-08.md)
+- [P16-09A](../tasks/P16-09A.md)
+- [P16-09B](../tasks/P16-09B.md)
+- [P16-09](../tasks/P16-09.md)
+- [P16-10](../tasks/P16-10.md)
+- [P16-11](../tasks/P16-11.md)
