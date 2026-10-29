@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix="agent-tooling-") as tmp:
   {"id":"P00-01","phase":"P00","title":"Document baseline","status":"pending",
    "depends_on":[],"card":"docs/agent/tasks/P00-01.md","scope":["docs"],
    "steps":["Record baseline"],"acceptance_criteria":["Document exists"],"validation":["Check docs"],
-   "risk":"low","output_artifact":"docs/baseline.md","tests_evidence":[]},
+   "risk":"high","output_artifact":"docs/baseline.md","tests_evidence":[]},
   {"id":"P04-01","phase":"P04","title":"Authentication security check","status":"pending",
    "depends_on":[],"card":"docs/agent/tasks/P04-01.md","scope":["tests"],
    "steps":["Test auth"],"acceptance_criteria":["Auth secure"],"validation":["Check tests"],
@@ -83,6 +83,7 @@ with tempfile.TemporaryDirectory(prefix="agent-tooling-") as tmp:
  assert new["metadata"]["task_count"]==4
  parent=next(t for t in new["tasks"] if t["id"]=="P00-01")
  assert parent["depends_on"]==["P00-01-S02"]
+ assert all(t.get("risk")=="high" for t in new["tasks"] if t.get("split_from")=="P00-01")
  assert (temp/"docs/agent/tasks/P00-01-S01.md").exists()
  call(*cli,"start","P00-01",cwd=temp,ok=False) # Parent remains blocked by children.
  call(*cli,"split","P00-01","--plan","plan.json",cwd=temp,ok=False) # No double split.
