@@ -26,3 +26,15 @@ Upload/download/usage constraints and traversal prevention pass tests.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains all units below, including microtasks.** Select next with `python3 tools/agent_tasks.py next`.
+
+- [P09-01](../tasks/P09-01.md)
+- [P09-02](../tasks/P09-02.md)
+- [P09-03](../tasks/P09-03.md)
+- [P09-04](../tasks/P09-04.md)
+- [P09-05](../tasks/P09-05.md)
+- [P09-06](../tasks/P09-06.md)
+- [P09-07](../tasks/P09-07.md)
