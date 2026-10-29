@@ -5,7 +5,7 @@
 ## 1. Fixed technology decisions
 
 - Monorepo: `npm` workspace + Turborepo, strictly TypeScript.
-- Runtime: Node.js **24 LTS**. Target major version fixed, exact tested patch recorded during P01 and release manifest.
+- Runtime: Node.js **26.x LTS** (development baseline; pin exact tested version for release). Target major version fixed, exact tested patch recorded during P01 and release manifest.
 - UI: Next.js **16.4.3 App Router**, React version compatible with the pinned Next release, Tailwind CSS 4, shadcn/ui and selected free Aceternity UI. Do not pick new major versions without explicit ADR.
 - Backend: standalone Hono on Node.js, MySQL **8.4 LTS**, Drizzle ORM and generated Better Auth schema. No NestJS and no Next.js API business duplication.
 - Background work: BullMQ + Redis; worker process separate from API.
@@ -14,6 +14,10 @@
 - Primary public routes: `/`, CMS published slugs; admin `/admin/*`; Better Auth `/api/auth/*`; business `/api/v1/*`.
 - Admin main menu **exactly** Dashboard, Manage Content, Manage User, Setting. Do not add other top-level menus in MVP.
 - First admin email `admin@codelight.id`, role `super_admin`; **password comes from protected install-time secret, never committed, and user must change it at first login.**
+
+## Local development contract
+
+Lerd provides MySQL and Redis locally. Do not create duplicate services or Docker development infrastructure. Validate actual MySQL version, host/container connection addresses, isolated dev/test schemas and Node 26. See [LOCAL-LERD-NODE26.md](LOCAL-LERD-NODE26.md). Do not change global Lerd routing, Nginx, or LAN exposure without approval.
 
 ## 2. Package ownership and imports
 
