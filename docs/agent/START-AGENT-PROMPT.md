@@ -11,9 +11,9 @@ Dari root repo, periksa git status --short dan docs/agent/CHECKPOINT.md. LAKUKAN
 python3 tools/bootstrap_agent.py
 
 Jangan gunakan source activate, bahkan bila terminal Fish; gunakan interpreter .venv-agent/bin/python secara langsung. Bootstrap melakukan instalasi dependency ke virtualenv hanya bila perlu, lalu validasi, doctor, next, dan summary. Setelah sukses, jalankan bila perlu:
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary
+.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/python tools/agent_tasks.py next
+.venv-agent/bin/python tools/agent_tasks.py summary
 
 Jika bootstrap gagal, hentikan pekerjaan sebelum mengubah status task; laporkan error yang nyata tanpa mengubah Python sistem atau Lerd.
 

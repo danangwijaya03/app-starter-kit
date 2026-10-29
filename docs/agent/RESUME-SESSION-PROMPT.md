@@ -13,9 +13,9 @@ git status --short
 git diff
 git log -5 --oneline
 docs/agent/CHECKPOINT.md
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary
+.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/python tools/agent_tasks.py next
+.venv-agent/bin/python tools/agent_tasks.py summary
 
 Jika task in_progress, cocokkan file berubah, source fingerprint dan evidence sebelum editing. Jika tidak ada, ambil satu task ready. Baca hanya card aktif dan referensi terkait.
 

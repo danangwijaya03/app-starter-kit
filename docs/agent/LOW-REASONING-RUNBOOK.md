@@ -13,9 +13,9 @@ Seluruh command `agent_tasks.py` dan `validate_plan.py` selanjutnya memakai `.ve
 ```bash
 git status --short
 python3 tools/bootstrap_agent.py
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py next
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary
+.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/python tools/agent_tasks.py next
+.venv-agent/bin/python tools/agent_tasks.py summary
 ```
 
 1. Jika task `in_progress`, periksa checkpoint, Git diff dan pekerjaan yang telah ada; **resume** task itu terlebih dahulu.
@@ -26,29 +26,29 @@ python3 tools/bootstrap_agent.py
 ## Kerjakan dan validasi satu task
 
 ```bash
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py show <ID>
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py start <ID>
+.venv-agent/bin/python tools/agent_tasks.py show <ID>
+.venv-agent/bin/python tools/agent_tasks.py start <ID>
 # Edit hanya scope task, penuhi acceptance criteria
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py run <ID> --kind KIND -- <VALIDASI_YANG_BENAR_BENAR_ADA>
+.venv-agent/bin/python tools/agent_tasks.py run <ID> --kind KIND -- <VALIDASI_YANG_BENAR_BENAR_ADA>
 git diff --check
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py complete <ID> --note "<ringkasan hasil nyata tanpa rahasia>"
+.venv-agent/bin/python tools/agent_tasks.py complete <ID> --note "<ringkasan hasil nyata tanpa rahasia>"
 ```
 
 Teks dalam tanda `<...>` adalah placeholder, jangan dijalankan literal. Periksa `doctor/next` untuk mengetahui ID dan state nyata.
 
-- Pada P00, validasi dokumentasi `.venv-agent/bin/.venv-agent/bin/python tools/validate_plan.py` boleh menjadi sebagian bukti.
+- Pada P00, validasi dokumentasi `.venv-agent/bin/python tools/validate_plan.py` boleh menjadi sebagian bukti.
 - Task kode memerlukan test nyata dan relevan, termasuk negative test bila berkaitan dengan auth/RBAC/database. Exit code 0 **belum membuktikan cakupan benar**.
 - Jalankan tes **setelah edit terakhir**; bukti lama harus dianggap kedaluwarsa ketika fingerprint source berubah.
 - `agent_tasks.py run` hanya mencatat bukti, **bukan sandbox keamanan**. Jangan menjalankan skrip yang berpotensi memutasi database nyata.
-- Jika tidak selesai karena limit sesi: `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py progress <ID> --note "<file berubah, hasil, langkah selanjutnya>"`. Jika blocked: `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py block <ID> --reason "<alasan aman>"`.
+- Jika tidak selesai karena limit sesi: `.venv-agent/bin/python tools/agent_tasks.py progress <ID> --note "<file berubah, hasil, langkah selanjutnya>"`. Jika blocked: `.venv-agent/bin/python tools/agent_tasks.py block <ID> --reason "<alasan aman>"`.
 - Jangan menyatakan `complete` hanya karena file dibuat atau status validator dokumentasi hijau.
 
 ## Bukti tes, review dan pemecahan task
 
 - Baca [kebijakan uji/review](TEST-AND-REVIEW-POLICY.md) untuk menentukan jenis bukti yang wajib: gunakan flag --kind docs/unit/integration/negative/build. Untuk task high-risk diperlukan integration, negative test dan review independen sebelum complete.
-- High-reasoning/human reviewer harus melakukan peninjauan sendiri dan menulis laporan pada docs/agent/reviews/<ID>.md. Setelah itu operator merekam menggunakan: .venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py review <ID> --reviewer "Reviewer" --evidence docs/agent/reviews/<ID>.md. CLI tidak membuktikan identitas reviewer; agent Low tidak boleh membuat persetujuan palsu.
-- Jika task masih pending dan terlalu besar, lakukan [split plan](TASK-SPLITTING.md) setelah review. Perintah: .venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py split <ID> --plan /path/to/reviewed-plan.json. Parent tetap integration checkpoint.
-- Ringkasan per fase: .venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary atau summary --json. Tidak perlu membaca 157 task untuk mengetahui progres.
+- High-reasoning/human reviewer harus melakukan peninjauan sendiri dan menulis laporan pada docs/agent/reviews/<ID>.md. Setelah itu operator merekam menggunakan: .venv-agent/bin/python tools/agent_tasks.py review <ID> --reviewer "Reviewer" --evidence docs/agent/reviews/<ID>.md. CLI tidak membuktikan identitas reviewer; agent Low tidak boleh membuat persetujuan palsu.
+- Jika task masih pending dan terlalu besar, lakukan [split plan](TASK-SPLITTING.md) setelah review. Perintah: .venv-agent/bin/python tools/agent_tasks.py split <ID> --plan /path/to/reviewed-plan.json. Parent tetap integration checkpoint.
+- Ringkasan per fase: .venv-agent/bin/python tools/agent_tasks.py summary atau summary --json. Tidak perlu membaca 157 task untuk mengetahui progres.
 - Validasi dokumentasi bukan bukti implementasi. CI juga menjalankan tools/check_repo_contracts.py untuk memeriksa instruksi npm terhadap repo sebenarnya.
 
 ## Kontrak lingkungan dan scope

@@ -22,8 +22,8 @@ Follow this table **without broad changes outside the task**. If a suggested che
 ## Standard block action
 
 ```bash
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py block TASK_ID --reason "Specific sanitized error and missing prerequisite"
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py doctor
+.venv-agent/bin/python tools/agent_tasks.py block TASK_ID --reason "Specific sanitized error and missing prerequisite"
+.venv-agent/bin/python tools/agent_tasks.py doctor
 ```
 
 When blocked, continue only independent ready tasks. Never guess credentials, disable security, or modify production data to make a task pass.
@@ -35,4 +35,4 @@ When blocked, continue only independent ready tasks. Never guess credentials, di
 | Evidence exists but source changed | Rerun focused test after last edit, previous fingerprint cannot be reused |
 | High-risk task has no independent review | Leave in-progress/blocked, request separate High/human review, never self-approve |
 | Task too large for one session | Before starting, create reviewed split JSON, run `agent_tasks.py split`, verify DAG; never bypass risk gate |
-| README references missing npm command | Run `.venv-agent/bin/.venv-agent/bin/python tools/check_repo_contracts.py`; fix docs or implement command in correct task |
+| README references missing npm command | Run `.venv-agent/bin/python tools/check_repo_contracts.py`; fix docs or implement command in correct task |

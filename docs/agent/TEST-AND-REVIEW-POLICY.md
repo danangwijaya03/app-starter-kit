@@ -25,8 +25,8 @@ CLI `run` menerima `--kind unit|integration|negative|build|docs` sebelum `--` pe
 **Contoh (setelah test script benar-benar dibuat):**
 
 ```bash
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py run P04-02 --kind integration -- npm run test --workspace=@repo/api -- auth
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py run P04-02 --kind negative -- npm run test --workspace=@repo/api -- auth-denied
+.venv-agent/bin/python tools/agent_tasks.py run P04-02 --kind integration -- npm run test --workspace=@repo/api -- auth
+.venv-agent/bin/python tools/agent_tasks.py run P04-02 --kind negative -- npm run test --workspace=@repo/api -- auth-denied
 ```
 
 Jangan mengeksekusi contoh jika script/nama test belum tersedia. `run` adalah recorder, **bukan sandbox**. Periksa sendiri test suite tidak memodifikasi DB dev/shared.
@@ -59,9 +59,9 @@ Review pekerjaan yang berdampak pada live database atau deployment **tidak** oto
 Untuk fase berisiko tinggi P04, P05, P14, P15, dan P16, gate memerlukan **dua pengujian pada source terkini**: integration dan negative. Catatan per-task dan review harus sudah selesai. Contoh hanya bila npm test script sesuai telah dibuat:
 
 ```bash
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py gate-run P04 --kind integration -- npm run test --workspace=@repo/api -- auth
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py gate-run P04 --kind negative -- npm run test --workspace=@repo/api -- auth-denied
-.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py gate P04
+.venv-agent/bin/python tools/agent_tasks.py gate-run P04 --kind integration -- npm run test --workspace=@repo/api -- auth
+.venv-agent/bin/python tools/agent_tasks.py gate-run P04 --kind negative -- npm run test --workspace=@repo/api -- auth-denied
+.venv-agent/bin/python tools/agent_tasks.py gate P04
 ```
 
 Fase P00 menggunakan gate dengan `--kind docs`. Fase non-high lain membutuhkan salah satu dari `unit/integration/build`. Semua gate menolak bukti yang fingerprint source-nya sudah berubah. Test label bukan bukti semantik: reviewer harus memeriksa assertion sesuai kasus.

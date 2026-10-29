@@ -19,7 +19,7 @@ Ikuti **[Panduan Pengguna](PANDUAN-MULAI-LOW-AGENT.md)** untuk setup, memulai, m
 
 Coding agent otomatis menyiapkan `.venv-agent` tanpa aktivasi shell melalui `python3 tools/bootstrap_agent.py` sebelum P00, kemudian membaca **[AGENTS.md](AGENTS.md)**, runbook dan task card; panduan pengguna **bukan** instruksi agent.
 
-**Monitoring agent:** `.venv-agent/bin/.venv-agent/bin/python tools/agent_tasks.py summary` menampilkan progres seluruh fase. `.venv-agent/bin/.venv-agent/bin/python tools/check_repo_contracts.py` memeriksa konsistensi README, script npm dan struktur aktual tanpa mengubah aplikasi. Agent harus mengikuti kebijakan tes/review pada [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md).
+**Monitoring agent:** `.venv-agent/bin/python tools/agent_tasks.py summary` menampilkan progres seluruh fase. `.venv-agent/bin/python tools/check_repo_contracts.py` memeriksa konsistensi README, script npm dan struktur aktual tanpa mengubah aplikasi. Agent harus mengikuti kebijakan tes/review pada [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md).
 
 ## Dokumentasi lengkap
 
