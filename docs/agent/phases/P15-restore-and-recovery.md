@@ -29,3 +29,18 @@ Restore dry-run on disposable DB, authorization, rollback and journaling demonst
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent units. The **complete authoritative list** includes microtasks below; always use `python3 tools/agent_tasks.py next` for execution order.
+
+- [P15-01](../tasks/P15-01.md)
+- [P15-02](../tasks/P15-02.md)
+- [P15-03](../tasks/P15-03.md)
+- [P15-04](../tasks/P15-04.md)
+- [P15-05A](../tasks/P15-05A.md)
+- [P15-05B](../tasks/P15-05B.md)
+- [P15-05C](../tasks/P15-05C.md)
+- [P15-05](../tasks/P15-05.md)
+- [P15-06](../tasks/P15-06.md)
+- [P15-07](../tasks/P15-07.md)
