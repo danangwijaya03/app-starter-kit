@@ -26,3 +26,15 @@ User CRUD and permissions editor endpoints/forms pass scoped tests.
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
+
+## Complete task index from TASKS.yaml
+
+The table above may summarize parent work units. **The authoritative task registry contains the full list below, including microtasks.** Always select the next ready task with `python3 tools/agent_tasks.py next`, not by visual order in this guide.
+
+- [P07-01](../tasks/P07-01.md)
+- [P07-02](../tasks/P07-02.md)
+- [P07-03](../tasks/P07-03.md)
+- [P07-04](../tasks/P07-04.md)
+- [P07-05](../tasks/P07-05.md)
+- [P07-06](../tasks/P07-06.md)
+- [P07-07](../tasks/P07-07.md)
