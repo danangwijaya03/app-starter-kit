@@ -2,6 +2,10 @@
 
 **Currently implemented:** Fresh Next.js 16.4.3 / React 19.3.0 / Tailwind v4 app at repository root, installed using `npx create-next-app@latest`. Full-stack monorepo features are **not** implemented yet.
 
+## Local environment
+
+Development uses **Lerd, Node.js 26, existing MySQL**, and Lerd Redis for BullMQ when needed. Read [PANDUAN-MULAI-LOW-AGENT.md](PANDUAN-MULAI-LOW-AGENT.md) and [Lerd development contract](docs/agent/LOCAL-LERD-NODE26.md). Never create duplicate MySQL/Redis services or reinstall Next.js.
+
 ## Run existing app
 
 ```bash
