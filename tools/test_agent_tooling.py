@@ -52,9 +52,9 @@ with tempfile.TemporaryDirectory(prefix="agent-tooling-") as tmp:
  cli=[sys.executable,"tools/agent_tasks.py"]
  assert json.loads(call(*cli,"summary","--json",cwd=temp).stdout)["total"]==2
  call(*cli,"start","P04-01",cwd=temp)
- call(*cli,"run","P04-01","--kind","integration","--",sys.executable,"tools/check_scenario.py","--case","good",cwd=temp)
+ call(*cli,"run","P04-01","--kind","integration","--","python3","tools/check_scenario.py","--case","good",cwd=temp)
  call(*cli,"complete","P04-01",cwd=temp,ok=False) # Negative evidence + independent review missing
- call(*cli,"run","P04-01","--kind","negative","--",sys.executable,"tools/check_scenario.py","--case","denied",cwd=temp)
+ call(*cli,"run","P04-01","--kind","negative","--","python3","tools/check_scenario.py","--case","denied",cwd=temp)
  call(*cli,"complete","P04-01",cwd=temp,ok=False) # Review still missing
  review=temp/"docs/agent/reviews/P04-01.md"
  review.parent.mkdir(parents=True)
@@ -66,7 +66,7 @@ with tempfile.TemporaryDirectory(prefix="agent-tooling-") as tmp:
  (temp/"tools/check_scenario.py").write_text("import sys\nassert '--case' in sys.argv\nassert sys.argv[-1] in ('good','denied')\n# new edit\n",encoding="utf-8")
  call(*cli,"complete","P04-01",cwd=temp,ok=False)
  for kind,case in (("integration","good"),("negative","denied")):
-  call(*cli,"run","P04-01","--kind",kind,"--",sys.executable,"tools/check_scenario.py","--case",case,cwd=temp)
+  call(*cli,"run","P04-01","--kind",kind,"--","python3","tools/check_scenario.py","--case",case,cwd=temp)
  call(*cli,"review","P04-01","--reviewer","independent tester","--evidence","docs/agent/reviews/P04-01.md",cwd=temp)
  call(*cli,"complete","P04-01",cwd=temp)
  plan={"children":[
