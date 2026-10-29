@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Documentation DAG and path verifier. NOT a test of application code."""
 from pathlib import Path
+from check_document_integrity import scan_documentation
 import re,sys
 try:import yaml
 except ImportError:sys.exit("Missing PyYAML: python3 -m pip install -r tools/requirements-agent.txt")
@@ -68,6 +69,8 @@ for p, audience in (
  content=path.read_text(encoding="utf-8")
  if "**Ditujukan untuk:" not in content or audience not in content.split("**Ditujukan untuk:",1)[1][:90]:
   errors.append("Missing correct document audience: "+p)
+checked_docs,content_errors=scan_documentation()
+errors.extend(content_errors)
 if errors:
  for e in errors[:50]:print("ERROR",e)
  print("Total errors:",len(errors));sys.exit(1)

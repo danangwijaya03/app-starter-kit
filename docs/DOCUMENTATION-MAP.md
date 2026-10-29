@@ -24,6 +24,7 @@
 | [TASKS.yaml](agent/TASKS.yaml) | Sumber status task dan dependency resmi |
 | [TEST-AND-REVIEW-POLICY.md](agent/TEST-AND-REVIEW-POLICY.md) | Bukti tes minimum dan review independen |
 | [TASK-SPLITTING.md](agent/TASK-SPLITTING.md) | Prosedur pemecahan task pending tanpa merusak dependency |
+| [check_document_integrity.py](../tools/check_document_integrity.py) | Audit semua Markdown; menolak error referensi dan spesifikasi terpotong |
 | [check_repo_contracts.py](../tools/check_repo_contracts.py) | Pemeriksaan script dan struktur repo aktual |
 | [tasks/](agent/tasks/) | **Satu task aktif** beserta scope dan kriteria verifikasi |
 | [START-AGENT-PROMPT.md](agent/START-AGENT-PROMPT.md) | Prompt yang disalin user ke sesi awal |

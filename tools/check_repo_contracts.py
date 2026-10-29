@@ -47,6 +47,8 @@ expect("source .venv-agent/bin/activate" not in read("docs/agent/START-AGENT-PRO
 expect("Node.js 26" in agents and "npm/npx" in agents,"Runtime/package-manager instruction mismatch.")
 # Check obvious root README claims against actual package scripts (not future P16 CLI placeholders).
 readme=read("README.md")
+prd=read("docs/PRD.md")
+expect(len(prd)>2500 and "PRD-05" in prd and "AUTH-REQ-01" in prd,"Core PRD missing or truncated.")
 if not web.exists():
  for cmd in re.findall(r"npm run ([a-z][a-z0-9:-]+)",readme):
   expect(cmd in root_scripts,"README references unavailable current npm script: "+cmd)

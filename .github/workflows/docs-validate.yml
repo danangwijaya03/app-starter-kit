@@ -36,6 +36,8 @@ jobs:
         run: python3 -m pip install -r tools/requirements-agent.txt
       - name: Validate script syntax
         run: python3 -m compileall -q tools
+      - name: Check all Markdown for failed file references and truncation
+        run: python3 tools/check_document_integrity.py
       - name: Validate task DAG and links
         run: python3 tools/validate_plan.py
       - name: Verify repository and documentation contracts

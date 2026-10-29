@@ -15,7 +15,8 @@ def call(*args,cwd=ROOT,ok=True):
  if not ok and p.returncode==0:raise AssertionError(str(args)+" unexpectedly succeeded")
  return p
 
-for cmd in ([sys.executable,"tools/validate_plan.py"],
+for cmd in ([sys.executable,"tools/check_document_integrity.py"],
+            [sys.executable,"tools/validate_plan.py"],
             [sys.executable,"tools/check_repo_contracts.py"],
             [sys.executable,"tools/agent_tasks.py","doctor"],
             [sys.executable,"tools/agent_tasks.py","next"]):

@@ -22,6 +22,8 @@
 
 **Bukti tes dan review risiko:** Sebelum menyelesaikan task, jalankan bukti dengan `agent_tasks.py run <ID> --kind docs|unit|integration|negative|build -- COMMAND`. Task high-risk memerlukan tes integrasi, negative test, dan review independen yang direkam melalui `review`; agent Low dilarang menyetujui pekerjaannya sendiri. Baca [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md). Task terlalu besar boleh [dipecah secara resmi](docs/agent/TASK-SPLITTING.md) hanya selama masih `pending`. Untuk status fase gunakan `.venv-agent/bin/python tools/agent_tasks.py summary`.
 
+**Dokumentasi utuh adalah prasyarat:** Sebelum P00, `tools/bootstrap_agent.py` menjalankan `check_document_integrity.py` atas seluruh Markdown. Jika PRD atau spesifikasi lain berisi pesan gagal referensi file, placeholder, atau konten terpotong, **block dulu**; jangan menyimpulkan requirement dari pesan error. Pulihkan dari sumber yang dapat diverifikasi, lalu validasi ulang.
+
 **Sumber status tunggal:** `docs/agent/TASKS.yaml` melalui `tools/agent_tasks.py`. Jumlah task awal 157, tetapi jangan menganggap semuanya tetap pending setelah development berlangsung. Validator dokumentasi tidak membuktikan kode aplikasi sudah lolos test; exit code 0 juga tidak menjamin cakupan test benar.
 
 ## Aturan repository

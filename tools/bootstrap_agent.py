@@ -70,6 +70,7 @@ def main() -> int:
         print("Agent Python environment ready:", PYTHON.relative_to(ROOT), flush=True)
         # All are read-only checks; leave TASKS.yaml and checkpoint unchanged.
         for tool, args in (
+            ("check_document_integrity.py", []),
             ("validate_plan.py", []),
             ("check_repo_contracts.py", []),
             ("agent_tasks.py", ["doctor"]),
