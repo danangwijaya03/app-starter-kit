@@ -3,7 +3,9 @@
 > This phase is an implementation target; it is **not** completed by this documentation commit.
 
 ## Gate before advancing
-MySQL and Redis development connectivity proven without assuming production Docker.
+Use existing **Lerd** MySQL and Redis, prove Node.js 26 runtime connectivity, isolated dev/test schemas, and no duplicate daemon. Do not modify global Lerd proxy/LAN exposure.
+
+**Mandatory local contract:** [Lerd + Node 26 + MySQL](../LOCAL-LERD-NODE26.md). Do not install a new MySQL/Redis service; validate the existing Lerd services before coding.
 
 ## Instructions for low-reasoning agent
 1. Run `python3 tools/agent_tasks.py doctor` then `next`; do not manually skip dependencies.
@@ -17,8 +19,8 @@ MySQL and Redis development connectivity proven without assuming production Dock
 | ID | Work unit |
 |---|---|
 | [P02-01](../tasks/P02-01.md) | Create typed environment validation and examples |
-| [P02-02](../tasks/P02-02.md) | Provision disposable local MySQL 8.4 |
-| [P02-03](../tasks/P02-03.md) | Provision local Redis and queue connectivity |
+| [P02-02](../tasks/P02-02.md) | Reuse existing Lerd MySQL with isolated dev/test schemas |
+| [P02-03](../tasks/P02-03.md) | Reuse existing Lerd Redis and isolate queue connectivity |
 | [P02-04](../tasks/P02-04.md) | Build database pool and Redis clients |
 | [P02-05](../tasks/P02-05.md) | Add local development orchestration |
 | [P02-06](../tasks/P02-06.md) | Validate all environment isolation and secrets hygiene |
