@@ -138,7 +138,7 @@ def main():
   if key in ("complete","progress","block","unblock"):q.add_argument("--note",default="")
   if key=="block":q.add_argument("--reason",required=True)
   if key=="run":
-   q.add_argument("--kind",choices=sorted(KINDS),required=True);q.add_argument("command",nargs=argparse.REMAINDER)
+   q.add_argument("--kind",choices=sorted(KINDS),required=True)
   if key=="review":
    q.add_argument("--reviewer",required=True);q.add_argument("--evidence",required=True)
  for key in ("gate","gate-run"):
@@ -146,7 +146,11 @@ def main():
   if key=="gate":q.add_argument("--note",default="")
   if key=="gate-run":
    q.add_argument("--kind",choices=sorted(KINDS),required=True);q.add_argument("command",nargs=argparse.REMAINDER)
- x=p.parse_args();d,m=read()
+ x,unused=p.parse_known_args()
+ if x.action in ("run","gate-run"):
+  x.command=unused
+ elif unused:sys.exit("Unexpected arguments: "+repr(unused))
+ d,m=read()
  if x.action=="validate":sys.exit(subprocess.run([sys.executable,str(ROOT/"tools/validate_plan.py")],cwd=ROOT).returncode)
  if x.action=="summary":summary(d,m,x.json);return
  if x.action=="split":sys.exit(subprocess.run([sys.executable,str(ROOT/"tools/split_agent_task.py"),x.id,"--plan",x.plan],cwd=ROOT).returncode)
