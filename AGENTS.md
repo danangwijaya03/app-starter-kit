@@ -1,5 +1,7 @@
 # Codelight app-starter-kit — Coding Agent Instructions v1.2
 
+**Local environment:** Lerd + Node.js 26 + MySQL; reuse the existing Lerd MySQL/Redis services. Read `docs/agent/LOCAL-LERD-NODE26.md` before environment tasks. Verify host-vs-container addresses, use isolated development/testing databases, and do not modify global Lerd settings or LAN exposure.
+
 **Current repository:** Next.js 16.4.3 / React 19.3.0 npm project from `npx create-next-app@latest`. Code remains at the Git root until P01; this is NOT a blank project. Use npm/npx ONLY.
 
 ## Required safe workflow
