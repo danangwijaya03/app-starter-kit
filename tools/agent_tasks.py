@@ -145,7 +145,7 @@ def main():
   q=a.add_parser(key);q.add_argument("phase")
   if key=="gate":q.add_argument("--note",default="")
   if key=="gate-run":
-   q.add_argument("--kind",choices=sorted(KINDS),required=True);q.add_argument("command",nargs=argparse.REMAINDER)
+   q.add_argument("--kind",choices=sorted(KINDS),required=True)
  x,unused=p.parse_known_args()
  if x.action in ("run","gate-run"):
   x.command=unused
