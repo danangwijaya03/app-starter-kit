@@ -4,6 +4,10 @@
 
 **Baseline:** Next.js 16.4.3 + React 19.3.0 sudah ada di root repository. P01 yang nanti memigrasikan aplikasi ke `apps/web`, bukan `create-next-app` ulang. Gunakan npm/npx, satu `package-lock.json`. Lingkungan lokal: Lerd + Node.js 26 + MySQL/Redis yang sudah tersedia.
 
+## Panduan arsitektur dan branch development (2026-11-07)
+
+Seluruh pekerjaan implementasi berikutnya ditargetkan pada branch `dev`, bukan langsung `main`, kecuali operator mengubah kebijakan. Baca [ARCHITECTURE](docs/ARCHITECTURE.md), [ROADMAP](docs/ROADMAP.md), dan [AGENT-WORKFLOW](docs/AGENT-WORKFLOW.md) untuk orientasi; spesifikasi detail, task cards, `TASKS.yaml` dan tool CLI **tetap otoritatif**. Jangan merombak fase/ID task mengikuti ringkasan baru. Pembagian implementation vs independent testing berlaku tanpa menghapus bukti tes minimum per task.
+
 ## Bootstrap tooling otomatis (wajib sebelum P00, termasuk sesi RESUME)
 
 1. Dari root repository, periksa `git status --short` dan jalankan **`python3 tools/bootstrap_agent.py`** sendiri. Script ini tidak membutuhkan PyYAML, tidak menggunakan `source`/aktivasi, serta mendukung Fish, Bash, dan Zsh.

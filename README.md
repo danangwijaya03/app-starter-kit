@@ -2,6 +2,11 @@
 
 **Ditujukan untuk: USER / DEVELOPER.** Repository sudah berisi Next.js 16.4.3, React 19.3.0, TypeScript, Tailwind v4, npm/npx. Aplikasi yang dibuat dengan `npx create-next-app@latest` masih berada pada root repository dan **akan dipindahkan oleh task P01**, bukan dibuat ulang.
 
+
+## Blueprint monorepo (pembaruan dokumentasi 2026-11-07)
+
+Dokumentasi arsitektur terbaru tersedia pada [ARCHITECTURE](docs/ARCHITECTURE.md), [ROADMAP](docs/ROADMAP.md), [AGENT-WORKFLOW](docs/AGENT-WORKFLOW.md), [DEPLOYMENT](docs/DEPLOYMENT.md), dan [PROGRESS](docs/PROGRESS.md). Ringkasan ini **tidak** menggantikan 157 task P00–P16 di `docs/agent/TASKS.yaml`; status dan fase existing tetap otoritatif. Pengembangan dilakukan pada branch `dev`, sedangkan `main` tetap baseline. Perubahan dokumentasi tidak berarti API/worker/monorepo sudah diimplementasikan.
+
 ## Menjalankan Next.js saat ini
 
 ```bash

@@ -6,6 +6,11 @@
 
 | File | Gunakan untuk |
 |---|---|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Ringkasan tiga runtime monorepo, dependency boundaries, auth/RBAC, MySQL/Redis |
+| [ROADMAP.md](ROADMAP.md) | Mapping blueprint baru ke 17 fase & 157 task existing |
+| [AGENT-WORKFLOW.md](AGENT-WORKFLOW.md) | Pembagian implementer/QA dan checkpoint aman |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Ringkasan artifact-only deploy, Nginx/PM2 tanpa Docker |
+| [PROGRESS.md](PROGRESS.md) | Snapshot status dokumentasi tanpa mengubah task registry |
 | [README.md](../README.md) | Kondisi repository, menjalankan Next.js existing |
 | [PANDUAN-MULAI-LOW-AGENT.md](../PANDUAN-MULAI-LOW-AGENT.md) | Setup Lerd, Node 26, npm, memulai/memantau/melanjutkan Codex Low |
 | [README-SERVER.md](../README-SERVER.md) | Instalasi release ke server **setelah** P16 terimplementasi dan teruji |
