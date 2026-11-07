@@ -1,53 +1,34 @@
-# Deployment Blueprint — Tanpa Docker
+# Deployment Blueprint — Artifact Tanpa Docker
 
-**Updated:** 2026-11-07. **Status:** target rancangan, **bukan panduan executable sampai P16 terimplementasi dan diuji**. Untuk kontrak release lengkap lihat [TRD](TRD.md), [IPD](IPD.md), dan [README-SERVER](../README-SERVER.md).
+**Status: target, belum executable.** Tidak ada API/worker/release artifact produksi saat reset dokumentasi 2026-11-07. Seluruh command, manifest dan scripts implementasi harus diverifikasi pada fase P15–P16 sebelum dipakai live.
 
-## Target infrastruktur
+## Target runtime
 
-- Nginx/aaPanel menerima HTTPS publik dan reverse proxy ke Next.js :3000 serta Hono :4000 yang bind ke loopback.
-- PM2 mengelola proses **web**, **api**, dan **worker**, satu process manager per service. Installer CLI dieksekusi on-demand.
-- MySQL 8.4 dan Redis berjalan sebagai service native/server, tidak dikontainerisasi.
-- Deploy user non-root, private env di luar document root, privilege terpisah untuk runtime, migrasi, backup.
-- Node.js patch, architecture, ABI, OS target, dan native modules harus sesuai manifest build yang teruji; jangan mengasumsikan artifact Linux x64 berjalan di ARM.
+- **Nginx/aaPanel:** terminasi HTTPS; `/` dan route aplikasi → Next.js pada `127.0.0.1:3000`; `/api/*` → Hono `127.0.0.1:4000`.
+- **Node.js:** exact version / arch / ABI sesuai build yang diuji. Web Next standalone, API compiled, worker compiled adalah proses terpisah dikelola PM2 **atau** systemd (hindari dua process manager untuk satu proses).
+- **MySQL 8.4 dan Redis:** service native pada host/private network, tanpa Docker, tidak publik.
+- **Secrets/storage:** shared private, bukan di `public/`, artifact, atau Git.
 
-## Alur build → release
+## Pipeline yang harus dibangun
 
 ```text
 Git commit/tag
-  → npm ci (lockfile root)
-  → lint/typecheck/unit/integration/negative tests yang relevan
-  → compile Next standalone + Hono API + Worker + Installer
-  → include static/public + migrations + runtime dependencies
-  → release manifest/checksum
-  → test isolated artifact (tanpa repository sumber)
-  → upload archive ke aaPanel/server
-  → verify, preflight, migrate terkontrol, switch, health check
+ → npm ci dari root lockfile
+ → lint / typecheck / unit / integration / negative tests
+ → build Next standalone + static/public
+ → compile Hono API + worker + production dependencies
+ → include versioned Drizzle migrations & optional migration runner
+ → checksums + manifest (SHA commit, OS/arch, Node, entrypoints, migrations)
+ → smoke test hasil ekstraksi tanpa repository sumber
+ → upload ke server, preflight, migrasi terkontrol, switch, health checks
 ```
-
-Target isi archive:
-
-```text
-release/
-├── web/                     # standalone server + .next/static + public
-├── api/                     # compiled Node API & runtime deps
-├── worker/                  # compiled BullMQ worker & runtime deps
-├── cli/                     # installer / migrator
-├── database/migrations/
-├── config/                  # templates only, no production .env
-├── README-SERVER.md
-└── release-manifest.json    # commit, versions, target OS/arch, checksums
-```
-
-Keterangan: bila bundler mengeksternalkan dependency atau native addon, seluruh dependency runtime dan binary yang diperlukan harus ikut artifact. Next standalone harus di-build dengan tracing root monorepo yang benar. Implementer wajib tes proses dari folder hasil ekstraksi yang **tidak** memerlukan source repository.
-
-## Server layout contoh
 
 ```text
 /srv/apps/app-starter-kit/
 ├── releases/
-│   ├── 2026-11-07-release-a/
-│   └── 2026-11-08-release-b/
-├── current -> releases/2026-11-08-release-b/
+│   ├── release-001/
+│   └── release-002/
+├── current -> releases/release-002/
 └── shared/
     ├── env/
     ├── media/
@@ -55,34 +36,19 @@ Keterangan: bila bundler mengeksternalkan dependency atau native addon, seluruh 
     └── logs/
 ```
 
-Nama dan path final mengikuti installer contract yang telah diuji. `shared/env`, logs, media private dan backups tidak boleh tersedia sebagai static file publik.
+Artifact release contoh: `web/`, `api/`, `worker/`, `database/migrations/`, `release-manifest.json`, `config/examples/`. Sertakan installer/CLI hanya jika diterapkan dan diuji. Packaging Next harus mengatur tracing root monorepo dan menyertakan `.next/static` serta `public`. Jika native modules atau dependencies di-external-kan, wajib ikut artifact dan cocok dengan target.
 
-## Rute proxy yang wajib
+## Safe rollout / rollback
 
-| Public | Reverse proxy |
-|---|---|
-| `/api/auth/*` | Hono `127.0.0.1:4000` |
-| `/api/v1/*` | Hono `127.0.0.1:4000` |
-| Semua route lain | Next.js `127.0.0.1:3000` |
+1. Build dan test pada lingkungan yang kompatibel dengan server tujuan.
+2. Upload ke folder release baru; verifikasi manifest, checksum, permission, secret references.
+3. Periksa health MySQL/Redis dan kompatibilitas migrasi; ambil backup sesuai risiko.
+4. Jalankan migrasi hanya setelah konfirmasi operasi aman dan persetujuan operator untuk operasi high-risk.
+5. Jalankan/reload proses yang benar, alihkan `current`, lalu HTTP/auth/job smoke check.
+6. Jika gagal, hentikan rollout. Rollback symlink hanya jika migrasi schema backward-compatible; recovery database perlu prosedur khusus dan persetujuan operator.
 
-Nginx harus mempertahankan host/proto yang tervalidasi serta path API. Session cookie same-origin; verifikasi konfigurasi Secure/HttpOnly/SameSite, CSRF, upload limit, proxy timeout, health endpoint, dan rate limiting. Jangan expose port 3000/4000/MySQL/Redis ke publik.
+**Keamanan:** cookie session `HttpOnly`/`Secure`, CSRF defense, validasi forwarded host/proto, least-privilege service accounts, API/database/Redis loopback/private, rate limits dan log tanpa secret. Backup/restore produksi bukan bagian dari test otomatis.
 
-## Tahapan deployment terkontrol
+Definition of Done deployment: seluruh service berjalan dari archive tanpa checkout source, dengan instruksi reproduktif untuk fresh install, update, rollback dan pemeriksaan pascadeploy.
 
-1. Upload archive baru ke **folder release baru** dan cocokkan checksum/manifest.
-2. Lakukan preflight Node runtime, arsitektur, layanan, env, disk, permission, dan koneksi DB/Redis.
-3. Verifikasi schema compatibility dan persetujuan operator untuk migration berisiko; backup yang memadai sebelumnya.
-4. Eksekusi migrator/seed idempotent sesuai kontrak installer; bootstrap admin hanya fresh install dengan secret lokal.
-5. Jalankan/update service via satu process manager, lalu alihkan symlink `current` secara aman.
-6. Lakukan HTTP health, auth smoke, queue/worker health, dan error log check.
-7. Saat gagal, hentikan rollout; rollback aplikasi lewat symlink **hanya bila schema backward-compatible**. Bila migration tidak compatible, gunakan recovery runbook yang disetujui operator; jangan mengembalikan DB secara otomatis.
-
-## Larangan
-
-- Jangan Docker di production.
-- Jangan hardcode credentials, secret, bootstrap password, atau token di source/release archive.
-- Jangan tes restore, `drop database`, destructive migration atau live credential rotation pada production.
-- Jangan mengklaim deployment siap sebelum E2E artifact-isolated smoke P16 dan README-SERVER benar-benar direproduksi.
-- Jangan menjalankan dua process manager (aaPanel Node Project dan PM2) untuk proses/port yang sama.
-
-Dokumentasi ini melengkapi, **bukan mengganti**, prosedur khusus di [README-SERVER.md](../README-SERVER.md).
+Rujukan: [ARCHITECTURE.md](ARCHITECTURE.md), [ROADMAP.md](ROADMAP.md).

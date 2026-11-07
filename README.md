@@ -1,33 +1,34 @@
 # app-starter-kit
 
-**Ditujukan untuk: USER / DEVELOPER.** Repository sudah berisi Next.js 16.4.3, React 19.3.0, TypeScript, Tailwind v4, npm/npx. Aplikasi yang dibuat dengan `npx create-next-app@latest` masih berada pada root repository dan **akan dipindahkan oleh task P01**, bukan dibuat ulang.
+**Clean Next.js baseline + new monorepo blueprint** (branch `dev`; reset 2026-11-07).
 
+Repository ini berisi source awal Next.js 16.4.3 (App Router), React 19.3.0, TypeScript, Tailwind v4 dan npm lockfile di root. **Hono API, worker, MySQL/Drizzle, RBAC, CMS dan release artifact belum diimplementasikan.**
 
-## Blueprint monorepo (pembaruan dokumentasi 2026-11-07)
+## Jalankan aplikasi saat ini
 
-Dokumentasi arsitektur terbaru tersedia pada [ARCHITECTURE](docs/ARCHITECTURE.md), [ROADMAP](docs/ROADMAP.md), [AGENT-WORKFLOW](docs/AGENT-WORKFLOW.md), [DEPLOYMENT](docs/DEPLOYMENT.md), dan [PROGRESS](docs/PROGRESS.md). Ringkasan ini **tidak** menggantikan 157 task P00–P16 di `docs/agent/TASKS.yaml`; status dan fase existing tetap otoritatif. Pengembangan dilakukan pada branch `dev`, sedangkan `main` tetap baseline. Perubahan dokumentasi tidak berarti API/worker/monorepo sudah diimplementasikan.
-
-## Menjalankan Next.js saat ini
+Prasyarat: Node.js versi yang mendukung dependency terpasang, npm dan Git. Baseline pengembangan yang ditargetkan: Node.js 26 dengan kompatibilitas yang diuji.
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Buka `http://localhost:3000`. Pemeriksaan awal: `npm run lint` dan `npm run build`. Setelah migrasi P01, gunakan script npm workspace yang sudah benar-benar dibuat oleh agent.
+Buka http://localhost:3000. Pemeriksaan dasar:
 
-**Development:** Lerd + Node.js 26 + MySQL existing (Redis Lerd saat diperlukan). **Production:** upload artifact ke server aaPanel dengan Node/PM2/Nginx, tanpa Docker.
+```bash
+npm run lint
+npm run build
+```
 
-## Memulai development lewat Codex Low
+Jangan menjalankan `npx create-next-app` di repo ini. Source bawaan Next.js sudah ada. Saat implementasi monorepo (fase P01), **pindahkan** app dari root ke `apps/web` dan bangun npm workspaces dengan satu lockfile.
 
-Ikuti **[Panduan Pengguna](PANDUAN-MULAI-LOW-AGENT.md)** untuk setup, memulai, memantau, dan melanjutkan sesi. Prompt pertama: [START](docs/agent/START-AGENT-PROMPT.md); prompt sesi baru: [RESUME](docs/agent/RESUME-SESSION-PROMPT.md).
+## Blueprint dan tahap implementasi
 
-Coding agent otomatis menyiapkan `.venv-agent` tanpa aktivasi shell melalui `python3 tools/bootstrap_agent.py` sebelum P00, kemudian membaca **[AGENTS.md](AGENTS.md)**, runbook dan task card; panduan pengguna **bukan** instruksi agent.
+- [Architecture](docs/ARCHITECTURE.md) — Next.js Web + Hono API + BullMQ worker + MySQL + Redis.
+- [Roadmap](docs/ROADMAP.md) — P00–P16 baru, tanpa task registry lama.
+- [AI Agent Workflow](docs/AGENT-WORKFLOW.md) — implementer, independent QA, scoped testing, checkpoint.
+- [Deployment](docs/DEPLOYMENT.md) — source-free artifact, Nginx, PM2/systemd, tanpa Docker.
 
-**Monitoring agent:** `.venv-agent/bin/python tools/agent_tasks.py summary` menampilkan progres seluruh fase. `.venv-agent/bin/python tools/check_repo_contracts.py` memeriksa konsistensi README, script npm dan struktur aktual tanpa mengubah aplikasi. Agent harus mengikuti kebijakan tes/review pada [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md).
+`AGENTS.md` berisi aturan singkat untuk coding agent. Pengembangan dilakukan di `dev` atau feature branch dari `dev`; `main` tidak ikut direset.
 
-## Dokumentasi lengkap
-
-[Lihat peta dokumen berdasarkan pembaca](docs/DOCUMENTATION-MAP.md). Di sana tersedia PRD, TRD, AFD, DBD, BSD, IPD, 17 fase, task registry dan kontrak Lerd.
-
-**Belum tersedia:** aplikasi full-stack monorepo, API, CMS, RBAC, worker dan installer. [README-SERVER.md](README-SERVER.md) masih spesifikasi sampai release P16 dibangun dan diuji.
+**Catatan:** perubahan reset hanya source tree/documentation. Build dan test belum dijalankan melalui GitHub pada reset ini. Jangan menganggap fase roadmap telah selesai.

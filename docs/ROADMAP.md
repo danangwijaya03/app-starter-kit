@@ -1,59 +1,44 @@
-# Roadmap Implementasi — Monorepo P00–P16
+# Roadmap — Implementasi Baru P00–P16
 
-**Updated:** 2026-11-07. **Status:** rencana pelaksanaan, **bukan** bukti fitur sudah ada. Task registry [`agent/TASKS.yaml`](agent/TASKS.yaml), task cards, dan [`agent/PHASES.md`](agent/PHASES.md) adalah sumber otoritatif untuk nomor, dependensi, serta status.
+**Status: semua fase P00–P16 belum dikerjakan setelah reset dokumentasi pada 2026-11-07.**
 
-## Kenapa fase tidak dinomori ulang?
+Ini adalah **roadmap baru, berdiri sendiri**. Task registry 157 item, file `docs/agent/TASKS.yaml`, checkpoint dan scripts Python lama **sengaja dihapus**. Tidak ada task ID lama yang perlu dipulihkan. Mulai dari source Next.js root yang telah ada. Agent membuat task kecil berdasarkan fase berikut tanpa menganggap tahap selesai sebelum verifikasi aktual.
 
-Blueprint ringkas baru mengelompokkan pekerjaan menjadi Foundation, Identity, Features, Quality, Release. Repository sudah mempunyai 157 atomic task dalam 17 fase dengan **pemetaan fase yang lebih detail**. Untuk menghindari konflik task ID dan mengulang pekerjaan, gunakan fase **existing** di bawah. Jangan menganggap label P04 dari rancangan ringkas sebelumnya identik dengan P04 registry.
+| Fase | Deliverable | Verification gate |
+|---|---|---|
+| P00 | Audit baseline, kontrak teknis, kriteria berhasil | Git clean, Next scaffold teridentifikasi |
+| P01 | **Migrasi** root Next.js ke `apps/web`; npm workspaces | `npm ci`, web lint/build lulus, history aman |
+| P02 | Shared config, TypeScript, contracts, batas package | Typecheck/lint + import boundary |
+| P03 | Hono API skeleton + Next → API proxy | Web/API health dan same-origin smoke |
+| P04 | MySQL, Drizzle schema + migrations | Migrate dari DB test kosong, repeatability |
+| P05 | Better Auth + bootstrap admin + session | Login/logout dan negative tests |
+| P06 | Custom RBAC dan server authorization | 401/403, privilege escalation ditolak |
+| P07 | Zod/REST API contracts & error envelopes | Validation/negative API tests |
+| P08 | Responsive admin shell + Salt & Pepper | UI + authorized route/navigation smoke |
+| P09 | User/role CRUD + permission editor | Vertical slice end-to-end |
+| P10 | Branding, settings, theme persistence | Isolasi config/permissions |
+| P11 | CMS draft/publish, media/navigation minimal | Published-only public content |
+| P12 | Redis queue, BullMQ worker, sample job | Retry, idempotence, shutdown |
+| P13 | Audit, observability, health/ops | Logs tanpa secret, error handling |
+| P14 | Integration, E2E, security/regression tests | Seluruh test kritis lulus |
+| P15 | Portable build artifacts + Nginx/process templates | Artifact-only smoke (tanpa source tree) |
+| P16 | Template onboarding + fresh-install validation | Proyek turunan terisolasi dapat dibuat |
 
-| Milestone | Fase existing | Fokus | Gate minimum |
-|---|---|---|---|
-| A Foundation | P00 | Spesifikasi, validasi dokumen, kesiapan agent | Link/registry/contract valid |
-| A Foundation | P01 | Migrasi root Next.js ke npm monorepo, Hono/worker scaffolding | `npm ci`, workspace build smoke |
-| A Foundation | P02 | Lerd Node 26, dev/test MySQL dan Redis | Koneksi dan isolasi lingkungan terbukti |
-| A Foundation | P03 | Drizzle, Better Auth schema, migration, transactions | Migration di DB disposable teruji |
-| B Core | P04 | Better Auth login, logout, reset, session | Auth positives/negatives lulus |
-| B Core | P05 | RBAC, permission registry, first admin | Server deny + bootstrap tests lulus |
-| B Core | P06 | Design system Salt & Pepper, admin shell | Responsif, route/menu visibility |
-| B Core | P07 | CRUD user, role, permission editor | Endpoint dan UI end-to-end |
-| B Core | P08 | Dashboard & widget registry | Grant checks + render |
-| C Product | P09 | Storage/media library | Upload safety, access, persistence |
-| C Product | P10 | CMS editor dan revisi | Draft/publish invariant |
-| C Product | P11 | Public CMS & navigation | Hanya published content ditampilkan |
-| C Product | P12 | Settings, branding, appearance, audit viewer | Persistensi dan authorization |
-| D Operations | P13 | Redis/BullMQ worker | Retry, idempotency, shutdown |
-| D Operations | P14 | Backup terverifikasi | Isolated backup, checksum, encryption |
-| D Operations | P15 | Restore & recovery | Staging, fail-safe, manual approval |
-| D Release | P16 | Standalone artifacts, CLI, Nginx/PM2, E2E | Fresh install, upgrade, rollback smoke |
+Dependency dasar: `P00→P01→P02→P03→P04→P05→P06→P07→P08→P09`; P10/P11/P12 dapat dimulai setelah dependensi masing-masing lulus; P13–P16 harus diverifikasi di bagian akhir. Tidak boleh menunda tes unit/fungsional sampai P14: setiap fase tetap mempunyai gate.
 
-Lihat [`IPD.md`](IPD.md) dan [`agent/PHASES.md`](agent/PHASES.md) untuk dependency graph dan acceptance criteria detail. Tidak boleh melompati dependensi yang tercatat.
+## Aturan kerja
 
-## Workflow per atomic task
+- **Jangan** menjalankan `npx create-next-app`; source Next sudah tersedia di root. P01 memindahkan, bukan mengulang bootstrap.
+- Pertahankan `main`; semua perubahan pada branch `dev` atau feature branch dari `dev`.
+- Selesaikan satu **atomic task** pada satu waktu. Setiap task memiliki scope, berkas yang diubah, acceptance criteria, perintah tes aktual, dan commit.
+- Gunakan pendekatan **RECOVER → IMPLEMENT → TEST → VERIFY → CHECKPOINT → NEXT**.
+- Jangan menjalankan tindakan destructive pada production/DB lokal yang berisi data nyata.
+- Test berisiko (auth/RBAC, migrations, backup/restore, release) memerlukan review independen.
+- Dokumentasikan mismatch jika kode tidak sesuai blueprint, lalu ubah dengan keputusan yang eksplisit; jangan menyamakan design target dengan implementasi selesai.
+- Jangan menambah tool checkpoint besar dan puluhan dokumen otomatis sejak awal. Status/progress minimal bisa didapat dari commit dan satu checkpoint ringkas per task.
 
-**RECOVER → IMPLEMENT → TEST → VERIFY → CHECKPOINT → NEXT**
+## Definition of Done
 
-1. **RECOVER:** periksa branch dan `git status --short`, task yang in_progress, commit terakhir, evidence. Jalankan `python3 tools/bootstrap_agent.py` sesuai [AGENTS](../AGENTS.md), kemudian CLI `doctor`, `next`, `show`.
-2. **IMPLEMENT:** kerjakan satu task yang ready pada scope card saja. Untuk fitur end-to-end ikuti urutan migration → core service → API → permission → UI → relevant test; pecah resmi jika melebihi satu unit.
-3. **TEST:** implementer menjalankan scoped tests setelah edit terakhir; test tidak boleh hanya dinyatakan lulus. Gunakan evidence runner `agent_tasks.py run`. Gunakan database disposable untuk destructive scenarios.
-4. **VERIFY:** cek acceptance criteria, lint/typecheck/build yang relevan, negative authorization paths. High-risk task memerlukan independent review sesuai policy.
-5. **CHECKPOINT:** commit kecil dan simpan bukti dengan tooling. Jangan mengubah field status YAML manual atau menyelesaikan task tanpa bukti.
-6. **NEXT:** lanjut task ready berikutnya secara mandiri selama aman dan tidak membutuhkan persetujuan berisiko.
+Fresh `npm ci`, three independent builds (web/API/worker), empty-DB migration, login/session/permission negative tests, user-role CMS-settings E2E, worker retry/idempotence, audit, artifact isolation/deploy smoke, serta template baru tidak membawa data/secret proyek awal. Jalankan semua gate di lingkungan disposable atau sesuai izin operator.
 
-## Pembagian agent
-
-- **Implementation agent (mis. GPT-6.1 Sol Medium jika tersedia):** kode, migration, focused tests dan checkpoint per task.
-- **Testing agent (mis. GPT-5.6 Terra jika tersedia):** review independen, integration/E2E, keamanan, regresi per milestone. Temuan dibuka sebagai task perbaikan yang scoped, bukan perubahan tak terbatas.
-- **High-risk reviewer:** terpisah dari implementer; pemeriksaan auth/RBAC, migration, backup/restore, deploy/rollback tidak boleh self-approve.
-- Testing komprehensif dapat berjalan setelah satu milestone, **tetapi unit tests dan security smoke tests tidak boleh ditunda sampai seluruh 17 fase selesai**.
-
-Lihat [`AGENT-WORKFLOW.md`](AGENT-WORKFLOW.md) dan [kebijakan tes](agent/TEST-AND-REVIEW-POLICY.md).
-
-## Gate keseluruhan
-
-Fresh `npm ci` dan build tiga runtime, migration ke MySQL kosong, authenticated flows, RBAC deny checks, CRUD end-to-end, worker retry, tests lint/type/E2E, source-free artifact isolated smoke, template clone tanpa secret/data, serta dokumentasi deployment yang benar-benar diuji. Pada fase P16, installer/backup/restore harus sesuai scope existing IPD, bukan dipotong hanya karena blueprint ringkas.
-
-## Mulai dari repository yang sudah ada
-
-**Jangan** mengulang `npx create-next-app`: root app sudah tersedia. P01 migrasi via Git move, memperbarui npm workspace dan lockfile root, lalu membuat skeleton Hono/worker/installer. Berkas `apps/` dan `packages/` pada [architecture](ARCHITECTURE.md) adalah target dan hanya dibuat pada task yang tepat.
-
-Untuk status terbaru: `.venv-agent/bin/python tools/agent_tasks.py summary`. Catatan manusia bisa dirujuk di [PROGRESS](PROGRESS.md), tetapi **`TASKS.yaml` adalah sumber status tunggal**.
+Referensi: [ARCHITECTURE.md](ARCHITECTURE.md), [AGENT-WORKFLOW.md](AGENT-WORKFLOW.md), [DEPLOYMENT.md](DEPLOYMENT.md).
