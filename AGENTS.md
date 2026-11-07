@@ -11,6 +11,17 @@
 3. Sesudah bootstrap lulus, **semua perintah Python tooling** gunakan `.venv-agent/bin/python tools/<nama_script>.py`. Jangan gunakan `python3 tools/agent_tasks.py` tanpa environment yang benar, jangan `source .venv-agent/bin/activate`, dan jangan pakai `pip --break-system-packages`.
 4. Jika bootstrap gagal karena Python/venv/pip, jaringan atau izin terminal, **hentikan P00** dan laporkan blocker yang faktual. Jangan mengklaim task dimulai/selesai, menurunkan keamanan, atau memperbaiki Python sistem tanpa izin operator.
 
+## Incremental preview dan routing kemampuan agent
+
+**Target utama:** perubahan source bisa dicoba setiap increment; jangan menunggu semua fase rampung. Kerjakan **vertical slice paling kecil** yang dependency-nya sudah siap. UI fixture boleh muncul lebih awal dengan label `DEMO`; untuk fitur nyata, gunakan kontrak API/MySQL/permission yang benar, bukan dummy endpoint yang diam-diam dipakai produksi.
+
+1. Mulai dari `main` yang sudah ada. Jangan buat branch `dev` atau mengubah main lewat reset paksa. Kerja lokal tetap harus melewati tes sebelum commit.
+2. Baca [PREVIEW-AND-FEEDBACK.md](docs/agent/PREVIEW-AND-FEEDBACK.md) dan [DEVELOPMENT-ROADMAP.md](docs/DEVELOPMENT-ROADMAP.md) ketika task menyentuh output pengguna. Catat actual preview URL/path **hanya jika terverifikasi**, mock/integrated/diagnostic, langkah review, dan test result di CHECKPOINT serta REVIEW-QUEUE.
+3. Lifecycle: **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. Jangan ubah status CLI menjadi label UX; `reviewable` dan review pengguna adalah catatan di review queue, status teknis tetap sesuai CLI.
+4. **Low reasoning adalah implementer default** untuk task kecil yang eksplisit. Baca [AGENT-ROUTING.md](docs/agent/AGENT-ROUTING.md); rekomendasikan **High reasoning** untuk schema/auth/RBAC, migrations, secret/backup/restore, CMS private preview, installer/upgrade/rollback, graph refactor, dan keputusan arsitektur tak jelas. Pekerjaan berisiko tinggi tetap memerlukan **review independen**, bahkan jika implementer menggunakan High.
+5. Tidak ada penantian konfirmasi pengguna untuk preview biasa; feedback dapat diterapkan sebagai task revisi terbatas setelah diterima. Jika tidak ada reviewer untuk gate high-risk, catat blocked dan lanjut hanya task independen yang aman.
+6. Bila terjadi konflik antara fase visual dan dependency teknis, **TASKS.yaml tetap otoritatif**; gunakan milestone preview tambahan, jangan menggeser/menamai ulang 157 task lama secara sembarangan.
+
 ## Alur tunggal untuk seluruh sesi
 
 1. Jalankan bootstrap di atas, periksa `git status --short`, checkpoint, dan pekerjaan yang tersisa.
@@ -24,7 +35,7 @@
 
 **Dokumentasi utuh adalah prasyarat:** Sebelum P00, `tools/bootstrap_agent.py` menjalankan `check_document_integrity.py` atas seluruh Markdown. Jika PRD atau spesifikasi lain berisi pesan gagal referensi file, placeholder, atau konten terpotong, **block dulu**; jangan menyimpulkan requirement dari pesan error. Pulihkan dari sumber yang dapat diverifikasi, lalu validasi ulang.
 
-**Sumber status tunggal:** `docs/agent/TASKS.yaml` melalui `tools/agent_tasks.py`. Jumlah task awal 157, tetapi jangan menganggap semuanya tetap pending setelah development berlangsung. Validator dokumentasi tidak membuktikan kode aplikasi sudah lolos test; exit code 0 juga tidak menjamin cakupan test benar.
+**Sumber status tunggal:** `docs/agent/TASKS.yaml` melalui `tools/agent_tasks.py`. Jumlah task awal 161 (157 task warisan dan 4 task preview baru), tetapi jangan menganggap semuanya tetap pending setelah development berlangsung. Validator dokumentasi tidak membuktikan kode aplikasi sudah lolos test; exit code 0 juga tidak menjamin cakupan test benar.
 
 ## Aturan repository
 

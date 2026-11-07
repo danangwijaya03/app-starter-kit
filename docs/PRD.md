@@ -145,3 +145,14 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 ## PRD-09 Traceability
 
 Use IDs above in tests and phase tasks. Technical resolution in TRD, flows in AFD, visual detail in DBD, schema/API in BSD, and execution sequence in IPD. New requirements must be added with impact to all affected documents and tasks. The live task registry is [TASKS.yaml](agent/TASKS.yaml); it governs execution status, not product requirements.
+
+## PRD-10 Incremental preview and reviewability (2026-11-07)
+
+- **DEV-REQ-01 (MUST):** Each meaningful delivery slice keeps source runnable, relevant tests repeatable and a user-visible preview or safe diagnostic before the full project finishes.
+- **DEV-REQ-02 (MUST):** Fixture/mock and integrated/API-backed states must be visibly differentiated. Never imply authentication, persistence or permissions exist merely because a layout renders.
+- **DEV-REQ-03 (MUST):** Log verified preview route and reproduction steps, test evidence, unresolved limitations and explicit user feedback separately from technical task completion.
+- **DEV-REQ-04 (MUST):** Low-reasoning agents can implement bounded tasks. Security-critical decisions are recommended for High reasoning and must respect independent high-risk review.
+- **DEV-REQ-05 (MUST):** Continue unrelated safe tasks without waiting for user visual approval; revision feedback creates bounded new work.
+- **DEV-REQ-06 (MUST):** Preserve main branch, existing Next.js scaffold, npm tooling, Lerd services and production no-Docker rule.
+
+See [Development Roadmap](DEVELOPMENT-ROADMAP.md), [Preview/Feedback](agent/PREVIEW-AND-FEEDBACK.md) and [Agent Routing](agent/AGENT-ROUTING.md).

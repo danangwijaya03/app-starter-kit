@@ -19,6 +19,8 @@ docs/agent/CHECKPOINT.md
 
 Jika task in_progress, cocokkan file berubah, source fingerprint dan evidence sebelum editing. Jika tidak ada, ambil satu task ready. Baca hanya card aktif dan referensi terkait.
 
+Baca docs/agent/PREVIEW-AND-FEEDBACK.md, docs/agent/REVIEW-QUEUE.md dan docs/agent/AGENT-ROUTING.md. Lanjutkan flow RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT pada main. Catat preview fixture/integrated, URL hanya jika benar-benar diuji; rekomendasikan High reasoning untuk keputusan penting dan review independen saat high-risk.
+
 Jangan mengulang migration/seed/bootstrap/restore atau menghapus data tanpa pengecekan state, lingkungan, dan otorisasi. Gunakan npm/npx dan Lerd Node 26; test harus menggunakan DB khusus test. Periksa jenis bukti tes dan catatan reviewer task high-risk sesuai docs/agent/TEST-AND-REVIEW-POLICY.md; persetujuan lama menjadi tidak sah bila source berubah. Jalankan pemeriksaan konsistensi repo setelah mengubah script/dokumentasi.
 
 Jalankan tes nyata setelah edit terakhir, catat complete/progress/block dengan CLI. Lanjutkan otomatis jika aman, atau checkpoint saat limit mendekat.

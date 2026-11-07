@@ -147,3 +147,15 @@ Every task is `verified`; six document links/IDs consistent; all auth/RBAC deny 
 ## v1.2 repository integration (approved 2026-10-29)
 
 The existing repository `danangwijaya03/app-starter-kit` already contains a working **root Next.js 16.4.3 npm scaffold** with `app/`, `public/`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs` and root `package-lock.json`. P01 must move the **existing** app into `apps/web`, not run create-next-app again. Use npm Workspaces and one root package-lock. This documentation-only commit does not relocate the source or claim new features implemented. The target production deployment is non-Docker artifact upload to aaPanel/PM2.
+
+## IPD-10 Preview-first implementation and reasoning-aware execution (2026-11-07)
+
+**Delivery flow:** RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. Incrementally change actual source and run scoped tests before a preview handoff; never hold all frontend work until the final P16 release. A safe infrastructure task can provide a documented read-only diagnostic, not invented interface functionality.
+
+**Compatibility with old task IDs:** keep the 157 original IDs and dependency constraints. Four early visibility tasks are added: `P01-08` (post-monorepo UI shell fixture), `P01-09` (preview smoke/handoff), `P02-07` (dev health) and `P03-09` (safe DB health). Total 161. The UI-only baseline at `/` is a demo, **not** an authenticated dashboard. Full authorized shell remains P06 after P04/P05, so preview may precede an integrated backend without implying persistence.
+
+**Development main:** requested changes are committed to `main` once verified; no forced dev branch or destructive reset. Never silently mutate a production DB/deploy. User review state goes to `docs/agent/REVIEW-QUEUE.md` and does not alter task CLI statuses; revisions are bounded tasks rather than a stop-the-line requirement for unrelated work.
+
+**Agent reasoning:** Low implements one task card at a time. Medium is recommended for cross-module contracts. High is recommended for authentication, RBAC, migrations, secret boundaries, CMS private preview, backup/restore, installer, deployment, rollback and task DAG redesign. Independent reviewer required for tasks classified high effective risk, regardless of implementer model. Missing reviewer is a task blocker, not a license to fake approval.
+
+**Installer split:** `init-project` derivative isolation, `apps/installer` preflight/migrations/seed/bootstrap/verify, `infra/scripts` archive/version upgrades. P01/P03/P05 deliver and test reusable primitives, P16 composes them into a release. A cold installer runs `releases/vX.Y.Z/cli/cli.js` before switching `current`. See [development roadmap](DEVELOPMENT-ROADMAP.md), [agent routing](agent/AGENT-ROUTING.md), [preview contract](agent/PREVIEW-AND-FEEDBACK.md), [installer boundaries](agent/INSTALLER-BOUNDARIES.md).

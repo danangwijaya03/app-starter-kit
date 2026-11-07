@@ -2,6 +2,12 @@
 
 > This phase is an implementation target; it is **not** completed by this documentation commit.
 
+## Incremental preview checkpoint and agent reasoning
+
+Review publicly published pages and menu, and test that private draft preview never leaks; High reasoning recommended for preview security.
+
+At each safe increment run **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. For UI tasks record fixture/integrated/diagnostic mode, actual URL only if verified, test evidence and user review state via [preview/feedback](../PREVIEW-AND-FEEDBACK.md) and [review queue](../REVIEW-QUEUE.md). Low reasoning may implement bounded work; [Agent Routing](../AGENT-ROUTING.md) identifies critical work recommended for High reasoning and any required independent review. User UI review is non-blocking for other safe ready tasks.
+
 ## Gate before advancing
 Public page renderer, SEO and menu invalidation pass tests.
 

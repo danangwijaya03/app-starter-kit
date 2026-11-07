@@ -44,3 +44,13 @@
 **Prioritas:** `AGENTS.md` mengatur perilaku agent, `TASKS.yaml` mengatur status, task card membatasi pekerjaan, dan dokumen spesifikasi mengatur domain masing-masing. Jika instruksi substantif bertentangan, agent mencatat blocker, bukan menebak. User guide tidak memberikan izin melewati aturan keamanan.
 
 **Status:** kode awal Next.js sudah ada; API, worker, RBAC, CMS, monorepo dan release masih menunggu implementasi task.
+
+## Incremental development & reasoning-based handoff (2026-11-07)
+
+| Resource | Audience / usage |
+|---|---|
+| [Development Roadmap](DEVELOPMENT-ROADMAP.md) | User and coding agent: what is previewable at each technical phase |
+| [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md) | Low/High coding agents: how to prove a preview and collect asynchronous feedback |
+| [Review Queue](agent/REVIEW-QUEUE.md) | User: routes, actual evidence, `pending_review/approved/revision_requested` |
+| [Agent Routing](agent/AGENT-ROUTING.md) | Choose Low/Medium/High recommendations and independent reviewer rules |
+| [Installer Boundaries](agent/INSTALLER-BOUNDARIES.md) | Architecture of initializer, setup CLI and deployment manager |

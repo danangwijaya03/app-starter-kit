@@ -2,6 +2,12 @@
 
 > This phase is an implementation target; it is **not** completed by this documentation commit.
 
+## Incremental preview checkpoint and agent reasoning
+
+Provide dev-only read-only Hono/MySQL/Redis diagnostics through P02-07 after infrastructure is verified; never expose service credentials or dev route in production.
+
+At each safe increment run **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. For UI tasks record fixture/integrated/diagnostic mode, actual URL only if verified, test evidence and user review state via [preview/feedback](../PREVIEW-AND-FEEDBACK.md) and [review queue](../REVIEW-QUEUE.md). Low reasoning may implement bounded work; [Agent Routing](../AGENT-ROUTING.md) identifies critical work recommended for High reasoning and any required independent review. User UI review is non-blocking for other safe ready tasks.
+
 ## Gate before advancing
 Use existing **Lerd** MySQL and Redis, prove Node.js 26 runtime connectivity, isolated dev/test schemas, and no duplicate daemon. Do not modify global Lerd proxy/LAN exposure.
 
@@ -24,6 +30,7 @@ Use existing **Lerd** MySQL and Redis, prove Node.js 26 runtime connectivity, is
 | [P02-04](../tasks/P02-04.md) | Build database pool and Redis clients |
 | [P02-05](../tasks/P02-05.md) | Add local development orchestration |
 | [P02-06](../tasks/P02-06.md) | Validate all environment isolation and secrets hygiene |
+| [P02-07](../tasks/P02-07.md) | Dev-only Hono / Lerd health view |
 
 ## Recovery
 Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
@@ -38,3 +45,4 @@ The table above may summarize parent work units. **The authoritative task regist
 - [P02-04](../tasks/P02-04.md)
 - [P02-05](../tasks/P02-05.md)
 - [P02-06](../tasks/P02-06.md)
+- [P02-07](../tasks/P02-07.md)

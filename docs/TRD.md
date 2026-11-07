@@ -148,3 +148,15 @@ Use `output: 'standalone'` on Next.js; set monorepo file-tracing root and includ
 ## v1.2 repository integration (approved 2026-10-29)
 
 The existing repository `danangwijaya03/app-starter-kit` already contains a working **root Next.js 16.4.3 npm scaffold** with `app/`, `public/`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs` and root `package-lock.json`. P01 must move the **existing** app into `apps/web`, not run create-next-app again. Use npm Workspaces and one root package-lock. This documentation-only commit does not relocate the source or claim new features implemented. The target production deployment is non-Docker artifact upload to aaPanel/PM2.
+
+## TRD-14 Incremental delivery architecture (2026-11-07)
+
+- Keep a running Next.js app from the initial root scaffold through P01 migration. A root `/` page may be an explicitly labeled static preview; real auth/RBAC/API/DB routes remain absent until implemented.
+- P01-08/P01-09 establish a fixture Salt & Pepper shell and repeatable local smoke. P02-07/P03-09 add dev-only, read-only diagnostics for local service and DB reachability. All diagnostics must refuse public/production access by default and disclose no secrets, database names or arbitrary query results.
+- P06 converts visual shell to authenticated, server-enforced permission-aware navigation; do not implement a parallel fake auth store.
+- After each slice: actual scoped typecheck/lint/unit/integration or denial tests, app startup if available, explicit preview route/mode/test results and checkpoint/commit. Build success is insufficient for security-critical authorization changes.
+- The agent task registry remains a technical DAG; review state is in REVIEW-QUEUE, not in `agent_tasks.py` statuses. Do not add unsupported statuses to tooling.
+- Low reasoning is default for explicit small modules. Medium for cross-package integration; High recommended for Auth, RBAC, MySQL migrations, private media/preview security, backup/restore, installer and deployment changes, with independent review per policy.
+- Installer is separated into derivative **Project Initializer**, **Application Setup CLI**, and **Deployment Manager**. Cold install must invoke CLI from a verified extracted release path before `current` exists. No duplicating P05 bootstrap logic in the deployment wrapper.
+
+See [roadmap](DEVELOPMENT-ROADMAP.md), [preview contract](agent/PREVIEW-AND-FEEDBACK.md) and [installer boundaries](agent/INSTALLER-BOUNDARIES.md).

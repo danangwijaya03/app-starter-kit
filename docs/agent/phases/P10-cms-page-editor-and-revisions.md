@@ -2,6 +2,12 @@
 
 > This phase is an implementation target; it is **not** completed by this documentation commit.
 
+## Incremental preview checkpoint and agent reasoning
+
+Review a real draft/save/publish vertical slice, keeping unpublished content private. High reasoning for publication invariants and preview tokens.
+
+At each safe increment run **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. For UI tasks record fixture/integrated/diagnostic mode, actual URL only if verified, test evidence and user review state via [preview/feedback](../PREVIEW-AND-FEEDBACK.md) and [review queue](../REVIEW-QUEUE.md). Low reasoning may implement bounded work; [Agent Routing](../AGENT-ROUTING.md) identifies critical work recommended for High reasoning and any required independent review. User UI review is non-blocking for other safe ready tasks.
+
 ## Gate before advancing
 Immutable draft revisions and atomic publish behavior verified.
 

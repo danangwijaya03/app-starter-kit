@@ -1,9 +1,15 @@
 metadata:
-  version: 1.2-npm-existing-next
+  version: 1.3-incremental-preview-main
   baseline_date: '2026-10-29'
   initial_status: pending
-  rules: TASKS.yaml is authoritative; modify statuses only via tools/agent_tasks.py. Next.js root scaffold exists; full-stack implementation tasks pending.
-  task_count: 157
+  canonical_branch: main
+  delivery_policy: incremental_preview
+  default_implementation_reasoning: low
+  high_reasoning_guidance: docs/agent/AGENT-ROUTING.md
+  preview_policy: docs/agent/PREVIEW-AND-FEEDBACK.md
+  review_queue: docs/agent/REVIEW-QUEUE.md
+  rules: TASKS.yaml is authoritative; modify statuses only via tools/agent_tasks.py. Next.js root scaffold exists; full-stack implementation tasks pending; four early preview tasks added; technical verification and user review remain separate.
+  task_count: 161
   microtask_parent_ids:
   - P01-01
   - P01-04
@@ -21,6 +27,8 @@ tasks:
 - id: P00-01
   phase: P00
   title: Verify specification decisions
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on: []
   scope:
   - docs/*
@@ -47,6 +55,8 @@ tasks:
 - id: P00-02
   phase: P00
   title: Initialize documentation and link index
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P00-01
   scope:
@@ -74,6 +84,8 @@ tasks:
 - id: P00-03
   phase: P00
   title: Preserve root AGENTS and specify nested rules for later creation
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P00-01
   scope:
@@ -101,6 +113,8 @@ tasks:
 - id: P00-04
   phase: P00
   title: Initialize task registry and checkpoint tooling
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P00-02
   - P00-03
@@ -129,6 +143,8 @@ tasks:
 - id: P00-05
   phase: P00
   title: Document architecture decisions and starter baseline
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P00-04
   scope:
@@ -155,6 +171,8 @@ tasks:
 - id: P01-01A
   phase: P01
   title: "Prepare npm workspace root from existing Next.js project"
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P00-05
   scope:
@@ -187,6 +205,8 @@ tasks:
 - id: P01-01B
   phase: P01
   title: Create four application package identities
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-01A
   scope:
@@ -215,6 +235,8 @@ tasks:
 - id: P01-01C
   phase: P01
   title: Create shared package identities
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-01B
   scope:
@@ -243,6 +265,8 @@ tasks:
 - id: P01-01
   phase: P01
   title: Create npm workspace and package identities
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-01C
   scope:
@@ -274,6 +298,8 @@ tasks:
 - id: P01-02
   phase: P01
   title: Pin Node, npm and TypeScript strict configuration
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-01
   scope:
@@ -303,6 +329,8 @@ tasks:
 - id: P01-03
   phase: P01
   title: Define Turborepo task graph and package exports
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-02
   scope:
@@ -330,6 +358,8 @@ tasks:
 - id: P01-04A
   phase: P01
   title: "Relocate existing root Next.js into apps/web"
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-03
   scope:
@@ -366,6 +396,8 @@ tasks:
 - id: P01-04B
   phase: P01
   title: Create minimal Hono API runtime
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P01-04A
   scope:
@@ -393,6 +425,8 @@ tasks:
 - id: P01-04C
   phase: P01
   title: Create minimal BullMQ worker runtime
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P01-04B
   scope:
@@ -420,6 +454,8 @@ tasks:
 - id: P01-04
   phase: P01
   title: Scaffold independent Next.js, Hono and worker entrypoints
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P01-04C
   scope:
@@ -447,9 +483,45 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
+- id: P01-08
+  phase: P01
+  title: Deliver early Salt & Pepper shell as explicit UI fixture
+  recommended_reasoning: low
+  preview_expectation: fixture
+  depends_on:
+  - P01-04
+  scope:
+  - apps/web/app
+  - apps/web/components
+  steps:
+  - "Preserve migrated Next.js source; refine the static demo into the four approved sidebar groups and responsive Salt & Pepper shell without any fake privileged route."
+  - "Mark UI fixture explicitly; never render fake auth/DB data as real; show currently planned state."
+  - "Run verified scoped lint/build and inspect responsive page; record route, launch command and limitations in REVIEW-QUEUE."
+  acceptance_criteria:
+  - "Static shell renders four approved groups on mobile/desktop and fixture labels are unambiguous"
+  - "No route claims to authorize users; no private endpoint, secrets or live data in fixture"
+  - "Scoped tests and actual preview record with fixture/integrated/diagnostic label pass"
+  validation:
+  - "Real scoped test evidence and preview record; never claim an unrun test"
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P01-08.md
+  output_artifact: apps/web/app/page.tsx
+  risk: low
+  spec_refs:
+  - docs/DBD.md
+  - docs/agent/PREVIEW-AND-FEEDBACK.md
+  execution_mode: local_disposable_only
+  estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
+
 - id: P01-05
   phase: P01
   title: Add installer CLI shell and command registry
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P01-03
   scope:
@@ -478,6 +550,8 @@ tasks:
 - id: P01-06
   phase: P01
   title: Proof of Next standalone and API/worker package output
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P01-04
   - P01-05
@@ -506,6 +580,8 @@ tasks:
 - id: P01-07
   phase: P01
   title: Create CI checks and secret scanning baseline
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P01-06
   scope:
@@ -530,9 +606,47 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
+- id: P01-09
+  phase: P01
+  title: Add repeatable development preview smoke and review handoff
+  recommended_reasoning: low
+  preview_expectation: fixture
+  depends_on:
+  - P01-08
+  - P01-07
+  scope:
+  - tools/preview_smoke.py
+  - docs/agent/REVIEW-QUEUE.md
+  - docs/agent/RUNBOOK.md
+  steps:
+  - "Implement a read-only localhost preview smoke helper using Python standard library or an existing tested script; never silently start duplicate servers."
+  - "When preview URL is reachable, assert route/page marker and return nonzero on non-200/wrong marker; when not reachable, fail with clear actionable message."
+  - "Record fixture/integrated mode, exact path and actual tests in CHECKPOINT/REVIEW-QUEUE; do not mark technical task complete solely from a screenshot."
+  acceptance_criteria:
+  - "Local preview smoke distinguishes a reachable Next.js page from a missing server"
+  - "Unreachable URL, invalid marker or accidental remote target fail safely and do not claim ready"
+  - "Scoped tests and actual preview record with fixture/integrated/diagnostic label pass"
+  validation:
+  - "Real scoped test evidence and preview record; never claim an unrun test"
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P01-09.md
+  output_artifact: tools/preview_smoke.py
+  risk: low
+  spec_refs:
+  - docs/agent/PREVIEW-AND-FEEDBACK.md
+  - docs/IPD.md
+  execution_mode: local_disposable_only
+  estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
+
 - id: P02-01
   phase: P02
   title: Create typed environment validation and examples
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-04
   scope:
@@ -562,6 +676,8 @@ tasks:
 - id: P02-02
   phase: P02
   title: Reuse existing Lerd MySQL with isolated dev/test schemas
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P02-01
   scope:
@@ -589,6 +705,8 @@ tasks:
 - id: P02-03
   phase: P02
   title: Reuse existing Lerd Redis and isolate queue connectivity
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P02-01
   scope:
@@ -616,6 +734,8 @@ tasks:
 - id: P02-04
   phase: P02
   title: Build database pool and Redis clients
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P02-02
   - P02-03
@@ -645,6 +765,8 @@ tasks:
 - id: P02-05
   phase: P02
   title: Add local development orchestration
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P02-04
   scope:
@@ -673,6 +795,8 @@ tasks:
 - id: P02-06
   phase: P02
   title: Validate all environment isolation and secrets hygiene
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P02-05
   scope:
@@ -697,9 +821,47 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
+- id: P02-07
+  phase: P02
+  title: Expose safe dev-only health diagnostics for API and local services
+  recommended_reasoning: medium
+  preview_expectation: diagnostic
+  depends_on:
+  - P02-05
+  - P01-09
+  scope:
+  - apps/web/app/dev/status
+  - apps/api/src
+  - packages/contracts
+  steps:
+  - "Add a safe health/status contract using existing Hono/API packages; never return DB URLs, Redis credentials, user records or internal hostnames."
+  - "Build a development-only read-only status page; hard-disable it in production until an authenticated and explicitly approved replacement exists."
+  - "Test healthy/unhealthy states and an explicit production denial; show diagnostic not integrated business feature."
+  acceptance_criteria:
+  - "Dev-only page shows basic web/API availability based on real status, not a fabricated green state"
+  - "Production route disabled and missing service fails visibly without exposing secrets"
+  - "Scoped tests and actual preview record with fixture/integrated/diagnostic label pass"
+  validation:
+  - "Real scoped test evidence and preview record; never claim an unrun test"
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P02-07.md
+  output_artifact: apps/web/app/dev/status/page.tsx
+  risk: medium
+  spec_refs:
+  - docs/TRD.md
+  - docs/agent/PREVIEW-AND-FEEDBACK.md
+  execution_mode: local_disposable_only
+  estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
+
 - id: P03-01
   phase: P03
   title: Generate Better Auth Drizzle MySQL schema
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P02-04
   scope:
@@ -728,6 +890,8 @@ tasks:
 - id: P03-02
   phase: P03
   title: Define app user profile and RBAC tables
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-01
   scope:
@@ -754,6 +918,8 @@ tasks:
 - id: P03-03A
   phase: P03
   title: Define CMS pages and revisions schema
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-01
   scope:
@@ -782,6 +948,8 @@ tasks:
 - id: P03-03B
   phase: P03
   title: Define CMS menus and menu items schema
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-03A
   scope:
@@ -810,6 +978,8 @@ tasks:
 - id: P03-03
   phase: P03
   title: Add CMS pages/revisions and navigation schema
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-03B
   scope:
@@ -838,6 +1008,8 @@ tasks:
 - id: P03-04
   phase: P03
   title: Add media, settings and user preferences schema
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-01
   scope:
@@ -864,6 +1036,8 @@ tasks:
 - id: P03-05
   phase: P03
   title: Add audit, system jobs and backup tables
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P03-01
   scope:
@@ -890,6 +1064,8 @@ tasks:
 - id: P03-06
   phase: P03
   title: Generate and review migration history
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P03-02
   - P03-03
@@ -919,6 +1095,8 @@ tasks:
 - id: P03-07
   phase: P03
   title: Build transaction helper and repository abstractions
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-06
   scope:
@@ -946,6 +1124,8 @@ tasks:
 - id: P03-08
   phase: P03
   title: Implement audit event service and seed base
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-07
   scope:
@@ -970,9 +1150,46 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
+- id: P03-09
+  phase: P03
+  title: Connect safe DB readiness to development health diagnostic
+  recommended_reasoning: high
+  preview_expectation: diagnostic
+  depends_on:
+  - P03-08
+  - P02-07
+  scope:
+  - apps/api/src
+  - packages/database
+  - apps/web/app/dev/status
+  steps:
+  - "Use the existing database connection helper to report only Boolean safe readiness; do not return database name, schema, SQL or credentials."
+  - "Integrate real status into the dev-only diagnostic without introducing a new database or unreviewed migration."
+  - "Run isolated positive and connection-failure tests, plus production access-denial test; update review queue."
+  acceptance_criteria:
+  - "Existing isolated development MySQL connectivity displayed accurately without leaking connection values"
+  - "Disconnected/invalid DB is marked unavailable and diagnostic remains disabled in production"
+  - "Scoped tests and actual preview record with fixture/integrated/diagnostic label pass"
+  validation:
+  - "Real scoped test evidence and preview record; never claim an unrun test"
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P03-09.md
+  output_artifact: apps/api/src/routes/dev-health.ts
+  risk: medium
+  spec_refs:
+  - docs/BSD.md
+  - docs/agent/PREVIEW-AND-FEEDBACK.md
+  execution_mode: local_disposable_only
+  estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
 - id: P04-01
   phase: P04
   title: Configure Better Auth MySQL adapter
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P03-07
   scope:
@@ -1001,6 +1218,8 @@ tasks:
 - id: P04-02
   phase: P04
   title: Mount auth routes in Hono and session middleware
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P04-01
   scope:
@@ -1028,6 +1247,8 @@ tasks:
 - id: P04-03
   phase: P04
   title: Implement login/logout UI and auth client
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P04-02
   - P01-04
@@ -1055,6 +1276,8 @@ tasks:
 - id: P04-04
   phase: P04
   title: Implement password reset and activation flow
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P04-02
   scope:
@@ -1082,6 +1305,8 @@ tasks:
 - id: P04-05
   phase: P04
   title: Enforce user status and must-change-password guard
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P04-02
   - P03-02
@@ -1110,6 +1335,8 @@ tasks:
 - id: P04-06
   phase: P04
   title: Implement own profile/session termination
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P04-03
   - P04-05
@@ -1138,6 +1365,8 @@ tasks:
 - id: P04-07
   phase: P04
   title: Complete authentication security gate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P04-04
   - P04-05
@@ -1166,6 +1395,8 @@ tasks:
 - id: P05-01
   phase: P05
   title: Define canonical permission manifest and validation
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P03-02
   - P04-02
@@ -1195,6 +1426,8 @@ tasks:
 - id: P05-02
   phase: P05
   title: Build permission sync check/apply commands
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-01
   - P03-08
@@ -1223,6 +1456,8 @@ tasks:
 - id: P05-03
   phase: P05
   title: Seed default protected roles
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-02
   scope:
@@ -1249,6 +1484,8 @@ tasks:
 - id: P05-04
   phase: P05
   title: Implement authorization service and policies
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-03
   - P04-05
@@ -1276,6 +1513,8 @@ tasks:
 - id: P05-05
   phase: P05
   title: Implement route permission middleware
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-04
   scope:
@@ -1302,6 +1541,8 @@ tasks:
 - id: P05-06
   phase: P05
   title: Build role assignment concurrency invariants
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-04
   - P03-07
@@ -1329,6 +1570,8 @@ tasks:
 - id: P05-07A
   phase: P05
   title: Create safe bootstrap credential input
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-03
   - P05-06
@@ -1359,6 +1602,8 @@ tasks:
 - id: P05-07B
   phase: P05
   title: Provision first user and assign super_admin
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-07A
   scope:
@@ -1387,6 +1632,8 @@ tasks:
 - id: P05-07C
   phase: P05
   title: Verify first login bootstrap flow
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-07B
   scope:
@@ -1416,6 +1663,8 @@ tasks:
 - id: P05-07
   phase: P05
   title: Implement secure idempotent first-admin bootstrap
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-07C
   scope:
@@ -1444,6 +1693,8 @@ tasks:
 - id: P05-08
   phase: P05
   title: Implement authorization invalidation and module nav registry
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-05
   - P05-06
@@ -1473,6 +1724,8 @@ tasks:
 - id: P05-09
   phase: P05
   title: Verify comprehensive RBAC/security gate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P05-07
   - P05-08
@@ -1500,6 +1753,8 @@ tasks:
 - id: P06-01
   phase: P06
   title: Implement Salt & Pepper semantic tokens
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P01-04
   scope:
@@ -1529,6 +1784,8 @@ tasks:
 - id: P06-02A
   phase: P06
   title: Install and configure shadcn base components
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-01
   scope:
@@ -1557,6 +1814,8 @@ tasks:
 - id: P06-02B
   phase: P06
   title: Integrate limited Aceternity components
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-02A
   scope:
@@ -1585,6 +1844,8 @@ tasks:
 - id: P06-02
   phase: P06
   title: Set up shadcn UI, Aceternity and shared components
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-02B
   scope:
@@ -1613,6 +1874,8 @@ tasks:
 - id: P06-03
   phase: P06
   title: Implement responsive admin shell
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-02
   - P04-03
@@ -1640,6 +1903,8 @@ tasks:
 - id: P06-04
   phase: P06
   title: Integrate dynamic navigation with RBAC
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-03
   - P05-08
@@ -1667,6 +1932,8 @@ tasks:
 - id: P06-05
   phase: P06
   title: Implement reusable table/form/dialog patterns
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-02
   scope:
@@ -1693,6 +1960,8 @@ tasks:
 - id: P06-06
   phase: P06
   title: Add theme mode and reduced motion handling
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-03
   - P06-01
@@ -1720,6 +1989,8 @@ tasks:
 - id: P06-07
   phase: P06
   title: Verify UI/admin shell quality gate
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P06-04
   - P06-05
@@ -1748,6 +2019,8 @@ tasks:
 - id: P07-01
   phase: P07
   title: Implement user list and detail APIs
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P05-05
   - P03-07
@@ -1777,6 +2050,8 @@ tasks:
 - id: P07-02
   phase: P07
   title: Implement invitation and user updates
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P07-01
   - P04-04
@@ -1804,6 +2079,8 @@ tasks:
 - id: P07-03
   phase: P07
   title: Implement roles CRUD and policy APIs
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P05-06
   - P03-07
@@ -1831,6 +2108,8 @@ tasks:
 - id: P07-04
   phase: P07
   title: Build Users management UI
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P07-01
   - P07-02
@@ -1859,6 +2138,8 @@ tasks:
 - id: P07-05
   phase: P07
   title: Build Roles and grouped permissions editor
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P07-03
   - P06-05
@@ -1886,6 +2167,8 @@ tasks:
 - id: P07-06
   phase: P07
   title: Integrate multi-role assignment and audit
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P07-04
   - P07-05
@@ -1915,6 +2198,8 @@ tasks:
 - id: P07-07
   phase: P07
   title: Verify user and role management gate
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P07-06
   scope:
@@ -1941,6 +2226,8 @@ tasks:
 - id: P08-01
   phase: P08
   title: Define dashboard widget registry and contracts
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P06-04
   scope:
@@ -1970,6 +2257,8 @@ tasks:
 - id: P08-02
   phase: P08
   title: Implement permission-scoped dashboard APIs
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P08-01
   - P07-01
@@ -1997,6 +2286,8 @@ tasks:
 - id: P08-03
   phase: P08
   title: Build dashboard responsive widgets
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P08-02
   - P06-05
@@ -2024,6 +2315,8 @@ tasks:
 - id: P08-04
   phase: P08
   title: Add widget composition and error isolation
+  recommended_reasoning: low
+  preview_expectation: when_reviewable
   depends_on:
   - P08-03
   scope:
@@ -2050,6 +2343,8 @@ tasks:
 - id: P08-05
   phase: P08
   title: Verify dashboard permission gate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P08-04
   scope:
@@ -2076,6 +2371,8 @@ tasks:
 - id: P09-01
   phase: P09
   title: Define storage interface and filesystem adapter
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-04
   - P02-01
@@ -2105,6 +2402,8 @@ tasks:
 - id: P09-02
   phase: P09
   title: Implement media validation and temp upload pipeline
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P09-01
   - P05-05
@@ -2132,6 +2431,8 @@ tasks:
 - id: P09-03
   phase: P09
   title: Implement media metadata and usage repository
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P09-02
   - P03-07
@@ -2159,6 +2460,8 @@ tasks:
 - id: P09-04
   phase: P09
   title: Implement media CRUD and protected delivery API
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P09-03
   scope:
@@ -2185,6 +2488,8 @@ tasks:
 - id: P09-05
   phase: P09
   title: Build Media Library and file picker UI
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P09-04
   - P06-05
@@ -2212,6 +2517,8 @@ tasks:
 - id: P09-06
   phase: P09
   title: Add thumbnail/orphan reconciliation path
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P09-04
   - P09-01
@@ -2239,6 +2546,8 @@ tasks:
 - id: P09-07
   phase: P09
   title: Verify media security and persistence gate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P09-05
   - P09-06
@@ -2266,6 +2575,8 @@ tasks:
 - id: P10-01
   phase: P10
   title: Define typed CMS block schema and registry
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P09-01
   - P03-03
@@ -2296,6 +2607,8 @@ tasks:
 - id: P10-02
   phase: P10
   title: Implement CMS page/revision repository
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-01
   - P03-07
@@ -2323,6 +2636,8 @@ tasks:
 - id: P10-03
   phase: P10
   title: Implement CMS Pages CRUD and paginated routes
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-02
   - P05-05
@@ -2350,6 +2665,8 @@ tasks:
 - id: P10-04
   phase: P10
   title: Implement rich text Tiptap client editor
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-01
   - P06-05
@@ -2377,6 +2694,8 @@ tasks:
 - id: P10-05A
   phase: P10
   title: Create block palette and add/remove actions
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-04
   scope:
@@ -2405,6 +2724,8 @@ tasks:
 - id: P10-05B
   phase: P10
   title: Create properties panel with validated writes
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-05A
   scope:
@@ -2432,6 +2753,8 @@ tasks:
 - id: P10-05C
   phase: P10
   title: Create reorder and responsive canvas
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-05B
   scope:
@@ -2459,6 +2782,8 @@ tasks:
 - id: P10-05
   phase: P10
   title: Implement block canvas and properties editor
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-05C
   scope:
@@ -2487,6 +2812,8 @@ tasks:
 - id: P10-06
   phase: P10
   title: Implement revision save and conflicts
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-03
   - P10-05
@@ -2515,6 +2842,8 @@ tasks:
 - id: P10-07
   phase: P10
   title: Implement publish/unpublish transactions
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P10-06
   - P03-03
@@ -2542,6 +2871,8 @@ tasks:
 - id: P10-08
   phase: P10
   title: Implement revision restore as new draft
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P10-07
   scope:
@@ -2569,6 +2900,8 @@ tasks:
 - id: P10-09
   phase: P10
   title: Verify CMS editor/revision gate
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P10-08
   scope:
@@ -2595,6 +2928,8 @@ tasks:
 - id: P11-01
   phase: P11
   title: Implement public published-only page service
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P10-07
   scope:
@@ -2623,6 +2958,8 @@ tasks:
 - id: P11-02
   phase: P11
   title: Implement Next.js public block renderer
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P11-01
   - P10-05
@@ -2650,6 +2987,8 @@ tasks:
 - id: P11-03
   phase: P11
   title: Implement navigation menus API with tree validation
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-03
   - P05-05
@@ -2677,6 +3016,8 @@ tasks:
 - id: P11-04
   phase: P11
   title: Implement public navigation and admin editor
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P11-03
   - P11-02
@@ -2704,6 +3045,8 @@ tasks:
 - id: P11-05
   phase: P11
   title: Implement secure preview and draft mode
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P11-02
   - P10-06
@@ -2732,6 +3075,8 @@ tasks:
 - id: P11-06
   phase: P11
   title: Implement SEO, sitemap and cache revalidation
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P11-05
   - P11-04
@@ -2760,6 +3105,8 @@ tasks:
 - id: P11-07
   phase: P11
   title: Verify public CMS gate
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P11-06
   scope:
@@ -2786,6 +3133,8 @@ tasks:
 - id: P12-01
   phase: P12
   title: Define typed settings registry and service
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-04
   - P05-05
@@ -2815,6 +3164,8 @@ tasks:
 - id: P12-02
   phase: P12
   title: Implement general settings API and audit
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P12-01
   - P03-08
@@ -2842,6 +3193,8 @@ tasks:
 - id: P12-03
   phase: P12
   title: Build branding upload and General UI
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P12-02
   - P09-05
@@ -2869,6 +3222,8 @@ tasks:
 - id: P12-04
   phase: P12
   title: Implement theme configuration schema and contrast gate
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P12-01
   - P06-01
@@ -2897,6 +3252,8 @@ tasks:
 - id: P12-05
   phase: P12
   title: Implement Appearance UI global theme preview
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P12-04
   - P06-06
@@ -2924,6 +3281,8 @@ tasks:
 - id: P12-06
   phase: P12
   title: Implement audit logs query and page
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P03-08
   - P06-05
@@ -2953,6 +3312,8 @@ tasks:
 - id: P12-07
   phase: P12
   title: Implement runtime branding revalidation
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P12-03
   - P12-05
@@ -2981,6 +3342,8 @@ tasks:
 - id: P12-08
   phase: P12
   title: Verify settings/accessibility gate
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P12-06
   - P12-07
@@ -3008,6 +3371,8 @@ tasks:
 - id: P13-01
   phase: P13
   title: Initialize BullMQ worker and Redis queues
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P02-04
   - P03-05
@@ -3038,6 +3403,8 @@ tasks:
 - id: P13-02
   phase: P13
   title: Implement job metadata, status and owner security
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P13-01
   - P05-05
@@ -3065,6 +3432,8 @@ tasks:
 - id: P13-03
   phase: P13
   title: Implement retry/idempotency and reconciliation
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P13-02
   scope:
@@ -3091,6 +3460,8 @@ tasks:
 - id: P13-04
   phase: P13
   title: Implement job locks and concurrency policy
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P13-03
   scope:
@@ -3117,6 +3488,8 @@ tasks:
 - id: P13-05
   phase: P13
   title: Implement operational health and request IDs
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P13-02
   - P02-04
@@ -3145,6 +3518,8 @@ tasks:
 - id: P13-06
   phase: P13
   title: Verify worker resilience gate
+  recommended_reasoning: medium
+  preview_expectation: when_reviewable
   depends_on:
   - P13-04
   - P13-05
@@ -3172,6 +3547,8 @@ tasks:
 - id: P14-01
   phase: P14
   title: Implement backup manifest and encryption interface
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P13-04
   - P03-05
@@ -3201,6 +3578,8 @@ tasks:
 - id: P14-02A
   phase: P14
   title: Prepare safe mysqldump command builder
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-01
   scope:
@@ -3229,6 +3608,8 @@ tasks:
 - id: P14-02B
   phase: P14
   title: Implement dump streaming and cancellation
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-02A
   scope:
@@ -3257,6 +3638,8 @@ tasks:
 - id: P14-02
   phase: P14
   title: Implement safe MySQL logical dump
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-02B
   scope:
@@ -3285,6 +3668,8 @@ tasks:
 - id: P14-03
   phase: P14
   title: Implement archive write/verify and metadata
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-02
   - P09-01
@@ -3313,6 +3698,8 @@ tasks:
 - id: P14-04
   phase: P14
   title: Implement isolated restore verification
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-03
   scope:
@@ -3339,6 +3726,8 @@ tasks:
 - id: P14-05
   phase: P14
   title: Implement backup API and protected download
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-03
   - P13-02
@@ -3366,6 +3755,8 @@ tasks:
 - id: P14-06
   phase: P14
   title: Build Backup UI and job progress
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-05
   - P12-03
@@ -3393,6 +3784,8 @@ tasks:
 - id: P14-07
   phase: P14
   title: Verify backup security and restorability gate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-04
   - P14-06
@@ -3420,6 +3813,8 @@ tasks:
 - id: P15-01
   phase: P15
   title: Define restore workflow, policy and approval gates
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P14-07
   - P13-04
@@ -3450,6 +3845,8 @@ tasks:
 - id: P15-02
   phase: P15
   title: Implement restoration archive preflight
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-01
   scope:
@@ -3476,6 +3873,8 @@ tasks:
 - id: P15-03
   phase: P15
   title: Implement isolated staging restore and comparison
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-02
   scope:
@@ -3502,6 +3901,8 @@ tasks:
 - id: P15-04
   phase: P15
   title: Implement external journal and pre-restore backup
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-03
   scope:
@@ -3528,6 +3929,8 @@ tasks:
 - id: P15-05A
   phase: P15
   title: Implement maintenance mode and queue draining
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-04
   scope:
@@ -3555,6 +3958,8 @@ tasks:
 - id: P15-05B
   phase: P15
   title: Implement controlled import stage
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-05A
   scope:
@@ -3583,6 +3988,8 @@ tasks:
 - id: P15-05C
   phase: P15
   title: Implement restore failure hold and response
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-05B
   scope:
@@ -3610,6 +4017,8 @@ tasks:
 - id: P15-05
   phase: P15
   title: Implement maintenance/drain/import orchestration
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-05C
   scope:
@@ -3639,6 +4048,8 @@ tasks:
 - id: P15-06
   phase: P15
   title: Implement post-restore reconciliation and runbook
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-05
   scope:
@@ -3666,6 +4077,8 @@ tasks:
 - id: P15-07
   phase: P15
   title: Verify restore chaos and rollback gate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P15-06
   scope:
@@ -3692,6 +4105,8 @@ tasks:
 - id: P16-01
   phase: P16
   title: Freeze release target matrix and runtime ABI
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P01-06
   - P15-07
@@ -3722,6 +4137,8 @@ tasks:
 - id: P16-02A
   phase: P16
   title: Build standalone web artifact
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-01
   - P11-07
@@ -3753,6 +4170,8 @@ tasks:
 - id: P16-02B
   phase: P16
   title: Build portable Hono API artifact
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-02A
   scope:
@@ -3780,6 +4199,8 @@ tasks:
 - id: P16-02C
   phase: P16
   title: Build portable BullMQ worker artifact
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-02B
   scope:
@@ -3807,6 +4228,8 @@ tasks:
 - id: P16-02D
   phase: P16
   title: Build portable installer artifact
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-02C
   scope:
@@ -3834,6 +4257,8 @@ tasks:
 - id: P16-02
   phase: P16
   title: Build standalone web and portable API/worker/CLI
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-02D
   scope:
@@ -3863,6 +4288,8 @@ tasks:
 - id: P16-03
   phase: P16
   title: Implement release layout, manifest and checksums
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-02
   scope:
@@ -3889,6 +4316,8 @@ tasks:
 - id: P16-04A
   phase: P16
   title: Implement installer preflight and migrate
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-03
   - P05-07
@@ -3918,6 +4347,8 @@ tasks:
 - id: P16-04B
   phase: P16
   title: Implement permission and system seed
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04A
   scope:
@@ -3945,6 +4376,8 @@ tasks:
 - id: P16-04C
   phase: P16
   title: Wire secure bootstrap command
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04B
   scope:
@@ -3972,6 +4405,8 @@ tasks:
 - id: P16-04D
   phase: P16
   title: Implement installer verify command
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04C
   scope:
@@ -3999,6 +4434,8 @@ tasks:
 - id: P16-04
   phase: P16
   title: Implement installer CLI migrate/seed/bootstrap/verify
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04D
   scope:
@@ -4028,6 +4465,8 @@ tasks:
 - id: P16-05
   phase: P16
   title: Implement PM2 ecosystem and safe env loading
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-03
   - P13-05
@@ -4055,6 +4494,8 @@ tasks:
 - id: P16-06
   phase: P16
   title: Implement aaPanel Nginx config and HTTPS guide
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-05
   scope:
@@ -4082,6 +4523,8 @@ tasks:
 - id: P16-07A
   phase: P16
   title: Verify uploaded archive and extract versioned release
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04
   - P16-06
@@ -4110,6 +4553,8 @@ tasks:
 - id: P16-07B
   phase: P16
   title: Implement guarded current symlink switch
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-07A
   scope:
@@ -4137,6 +4582,8 @@ tasks:
 - id: P16-07C
   phase: P16
   title: Implement safe update orchestration
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-07B
   scope:
@@ -4165,6 +4612,8 @@ tasks:
 - id: P16-07
   phase: P16
   title: Implement upload install/version-switch/upgrade script
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-07C
   scope:
@@ -4193,6 +4642,8 @@ tasks:
 - id: P16-08
   phase: P16
   title: Implement rollback and recovery controls
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-07
   - P15-07
@@ -4221,6 +4672,8 @@ tasks:
 - id: P16-09A
   phase: P16
   title: Write and verify developer README
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04
   - P16-07
@@ -4250,6 +4703,8 @@ tasks:
 - id: P16-09B
   phase: P16
   title: Write and verify production upload README
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-09A
   scope:
@@ -4279,6 +4734,8 @@ tasks:
 - id: P16-09
   phase: P16
   title: Write and test developer README and server README
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-09B
   scope:
@@ -4308,6 +4765,8 @@ tasks:
 - id: P16-10
   phase: P16
   title: Implement new-project initializer and isolation test
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-04
   - P12-08
@@ -4336,6 +4795,8 @@ tasks:
 - id: P16-11
   phase: P16
   title: Run full security and release verification
+  recommended_reasoning: high
+  preview_expectation: when_reviewable
   depends_on:
   - P16-09
   - P16-10
@@ -4361,3 +4822,4 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
+

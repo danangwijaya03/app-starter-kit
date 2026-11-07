@@ -2,6 +2,12 @@
 
 > This phase is an implementation target; it is **not** completed by this documentation commit.
 
+## Incremental preview checkpoint and agent reasoning
+
+Build portable artifact-only runtime. Compose project initializer, application setup CLI and deployment manager; High reasoning/independent review for migration, secrets, archive extraction, upgrade and rollback.
+
+At each safe increment run **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. For UI tasks record fixture/integrated/diagnostic mode, actual URL only if verified, test evidence and user review state via [preview/feedback](../PREVIEW-AND-FEEDBACK.md) and [review queue](../REVIEW-QUEUE.md). Low reasoning may implement bounded work; [Agent Routing](../AGENT-ROUTING.md) identifies critical work recommended for High reasoning and any required independent review. User UI review is non-blocking for other safe ready tasks.
+
 ## Gate before advancing
 Offline artifact boot without source workspace, aaPanel README, update/rollback and full regression verified.
 

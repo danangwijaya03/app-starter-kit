@@ -4,6 +4,18 @@
 
 **Repository:** [danangwijaya03/app-starter-kit](https://github.com/danangwijaya03/app-starter-kit), branch `main`. Next.js 16.4.3 sudah terpasang pada root repository. Jangan membuat ulang aplikasi dengan `create-next-app`. Monorepo dan semua fitur lain masih akan dikerjakan melalui task.
 
+## Hasil yang bisa direview dari awal
+
+Aplikasi pada `/` menyediakan **static development preview**, bukan admin dashboard yang sudah terintegrasi. Jalankan sesuai bagian 2 untuk melihat tampilan. Setelah tiap task/slice selesai, buka [REVIEW-QUEUE.md](docs/agent/REVIEW-QUEUE.md) untuk melihat route, perintah menjalankan aplikasi, cakupan tes, dan apakah implementasi masih fixture atau sudah terkoneksi ke API/MySQL.
+
+- [Roadmap hasil review setiap fase](docs/DEVELOPMENT-ROADMAP.md)
+- [Review dan feedback](docs/agent/PREVIEW-AND-FEEDBACK.md)
+- [Routing agent Low/Medium/High](docs/agent/AGENT-ROUTING.md)
+
+**Agent Low** dapat mengerjakan mayoritas task rutin. Untuk auth, permission, migrasi, bootstrap, backup/restore, release/installer, dan keputusan lintas domain yang ambigu, dokumen menyarankan **High reasoning** sebagai implementer atau reviewer. Task risiko tinggi memerlukan review independen meskipun kodenya ditulis agent High.
+
+Semua perubahan bertahap dilakukan di **branch `main`** sesuai keputusan proyek. Ini bukan izin melakukan mutasi database production otomatis.
+
 ## 1. Periksa lingkungan lokal
 
 Gunakan **Lerd, Node.js 26, npm/npx, serta MySQL Lerd yang sudah tersedia**. Redis Lerd digunakan pada task BullMQ. Production tanpa Docker: hasil build diunggah ke server aaPanel.
@@ -70,7 +82,7 @@ git status --short
 git log -5 --oneline
 ```
 
-`in_progress` perlu dilanjutkan, `completed` sudah memiliki bukti tes tercatat, `verified` sudah melewati gate fase. Status tidak menggantikan code review. Task dengan risiko tinggi perlu peninjau independen; Anda dapat memeriksa catatan review di `docs/agent/reviews/` sebelum task disahkan. Jika limit Codex habis, buka sesi baru di repository **yang sama** dan salin [RESUME-SESSION-PROMPT.md](docs/agent/RESUME-SESSION-PROMPT.md). Jangan reset Git atau mulai dari awal.
+`in_progress` perlu dilanjutkan, `completed` sudah memiliki bukti tes tercatat, `verified` sudah melewati gate fase. Status review UI dicatat terpisah pada `docs/agent/REVIEW-QUEUE.md`. Status tidak menggantikan code review. Task dengan risiko tinggi perlu peninjau independen; Anda dapat memeriksa catatan review di `docs/agent/reviews/` sebelum task disahkan. Jika limit Codex habis, buka sesi baru di repository **yang sama** dan salin [RESUME-SESSION-PROMPT.md](docs/agent/RESUME-SESSION-PROMPT.md). Jangan reset Git atau mulai dari awal.
 
 ## 6. Kapan perlu review pengguna
 

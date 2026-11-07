@@ -109,3 +109,11 @@ Production uses Node.js standalone web, compiled API + worker, MySQL/Redis servi
 As soon as P01 installs dependencies, commit a lockfile and write exact resolved versions into `docs/agent/DEPENDENCY-LOCK.md`. After that, Low agents use those versions and do not silently upgrade. If a cited package API differs from the exact installed version, record the mismatch and request a scoped update/review rather than inventing compatibility glue.
 
 Any path described as a **target** may not exist until its task completes. Never report successful `npm` checks just because they are written in this document.
+## 9. Incremental source and review contract (2026-11-07)
+
+- Keep a runnable local Next.js preview at each safe milestone. The initial root page is static **fixture**, not real admin functionality; phase P01 refines it after monorepo migration, P06 integrates authenticated/authorized shell.
+- For every meaningful slice, record actual route/verified preview URL or failure, fixture/integrated/diagnostic mode, tests and observations in CHECKPOINT / REVIEW-QUEUE. Do not invent running servers.
+- Low reasoning is default for explicit bounded modules. High reasoning is recommended for security/architecture/migration/restore/release/installer. Independent high-risk review is mandatory regardless of coding agent reasoning.
+- `main` remains canonical; preview reviews must not force branch changes or dangerous repository resets.
+- Installers are distinct: project initialization, application setup CLI, deployment manager. Bootstrap uses P05 service and cold release setup uses extracted version path before current symlink.
+- Details in [Preview & Feedback](PREVIEW-AND-FEEDBACK.md), [Agent Routing](AGENT-ROUTING.md) and [Installer Boundaries](INSTALLER-BOUNDARIES.md).

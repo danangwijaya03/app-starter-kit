@@ -175,3 +175,24 @@ A module manifest registers permission definitions, nav items and route IDs. Top
 | FLOW-08 | Theme/branding reflects runtime change |
 | FLOW-09 | Restore rejects unverified artifact |
 | FLOW-10 | Worker restart does not execute restore twice |
+## AFD-14 Incremental development preview flow
+
+```mermaid
+flowchart TD
+ A[Task ready and scoped] --> B[Implement small vertical slice]
+ B --> C[Actual relevant tests and denial checks]
+ C --> D{Acceptance verified?}
+ D -->|No| E[Record failure or blocker]
+ D -->|Yes| F[Start local app and inspect route if available]
+ F --> G[Record verified URL and fixture/integrated/diagnostic mode]
+ G --> H[Checkpoint and commit]
+ H --> I[Continue safe next task]
+ G --> J[User visual feedback queue]
+ J --> K{Explicit feedback?}
+ K -->|Revision requested| L[Create scoped revision task]
+ K -->|Approved| M[Record UI approval separately]
+```
+
+The initial `/` page is an illustrative static layout with four menu groups, not a real administration session. Early visual preview is intentionally available before P04/P05 auth/RBAC and P06 full authorized shell. Fixture mode may not fake login, user identity, saved settings or database metrics. All new `/dev/status` diagnostics must be disabled in production and return only safe availability signals.
+
+Feedback queue status `pending_review / approved / revision_requested` is distinct from task CLI statuses. Route, mode and test evidence must be factual. High-reasoning review is recommended for security-critical paths; independent security review cannot be replaced by visual review. See [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md).

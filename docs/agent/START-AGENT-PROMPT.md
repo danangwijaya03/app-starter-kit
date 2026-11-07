@@ -17,11 +17,15 @@ Jangan gunakan source activate, bahkan bila terminal Fish; gunakan interpreter .
 
 Jika bootstrap gagal, hentikan pekerjaan sebelum mengubah status task; laporkan error yang nyata tanpa mengubah Python sistem atau Lerd.
 
+Flow wajib RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. Baca docs/agent/PREVIEW-AND-FEEDBACK.md. Gunakan reasoning Low untuk task kecil; rekomendasikan High untuk security/migrations/restore/deploy/installer dan perubahan DAG. Jangan menganggap review UI menggantikan review keamanan.
+
 Jika ada task in_progress, lanjutkan setelah audit perubahan dan bukti tes. Jika tidak ada, pilih hanya task ready pertama dari CLI. Baca card task itu dan referensi relevan saja. Implementasikan scope kecil, jalankan tes nyata setelah edit terakhir, verifikasi acceptance criteria, dan catat status/checkpoint melalui CLI.
 
 Sebelum complete, gunakan jenis bukti yang benar melalui --kind; ikuti docs/agent/TEST-AND-REVIEW-POLICY.md. Task high-risk memerlukan review independen, jangan self-approve. Bila task pending terlalu luas, lihat docs/agent/TASK-SPLITTING.md dan siapkan rencana pemecahan yang direview. Jalankan tools/check_repo_contracts.py untuk pemeriksaan konsistensi yang relevan.
 
 Lanjut otomatis ke task aman berikutnya selama sesi masih berjalan tanpa menunggu pesan "lanjutkan". Jika risikonya production/destruktif atau tidak bisa membuktikan hasil, catat blocker yang tepat. Jangan menebak schema, password, permission atau hasil tes.
 ```
+
+**Tambahan flow:** kerja pada `main`. Setelah tiap task dengan output tampilan, record preview mode fixture/integrated, URL jika terbukti, langkah review, dan status di `docs/agent/REVIEW-QUEUE.md`. Jika backend belum tersedia, jangan menampilkan status sukses palsu. Tugas penting: rekomendasikan High reasoning sesuai `docs/agent/AGENT-ROUTING.md`. Persetujuan review harus independen.
 
 Prompt ini bukan pengganti AGENTS.md atau task card. Jangan meminta user menempelkan seluruh dokumen dalam satu sesi.

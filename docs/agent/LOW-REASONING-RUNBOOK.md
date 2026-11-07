@@ -8,6 +8,12 @@ Agent sendiri menjalankan `python3 tools/bootstrap_agent.py` **sebelum** membaca
 
 Seluruh command `agent_tasks.py` dan `validate_plan.py` selanjutnya memakai `.venv-agent/bin/python` agar tidak tergantung shell. Untuk validasi P00 melalui evidence runner, pilih `-- .venv-agent/bin/python tools/validate_plan.py` setelah script terpasang.
 
+## Preview-first execution without increasing reasoning burden
+
+The default coding agent can be **Low reasoning** because work is bounded by a single task card and actual pre-existing contracts. Use the development preview and [PREVIEW-AND-FEEDBACK.md](PREVIEW-AND-FEEDBACK.md) in **each meaningful slice**. Route security, architectural ambiguity and high-risk work to a separate **High reasoning** design/implementation reviewer per [AGENT-ROUTING.md](AGENT-ROUTING.md). A High implementer does not replace independent approval.
+
+Use **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. Preview means exact route, validated local command/URL if observed, fixture vs integrated vs diagnostic, review steps and limitations recorded in CHECKPOINT/REVIEW-QUEUE. If dev server cannot start, document the failed command, do not invent an accessible URL or mark the feature reviewable. The user may request UI revisions asynchronously; convert them to bounded tasks, while unrelated work continues. Development branch is **main**, never force-reset to make tools pass.
+
 ## Startup setiap sesi
 
 ```bash
@@ -57,7 +63,7 @@ Teks dalam tanda `<...>` adalah placeholder, jangan dijalankan literal. Periksa 
 - Untuk task runtime/DB/queue baca [LOCAL-LERD-NODE26.md](LOCAL-LERD-NODE26.md): Lerd, Node 26, **existing** MySQL/Redis. Host/port dari Node di host berbeda dengan hostname di jaringan container. Database test berbeda dari dev/production dan wajib aman sebelum test yang menulis data.
 - Jangan install service MySQL/Redis kedua, mengubah global Lerd routing/LAN, atau memodifikasi modul yang tidak relevan.
 - `TASKS.yaml` adalah source of truth status; card adalah spesifikasi implementasi. Jangan menciptakan permission atau schema berbeda dari BSD.
-- Setelah task: periksa status Git, test evidence dan checkpoint. Commit perubahan satu unit tervalidasi jika aman; lanjut task berikutnya otomatis sesuai dependency.
+- Setelah task: periksa status Git, test evidence, runnable preview/limitations, user review queue dan checkpoint. Commit perubahan satu unit tervalidasi jika aman; lanjut task berikutnya otomatis sesuai dependency.
 
 ## Recovery & eskalasi
 

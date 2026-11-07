@@ -66,6 +66,14 @@ Untuk fase berisiko tinggi P04, P05, P14, P15, dan P16, gate memerlukan **dua pe
 
 Fase P00 menggunakan gate dengan `--kind docs`. Fase non-high lain membutuhkan salah satu dari `unit/integration/build`. Semua gate menolak bukti yang fingerprint source-nya sudah berubah. Test label bukan bukti semantik: reviewer harus memeriksa assertion sesuai kasus.
 
+## Preview and user review are additional evidence, not a shortcut
+
+For all UI-affecting tasks, the agent records: exact route (or read-only diagnostic for infra), URL only if actually verified, fixture/integrated state, actions to reproduce, relevant test evidence, and unresolved limitations in [REVIEW-QUEUE](REVIEW-QUEUE.md). A screenshot/mock passing visual review does **not** prove secure API, real MySQL integration, or completion. Infrastructure phases should favor terminal diagnostics with real exit codes over artificial UI.
+
+User feedback uses `pending_review` / `approved` / `revision_requested` **only in review queue**. Keep technical statuses and `agent_tasks.py` workflow unchanged. Unless feedback concerns a security-critical dependency, agent continues unrelated ready tasks without waiting. Review requested changes are limited revision units with new scoped tests.
+
+**Reasoning selection:** Low coding agents implement routine small tasks; recommend a separate **High-reasoning** agent for migrations, auth/session, RBAC/first admin, secret and storage authorization, CMS publish/preview security, backup/restore, release/rollback, installer isolation and task DAG refactors. See [AGENT-ROUTING.md](AGENT-ROUTING.md). Independently recorded high-risk review remains mandatory regardless of implementer reasoning level.
+
 ## Makna Status
 
 `completed` = implementasi dan tes minimum terekam (serta review bila high). `verified` = gate fase lulus sesuai cakupan dan tidak ada bukti usang. Hasil otomatis tetap harus diaudit untuk konteks keamanan.

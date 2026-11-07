@@ -197,13 +197,13 @@ Nginx + HTTPS and installation smoke tests
 
 ```bash
 cd /srv/apps/codelight-starter
-node --env-file=shared/env/installer.env current/cli/cli.js preflight
-node --env-file=shared/env/installer.env current/cli/cli.js migrate --check
-node --env-file=shared/env/installer.env current/cli/cli.js migrate --apply
-node --env-file=shared/env/installer.env current/cli/cli.js permissions:sync --apply
-node --env-file=shared/env/installer.env current/cli/cli.js seed
-node --env-file=shared/env/installer.env current/cli/cli.js bootstrap-admin
-node --env-file=shared/env/installer.env current/cli/cli.js verify
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js preflight
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js migrate --check
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js migrate --apply
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js permissions:sync --apply
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js seed
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js bootstrap-admin
+node --env-file=shared/env/installer.env releases/vX.Y.Z/cli/cli.js verify
 ```
 
 Commands must use installation lock and failure exit codes. On production, destructive or incompatible migration requires explicit deployment approval; installer must not assume consent. `bootstrap-admin` must read protected secret/prompt, use Better Auth-compatible credential creation, set user `active`, `must_change_password=true`, and assign protected `super_admin` role; second run must leave existing credentials unchanged.
@@ -334,3 +334,10 @@ Useful non-destructive commands: `pm2 status`, `pm2 describe starter-api`, `pm2 
 ## 15. Release documentation change rule
 
 At P16, agent must update this file to match **actual implemented artifact names, CLI syntax, filesystem layout, PM2 config and tested Nginx config**; include tested stdout/exit conditions without private values. If steps fail, leave release blocked. A documentation-only template is not evidence that an application is installed.
+## 16. Installer separation and cold-start amendment (2026-11-07)
+
+The planned installer is **three distinct interfaces**: a Project Initializer for isolated derivative application identity/data, an Application Setup CLI for safe preflight/migration/permission seed/admin bootstrap, and a Deployment Manager for archive versioning/upgrade/rollback. See [Installer Boundaries](docs/agent/INSTALLER-BOUNDARIES.md).
+
+**Cold-start correction:** before an initial installation there may be *no* `current` symlink. The target CLI commands above therefore show `releases/vX.Y.Z/cli/cli.js` (substitute the exact verified extracted version). Only switch `current` after checks and approved migrations succeed. During upgrades, run migrations/verification against the reviewed new release version, not accidentally against the previous `current`.
+
+**Implementation status:** this remains a contract for P16, not executable today. High reasoning recommended for archive extraction safety, DB migration, passwords/secrets, version switch, rollback compatibility and project isolation. All production-changing actions still require explicit operator authorization. The first release must replace placeholder paths with tested real commands and report failures honestly.
