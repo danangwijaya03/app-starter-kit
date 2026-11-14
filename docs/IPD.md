@@ -1,14 +1,14 @@
 # IPD — Implementation Plan Documentation
 
-**ID:** IPD-1.0 | **Status:** Executable specification (not executed) | **Phase count:** 17 (P00–P16) | **Milestones:** A–D
+**Status:** executable task-plan contract, not proof of completed features. **17 phases P00–P16**, `docs/agent/TASKS.yaml` authoritative for the count, IDs and dependencies. Reuse architecture: clone/manual setup, curated references, selected coding agent.
 
 ## IPD-01 Principles
 
-The project is **not** one mega task. Divide work into phases, then atomic tasks that each have a stable ID, dependency list, scope, deliverable, implementation outline, test and restart checkpoint. A session may execute multiple ready tasks, but each task is committed/checkpointed individually when validated. No task can be `completed` because files were merely created.
+Keep `main` and existing Next.js root scaffold, move into monorepo at P01. Every task ID has a scoped card, dependency, testable outcome and safe checkpoint. A task is not complete because documentation, files or a fixture exist.
 
-The authoritative live registry is `docs/agent/TASKS.yaml`; this document contains the planning contract. Task-specific step-by-step guides live at `docs/agent/phases/Pxx-*.md`. Never mark test as passed if it was not run. The initial registry is all `pending` until coding begins.
+Lifecycle: **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. Select one ready task, one domain [reference](references/REFERENCE-MAP.md); adapt a tested official library/pattern instead of wholesale starter copy. Source URL/version/license and exclusions must be recorded when code is imported. Do not add optional features to MVP automatically.
 
-## IPD-02 Milestones and phase dependency graph
+## IPD-02 Stable phase sequence and outcomes
 
 ```mermaid
 flowchart TD
@@ -18,7 +18,6 @@ flowchart TD
  P05 --> P09
  P06 --> P09 --> P10 --> P11
  P09 --> P12
- P06 --> P12
  P02 --> P13
  P05 --> P13
  P13 --> P14
@@ -30,132 +29,77 @@ flowchart TD
  P15 --> P16
 ```
 
-**Parallelism:** Design token scaffolding and build smoke tests can start earlier; whole phase may contain tasks ready even if other tasks in its phase wait. `TASKS.yaml` edges, not diagram lines, are definitive. Preflight and package contract gates may overlap implementation, but release verification must happen last.
+This diagram is a high-level overview; **the exact `depends_on` edges in TASKS.yaml win**. Early web preview occurs at P00/P01 and is marked fixture, while authenticated shell completes at P06.
 
-| Milestone | Phase | Deliverable/gate |
+| Milestone | Phases | Deliverable |
 |---|---|---|
-| A: Foundation | P00 Docs & Agent Setup | Source specs cross-referenced, task checker, checkpoint discipline |
-| A | P01 Monorepo & Build Scaffolding | Fresh clone install, build pipeline outline, minimal artifact smoke |
-| A | P02 Local Infrastructure | MySQL/Redis test connections, env validation, no production Docker |
-| A | P03 Database Foundation | Vendor auth schema + migrations, audit base, repo transaction helper |
-| B: Core | P04 Authentication | Better Auth login/reset/session + tests |
-| B | P05 RBAC & Bootstrap | Registry/roles/authorization, initial admin idempotence, invariants |
-| B | P06 UI/Admin Shell | Salt & Pepper tokens, responsive shell, permission-aware navigation |
-| B | P07 User/Role UI | Users/roles APIs, permission matrix and security checks |
-| B | P08 Dashboard | Widget registry, authorized statistics/activity |
-| C: CMS | P09 Media Storage | Storage adapter, upload validation, media API/UI |
-| C | P10 CMS Editor | Pages/revisions/block registry/editor and publish API |
-| C | P11 Public CMS | Public renderer, nav, draft preview, SEO/revalidation |
-| C | P12 Settings | Typed general settings, branding, theme, audit UI |
-| D: Ops | P13 Worker | Queue abstraction, health, job status, retries |
-| D | P14 Backup | Verified encrypted MySQL backup jobs and UI |
-| D | P15 Restore | Staged validation, maintenance, recovery/runbooks and failure tests |
-| D | P16 Release | Artifact build, installer, PM2, aaPanel Nginx, README-SERVER, E2E and upgrade |
+| A | P00–P03 | Specs/reference playbooks, npm monorepo three apps, dev preview, MySQL/Redis integration |
+| B | P04–P08 | Better Auth, protected RBAC/first admin **manual script**, authorized shell, user/role and dashboard |
+| C | P09–P12 | Media, CMS editor, published pages/nav, settings/theme |
+| D | P13–P16 | Worker, encrypted backup, staged restore, **manual clone/build/PM2/Nginx setup verification** |
 
-## IPD-03 Atomic task procedure (required for every ID)
+## IPD-03 Atomic task and checkpoint
 
-1. **Preflight:** locate task in `TASKS.yaml`; inspect dependency completion and task detail in `docs/agent/phases`; read scoped spec IDs; capture `git status` and prior test state.
-2. **Plan short implementation:** identify 1 responsibility, expected modules/DTO, migration impact, test cases. Split oversized task before editing.
-3. **Implement:** smallest coherent set of changes using existing contracts, no unrequested features. Use placeholders only in documentation, not production logic.
-4. **Validate:** run targeted commands for affected package(s), negative API tests for auth/RBAC, migration test when schema changed. No unverified assertions.
-5. **Checkpoint:** update task status with evidence and `CHECKPOINT.md`; record modified files/commit/tests/next ready task/blockers. Commit tested unit only if clean and policy permits.
-6. **Continue:** select next ready task automatically. Never use destructive git/database commands to fix interrupted work.
+1. RECOVER actual task status, Git diff, scoped requirements and tested safe fixtures.
+2. REFERENCE official package + at most one compatible source comparison, record license/version/expected adaptation and exclusions.
+3. IMPLEMENT one end-to-end bounded responsibility; split oversized pending tasks using reviewed split plan, retaining parent integration checkpoint.
+4. TEST scoped unit/integration/negative after last source edit; use disposable MySQL/Redis, no hidden skips.
+5. VERIFY permission, rollback/idempotency and concurrency as appropriate; for `effective_risk: high`, independent qualified reviewer must approve before `complete`.
+6. PREVIEW verified local route or read-only diagnostic, label fixture/integrated; user review queue separate from CLI status.
+7. CHECKPOINT source hash, commit, tests, source attribution, blocked risks and next ready task.
+8. NEXT continue independent safe ready task within current session; never imply background execution.
 
-### Task state machine
+Technical states: `pending → in_progress → completed → verified`, with `blocked` when necessary. Phase gates require all child tasks completed and matching current-source test evidence. Human preview review does not promote technical status.
 
-`pending → in_progress → completed → verified` ; `pending/in_progress → blocked` with reason. `blocked → in_progress` after blocker cleared. `completed` means scoped tests passed; `verified` means phase gate accepted. Do not mark `verified` before phase gate. For a phase with N tasks, gate completion requires all tasks at least `completed` and corresponding milestone tests.
+## IPD-04 Workstreams and agent assignment
 
-### Session limit policy
+All task implementations use **selected coding agent**. No High Reasoning model is required, including for auth/RBAC/backup/restore; those areas nevertheless demand **stronger negative/concurrency tests and independent review**. Reviewer independence is about different qualified review, not model-name or effort selection.
 
-- Favor small tasks with one testable outcome; no arbitrary timer/token quotas (agent capacity varies).
-- Save **progress checkpoint** at task start, after meaningful stable work, before any risky operation; a **verified checkpoint** after tests.
-- Do not rely on automatic background continuation. New session must validate Git diff and current DB migration state before resuming `in_progress` task.
-- In incomplete task, state exactly what is implemented, what is not, which tests ran, error messages/safe references, and next command. Do not falsely mark completed.
-- Automatically continue across safe tasks; require authorization only for production, irreversible or security-sensitive operations.
+P00 docs, P01 monorepo, P02 local Lerd, P03 MySQL/Drizzle, P04 authentication, P05 app RBAC/admin bootstrap, P06 admin UI, P07 users/roles, P08 dashboard, P09 media, P10 CMS editor, P11 public CMS, P12 settings, P13 worker, P14 backup, P15 recovery, **P16 manual setup and deployment**.
 
-## IPD-04 Stable workstream families
+## IPD-05 Dependencies and risk boundaries
 
-| Prefix | Scope | Notes |
-|---|---|---|
-| DOC/P00 | Repository spec & task management | Lint docs/links/task graph |
-| CORE/P01–P03 | Toolchain, build, MySQL schema | Exact version pin and migration owner |
-| AUTH/P04 | Better Auth and sessions | No parallel hand-written credential store |
-| RBAC/P05 | Protected system role + bootstrap | First user after migrations/role seed |
-| UI/P06 | Theme and admin shell | Navigation register under four groups |
-| USER/P07 | User and role screens | Deny unauthorized assignment |
-| DASH/P08 | Widgets/statistics | Widget permission guards on API |
-| MEDIA/P09 | Files | Private path & references |
-| CMS/P10–P11 | Editor/public/nav | Immutable revisions and published pointer |
-| SET/P12 | Branding & appearance | Typed settings and contrast |
-| JOB/P13 | Worker infrastructure | Restore retry disabled |
-| BAK/P14–P15 | Backup/restore | External journal, staged restore |
-| REL/P16 | Build, package, install, docs | Artifact-only smoke gate |
+- Auth schema generated from installed Better Auth version before reviewed Drizzle MySQL migration.
+- Business API authorization is server-side; admin menu hiding is insufficient. Admin created only after roles/permission sync.
+- CMS draft privacy, same-page published revision pointer and media reference safety maintained atomically.
+- Worker idempotency, backup verification and restore isolation are required; never auto-retry restore.
+- Production operations need explicit operator authorization. Tests never write to dev/shared/production DB by accident.
+- No `apps/installer`, project generator, artifact release manager, release manifest/checksum/symlink switching workflow or Docker dependency.
 
-## IPD-05 Dependency rules
+## IPD-06 Evidence matrix
 
-- A task may proceed if and only if every declared dependency is `completed` or `verified` (and parent gate where explicitly required), and it is not blocked by environment conditions.
-- Database migrations run only after the corresponding schema is merged and versioned. Better Auth generation before auth migration.
-- Auth and RBAC must precede private admin features. `P05` includes initial admin bootstrap **after** permission/role seed.
-- Frontend module screens require their API contracts and shell; do not fake production endpoints as completed.
-- CMS public renderer must not read latest draft; it uses published revision only.
-- Backup worker must work before backup UI is declared complete; restore stage follows verified backup.
-- Release docs written after the scripts exist and have been tested; draft contents are requirements until then.
+| Work category | Minimum proof |
+|---|---|
+| P00 docs | Graph/docs validation with actual repository state |
+| P01–P03 | npm ci/build/launch, isolated service/DB checks, fixture/diagnostic preview |
+| P04–P05 | Auth 401/403, session lifecycle, negative and concurrent last-admin cases, independent review |
+| P06–P08 | Browser mobile/desktop, role-based navigation, real API data |
+| P09–P12 | Upload denial, CMS draft isolation/publish, settings persist, role-gated operations |
+| P13–P15 | Worker retry/replay, encrypted backup/checksum and disposable restore; independent review |
+| P16 | Clone/manual setup, npm commands and their failure modes, PM2/Nginx smoke and rehearsed recovery, no installer |
 
-## IPD-06 Exact test expectations
+## IPD-07 Manual clone and server setup
 
-### Atomic task checks
-
-Examples of **target package scripts** once implemented:
-
+Target after scripts are implemented:
 ```bash
-npm exec -- turbo run typecheck --filter=@repo/api
-npm exec -- turbo run lint --filter=@repo/api
-npm exec -- turbo run test --filter=@repo/api
+npm ci
+# configure private .env, unique MySQL/Redis/storage first
+npm run db:migrate:check
+npm run db:migrate
+npm run permissions:sync
+npm run db:seed
+npm run setup:admin
+npm run setup:verify
+npm run build
+# review and start PM2 / Nginx manually
 ```
 
-When a shared package changes, include its consumers. For database modifications: apply migration to a clean disposable MySQL database and test repeat execution. For APIs: positive/negative auth/permission and OpenAPI schema tests. For UI: component test, keyboard flow, accessibility and interactive behavior.
+The **current** root Next.js has only `dev`, `lint`, `build`. These other scripts are **planned** and must be implemented/tested before use; docs do not make them executable. See [Manual Clone Setup](MANUAL-CLONE-SETUP.md) and [Server README](../README-SERVER.md).
 
-### Phase gates
+## IPD-08 Manual update and recovery
 
-| Phase category | Minimum verification |
-|---|---|
-| P00–P03 | Doc/task integrity, frozen install, bootstrap DB/migrate repeat, package graph |
-| P04–P05 | Login/reset first-change, 401/403, revocation, concurrency last-super-admin, admin bootstrap idempotent |
-| P06–P08 | Mobile/desktop/dark shell, user/role UI, effective grants, widgets filtered by backend |
-| P09–P12 | Upload security, draft isolation, revision/slug conflict, preview secrecy, public rendering/SEO, branding/theme update |
-| P13–P15 | Worker restart, queue reconciliation, encrypted backup, checksum, isolated restore, manual recovery failure |
-| P16 | Clean install from artifact, update with backward-compatible schema, process restart, PM2/Nginx, release manifest verification |
+Review/backup → test SQL migration in isolated MySQL → operator-approved migration → Git pull trusted commit → npm ci/build → PM2 restart → smoke test. A code rollback via Git does not undo a DB migration. No automated release/rollback service, versioned directory manager, destructive reset or auto-restore.
 
-See `docs/architecture/TEST-MATRIX.md` for tests linked to functional requirements. Do not require all E2E on each small code change. Full suite at milestone and release gates.
+## IPD-09 Completion
 
-## IPD-07 Packaging contract and server artifacts
-
-`npm run release:build` → web Next standalone (monorepo tracing) + Hono/worker/installer portable production outputs → migration files → manifest/checksums → artifact-isolated smoke → `.tar.gz`. `README-SERVER.md` included. Artifact excludes source, `.env`, private keys, initial password, backups, media and logs. Build OS/arch/Node ABI must match deployment target; native packages tested in target-equivalent Linux.
-
-`release-manifest.json` includes project/version/commit, targetOS, targetArch, Node major, schema migration marker, entrypoints, component checksums, build timestamp and safe compatibility info. Do not store secrets. Agent must verify output layout rather than assuming standalone path.
-
-## IPD-08 Fresh install / update / rollback
-
-**Fresh:** upload → check SHA256/version/arch → extract to non-public releases dir → create shared/env/media/backups/logs → MySQL/Redis preflight → migration → permission sync → system seeds → bootstrap admin via protected password input → start API/worker/web PM2 → bind Nginx → SSL → health & login test → backup config.
-
-**Update:** upload and verify → backup if migration risky → migration compatibility check → pause writes/workers when necessary → migrate → switch `current` → PM2 reload/restart → health tests → verify queue → finalize. Rollback code only if schema compatible; otherwise maintenance and operator-guided recovery. Never assert SQL import is atomic.
-
-## IPD-09 Definition of done for entire project
-
-Every task is `verified`; six document links/IDs consistent; all auth/RBAC deny cases, CMS published invariants, settings, backup/restore tests pass; clean local setup works; production artifact contains installer+README and functions without monorepo source; aaPanel steps reproduced; no secrets present; documentation reflects real implemented commands; migration/update and restore recovery protocols demonstrated in disposable testing; critical human approval gates maintained.
-
-## v1.2 repository integration (approved 2026-10-29)
-
-The existing repository `danangwijaya03/app-starter-kit` already contains a working **root Next.js 16.4.3 npm scaffold** with `app/`, `public/`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs` and root `package-lock.json`. P01 must move the **existing** app into `apps/web`, not run create-next-app again. Use npm Workspaces and one root package-lock. This documentation-only commit does not relocate the source or claim new features implemented. The target production deployment is non-Docker artifact upload to aaPanel/PM2.
-
-## IPD-10 Preview-first implementation and reasoning-aware execution (2026-11-07)
-
-**Delivery flow:** RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. Incrementally change actual source and run scoped tests before a preview handoff; never hold all frontend work until the final P16 release. A safe infrastructure task can provide a documented read-only diagnostic, not invented interface functionality.
-
-**Compatibility with old task IDs:** keep the 157 original IDs and dependency constraints. Four early visibility tasks are added: `P01-08` (post-monorepo UI shell fixture), `P01-09` (preview smoke/handoff), `P02-07` (dev health) and `P03-09` (safe DB health). Total 161. The UI-only baseline at `/` is a demo, **not** an authenticated dashboard. Full authorized shell remains P06 after P04/P05, so preview may precede an integrated backend without implying persistence.
-
-**Development main:** requested changes are committed to `main` once verified; no forced dev branch or destructive reset. Never silently mutate a production DB/deploy. User review state goes to `docs/agent/REVIEW-QUEUE.md` and does not alter task CLI statuses; revisions are bounded tasks rather than a stop-the-line requirement for unrelated work.
-
-**Agent reasoning:** Low implements one task card at a time. Medium is recommended for cross-module contracts. High is recommended for authentication, RBAC, migrations, secret boundaries, CMS private preview, backup/restore, installer, deployment, rollback and task DAG redesign. Independent reviewer required for tasks classified high effective risk, regardless of implementer model. Missing reviewer is a task blocker, not a license to fake approval.
-
-**Installer split:** `init-project` derivative isolation, `apps/installer` preflight/migrations/seed/bootstrap/verify, `infra/scripts` archive/version upgrades. P01/P03/P05 deliver and test reusable primitives, P16 composes them into a release. A cold installer runs `releases/vX.Y.Z/cli/cli.js` before switching `current`. See [development roadmap](DEVELOPMENT-ROADMAP.md), [agent routing](agent/AGENT-ROUTING.md), [preview contract](agent/PREVIEW-AND-FEEDBACK.md), [installer boundaries](agent/INSTALLER-BOUNDARIES.md).
+All task gates verified with current source evidence, real UI/auth/RBAC/CMS/media/queue/backup/restore tests, standalone new-project clone setup tested, production PM2/Nginx instructions reproduced on isolated equivalent environment, reference license ledger maintained, no private data or hardcoded secret shipped.

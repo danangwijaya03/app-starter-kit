@@ -1,19 +1,14 @@
-# Accepted architecture decisions
+# Accepted architecture decisions — current
 
-- Source: existing GitHub repo `danangwijaya03/app-starter-kit`, branch `main`.
-- Preserve existing Next.js 16.4.3 npm app until P01, then use Git moves to `apps/web`; never re-init app.
-- npm/npx only; npm Workspaces and Turborepo monorepo target with one `package-lock.json`.
-- Future Hono API, BullMQ worker, installer CLI, MySQL/Drizzle, Better Auth and database-driven RBAC.
-- CMS hybrid blocks, Salt & Pepper default theme, four main sidebar categories.
-- Production: build/upload archive, Node PM2 with aaPanel/Nginx, MySQL and Redis services, no Docker.
-- Initial Super Admin `admin@codelight.id`, bootstrap secret + first login forced change; never hardcode password.
-- 17 phases, 157 atomic tasks, checkpoint/resume and gates. All tasks pending until real verification.
+**Date:** 2026-11-14. This document supersedes earlier installer/release-artifact plans. Retained historical implementation IDs were migrated where still relevant.
 
-## 2026-11-07 — incremental review and agent reasoning
-
-- Keep work on **main**, no dev-branch requirement. No force-reset.
-- Preserve the 157 task IDs/technical dependency graph; append four bounded early-preview tasks (P01-08/09, P02-07, P03-09). Front-load visible fixture UI while respecting later auth/RBAC phases.
-- Each slice flows RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. User UI review recorded asynchronously in REVIEW-QUEUE, separate from technical task completion.
-- Low reasoning is default implementer for bounded work; High reasoning recommended for security-critical / architecture-heavy tasks; independent high-risk review mandatory.
-- Installer has project initializer, application setup CLI and deployment manager as separate contracts; fresh install invokes CLI at extracted version before switching current symlink.
-- Root static Next.js dashboard preview is a fixture; not claim of working API/MySQL.
+- Repository `danangwijaya03/app-starter-kit`, development on `main`, preserve existing root Next.js 16.4.3/React 19.3 until P01 moves files by Git, not re-scaffolding.
+- Reusable **single-tenant per clone**, MySQL 8.4 + Drizzle, Better Auth, database-driven app RBAC, standalone Hono API, Next.js public/admin, BullMQ worker + Redis; npm workspaces/Turborepo/one package lock, Node 26 baseline.
+- **No installer**, no `apps/installer`, no project initializer/generator, portable release artifact, symlink switch manager, Docker requirement, or installer-specific metadata/secrets. New apps use clone + manual environment/database setup.
+- Manual npm scripts for migration, permission sync, idempotent seed, first-super-admin bootstrap with non-echo secret, verification are **retained** and will be implemented through P03/P05/P16; no universal default password.
+- Production deployment **manually from source** using npm build, PM2, aaPanel/Nginx, isolated MySQL/Redis and protected local storage. Live migration/backup/restore requires operator authorization.
+- **Reference-driven implementation:** curated official libraries and examples (Celestia, Blur Stack, Hono Starter etc) with source pinning, license attribution, exclusions and testable invariants. See `docs/references/`. No wholesale template copying.
+- **Single active coding agent per task/session (provider/model-agnostic)**. High Reasoning AI optional, not required. Keep actual high-risk independent security review and negative/concurrency tests; risk is not model-effort classification.
+- Visual preview-first incremental workflow: RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT; visible UI fixture early, real auth/API/DB only once implemented.
+- CMS block/revision/published-pointer, Salt & Pepper theme, Dashboard / Manage Content / Manage User / Setting main menu, private media, backup/restore, audit, worker and typed contracts remain MVP.
+- Optional reference ideas (2FA, notifications, i18n, extra storage, monitoring) do **not** become MVP tasks without a later scoped decision.

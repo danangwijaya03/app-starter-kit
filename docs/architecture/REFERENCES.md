@@ -1,13 +1,10 @@
-# Architecture reference sources
+# Architecture and feature references
 
-- Next.js: https://nextjs.org/docs
-- npm workspaces: https://docs.npmjs.com/cli/using-npm/workspaces
-- Turborepo: https://turborepo.com/docs
-- Hono: https://hono.dev/docs
-- Better Auth: https://www.better-auth.com/docs
-- Drizzle: https://orm.drizzle.team/docs
-- BullMQ: https://docs.bullmq.io/
-- PM2: https://pm2.keymetrics.io/docs/
-- aaPanel: https://www.aapanel.com/docs/
+The canonical **reference-driven** catalog is [Reference Map](../references/REFERENCE-MAP.md), with per-feature notes and [Adoption Protocol](../references/ADOPTION-PROTOCOL.md).
 
-Sources are references. Exact CLI and library versions must be verified at implementation time. Existing Next.js versions should be preserved.
+- [Celestia Starter](https://github.com/dev-celestia/celestia-starter): Hono/Next separation, Better Auth, CMS; adapt architectural patterns only, not pnpm/PostgreSQL or feature installer.
+- [Blur Stack](https://github.com/blurridge/blur-stack): RBAC and route-permission architecture; exclude multi-tenant/PostgreSQL requirements.
+- [Hono Starter](https://github.com/Joker666/hono-starter): Hono/MySQL/BullMQ; exclude JWT-based auth and Docker dependency.
+- [Better Auth](https://better-auth.com/docs), [Drizzle](https://orm.drizzle.team/docs/overview), [Hono](https://hono.dev/docs), [OWASP ASVS](https://asvs.owasp.org/): authoritative upstream references for their own responsibilities.
+
+No external source copied by this documentation commit.

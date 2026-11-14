@@ -1,24 +1,21 @@
-# P14 — Backup operations
+# P14 — Encrypted Backup
 
-> This phase is an implementation target; it is **not** completed by this documentation commit.
+**Ditujukan untuk: CODING AGENT.** This phase is a planned implementation, not evidence of completed functionality. **Provider/model agnostic:** use the active coding agent available (Codex/Claude Code/Antigravity/DeepSeek/etc.); risk gate is independent of model name.
 
-## Incremental preview checkpoint and agent reasoning
+## Reviewable outcome
 
-Review encrypted backup on disposable DB and restore verification; High reasoning and independent review mandatory.
+Verified backup, checksum, permissions and isolated restore validation. A demo/fixture is labelled as such; do not claim a working API, RBAC or DB because a static page renders.
 
-At each safe increment run **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. For UI tasks record fixture/integrated/diagnostic mode, actual URL only if verified, test evidence and user review state via [preview/feedback](../PREVIEW-AND-FEEDBACK.md) and [review queue](../REVIEW-QUEUE.md). Low reasoning may implement bounded work; [Agent Routing](../AGENT-ROUTING.md) identifies critical work recommended for High reasoning and any required independent review. User UI review is non-blocking for other safe ready tasks.
+## Implementation flow
 
-## Gate before advancing
-Backups encrypted, verified, consistent and safely stored off webroot.
+1. `python3 tools/bootstrap_agent.py`, check `git status --short`, `docs/agent/CHECKPOINT.md` and next ready task.
+2. Read one task card and [Reference Map](../../references/REFERENCE-MAP.md); follow the [Adoption Protocol](../../references/ADOPTION-PROTOCOL.md) and focused playbook [OPERATIONS](../../references/OPERATIONS.md).
+3. **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT.**
+4. Follow the exact `depends_on` graph from TASKS.yaml rather than assuming list order is executable.
+5. On security-sensitive work, run appropriate positive, negative and concurrency/recovery tests; an **independent qualified reviewer** must approve effective high-risk tasks, regardless of the implementer's model/provider. Production changes require separate operator approval.
+6. Record actual source/test evidence, the verified preview route (or unavailable), feature mode and next task. Do not deploy automatically. All work targets clone-based setup; no installer, feature generator or Docker dependency.
 
-## Instructions for low-reasoning agent
-1. Run `python3 tools/agent_tasks.py doctor` then `next`; do not manually skip dependencies.
-2. Read and execute **one** [task card](../tasks/) at a time. Use npm/npx only.
-3. Keep scope narrow, record real test evidence, update checkpoint; stop on ambiguous or unsafe operations.
-4. Run the real integration/phase test before marking phase verified. Documentation validation alone is not an implementation test.
-5. Follow [Repository Baseline](../REPOSITORY-BASELINE.md) and [Implementation Contracts](../IMPLEMENTATION-CONTRACTS.md). Preserve preexisting Next.js until P01 performs Git moves.
-
-## Tasks in this phase
+## Tasks in this phase (9)
 
 | ID | Work unit |
 |---|---|
@@ -32,19 +29,10 @@ Backups encrypted, verified, consistent and safely stored off webroot.
 | [P14-06](../tasks/P14-06.md) | Build Backup UI and job progress |
 | [P14-07](../tasks/P14-07.md) | Verify backup security and restorability gate |
 
+## Gate before advancing
+
+Every task in the phase must have current-source scoped test evidence, meet the reviewable outcome, and pass any independent high-risk review required by `agent_tasks.py`. Tests on disposable databases only. Do not claim documentation validation proves the runtime is implemented.
+
 ## Recovery
-Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
 
-## Complete task index from TASKS.yaml
-
-The table above may summarize parent units. The **complete authoritative list** includes microtasks below; always use `python3 tools/agent_tasks.py next` for execution order.
-
-- [P14-01](../tasks/P14-01.md)
-- [P14-02A](../tasks/P14-02A.md)
-- [P14-02B](../tasks/P14-02B.md)
-- [P14-02](../tasks/P14-02.md)
-- [P14-03](../tasks/P14-03.md)
-- [P14-04](../tasks/P14-04.md)
-- [P14-05](../tasks/P14-05.md)
-- [P14-06](../tasks/P14-06.md)
-- [P14-07](../tasks/P14-07.md)
+Inspect Git diff, current task/evidence and real DB migration state before resuming. Never blindly repeat bootstrap, migrations or restore. Manual clone/setup reference: [Manual Clone Setup](../../MANUAL-CLONE-SETUP.md).

@@ -6,7 +6,7 @@
 
 - **Low**: dokumentasi, UI biasa, scaffolding; tes relevan sesuai output.
 - **Medium**: validasi input, database CRUD, media/queue; tes positif dan jalur gagal sesuai kontrak.
-- **High**: login/session, credential, RBAC, bootstrap Super Admin, migration penting, backup, restore, dan deployment/rollback. **Wajib review independen** (human atau agent High yang berbeda) setelah kode selesai dan tes aktual lulus.
+- **High**: login/session, credential, RBAC, bootstrap Super Admin, migration penting, backup, restore, dan deployment/rollback. **Wajib review independen** (reviewer manusia kompeten atau agent terpisah yang bukan penulis perubahan; model High tidak wajib) setelah kode selesai dan tes aktual lulus.
 
 Risiko registry `risk: low` lama tidak dapat dipakai untuk menurunkan risiko high. CLI menentukan **effective risk** berdasarkan phase/keyword dan nilai eksplisit task, mengambil tingkat tertinggi. Tool CLI tidak mengautentikasi reviewer; catatan review hanya rekaman proses, bukan bukti identitas kriptografis.
 
@@ -18,7 +18,7 @@ Risiko registry `risk: low` lama tidak dapat dipakai untuk menurunkan risiko hig
 | P01/P02/P06/P08 UI | `unit` atau `integration` atau `build` yang benar-benar memeriksa hasil |
 | P03/P04/P05/P07/P09/P10/P11/P12/P13 | `unit` atau `integration`; tambahkan `negative` untuk auth/role, upload, dan publishing |
 | P14/P15 backup/restore | `integration` dalam database test disposable; `negative` untuk checksum / permission / kegagalan |
-| P16 release/deploy | `integration`/isolated release smoke + `negative`; tidak boleh menjalankan production deployment sebagai bukti tes |
+| P16 manual clone/deploy | `integration`/isolated manual setup + PM2/Nginx smoke and `negative`; production deploy is not a test fixture |
 
 CLI `run` menerima `--kind unit|integration|negative|build|docs` sebelum `--` perintah pengujian; bukti berupa exit code, fingerprint isi repository saat tes, dan perintah yang dijalankan. Negative test berarti **assertion memang menguji penolakan/gagal aman**, bukan menjalankan command yang gagal lalu menganggapnya lulus. `npm run build` tidak boleh menggantikan tes keamanan.
 
@@ -33,8 +33,8 @@ Jangan mengeksekusi contoh jika script/nama test belum tersedia. `run` adalah re
 
 ## Tinjauan independen risiko high
 
-1. Agent Low menyiapkan implementasi dan tes, lalu laporkan task ke reviewer eksternal; jangan mengisi persetujuan atas pekerjaannya sendiri.
-2. Reviewer High/human membaca diff, test assertions, invariants dari BSD/TRD, dan jalur gagal.
+1. Implementer selected coding agent menyiapkan implementasi, referensi dan tes, lalu laporkan task ke reviewer independen; jangan mengisi persetujuan atas pekerjaannya sendiri.
+2. Reviewer independen yang kompeten (manusia atau agent terpisah dengan sumber konteks berbeda dan bukan implementer) membaca diff, referensi upstream, test assertions, invariants dari BSD/TRD, dan jalur gagal. Tidak harus menggunakan model High Reasoning.
 3. Reviewer membuat catatan tertulis di `docs/agent/reviews/<TASK_ID>.md`, dengan keputusan **APPROVED**, identitas reviewer, commit/diff yang ditinjau, hasil test dan temuan; bukan sekadar "looks good".
 4. Operator merekam review dengan CLI `review <ID> --reviewer ... --evidence docs/agent/reviews/<ID>.md`. CLI memeriksa file dan fingerprint terkini; tidak membuktikan bahwa reviewer independen. Jika source berubah sesudah review, persetujuan gugur.
 5. Tanpa review, task high tidak bisa `complete` dan gate fase ditolak. Low agent tidak boleh menyamar sebagai reviewer atau menurunkan label risiko.
@@ -52,7 +52,7 @@ Review pekerjaan yang berdampak pada live database atau deployment **tidak** oto
 | Worker | job sukses dan checkpoint | duplicate job, retry aman, worker restart |
 | Backup | backup terenkripsi dan verify restore disposable | checksum gagal, media hilang, secrets tidak bocor |
 | Restore | staging restore test terisolasi | manifest invalid, lock overlap, kegagalan import, maintenance tetap aman |
-| Release | archive standalone hasil build | checksum/arsitektur/Node ABI salah ditolak, rollback kode tidak dianggap rollback DB |
+| Manual deploy | clone/setup/build + PM2/Nginx | wrong DB/env rejected, unreviewed migration refused, code rollback not mistaken for DB rollback |
 
 ## Phase gate (wajib sebelum status verified)
 
@@ -72,7 +72,7 @@ For all UI-affecting tasks, the agent records: exact route (or read-only diagnos
 
 User feedback uses `pending_review` / `approved` / `revision_requested` **only in review queue**. Keep technical statuses and `agent_tasks.py` workflow unchanged. Unless feedback concerns a security-critical dependency, agent continues unrelated ready tasks without waiting. Review requested changes are limited revision units with new scoped tests.
 
-**Reasoning selection:** Low coding agents implement routine small tasks; recommend a separate **High-reasoning** agent for migrations, auth/session, RBAC/first admin, secret and storage authorization, CMS publish/preview security, backup/restore, release/rollback, installer isolation and task DAG refactors. See [AGENT-ROUTING.md](AGENT-ROUTING.md). Independently recorded high-risk review remains mandatory regardless of implementer reasoning level.
+**Single-model policy:** selected coding agent is the implementer for all bounded tasks using [Reference Map](../references/REFERENCE-MAP.md), [Adoption Protocol](../references/ADOPTION-PROTOCOL.md), and [Single-Model Workflow](SINGLE-MODEL-WORKFLOW.md). High-risk independent qualified review is still mandatory, but no High Reasoning AI model is required. Production mutation approval is a separate step.
 
 ## Makna Status
 

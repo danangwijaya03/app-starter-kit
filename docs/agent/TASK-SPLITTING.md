@@ -50,3 +50,7 @@ A task needs splitting if it requests more than one independently testable respo
 Do not auto-split high-risk task to bypass independent review. Children inherit the higher of the original declared risk and automatic phase/keyword classification. The parent remains subject to the same review gate.
 
 Splitting does **not** automatically mark any child or parent completed, does not run database commands, and does not make scripts or tests appear in the app. Adapt acceptance cases to the *real task*, do not copy the example without review.
+
+## Single-model and upstream reference scope
+
+All child tasks inherit `implementation_model: provider-agnostic`. Split review concerns **task/dependency safety**, not a required High Reasoning model. Each child reads a domain playbook from [Reference Map](../references/REFERENCE-MAP.md); no task requires importing a full starter kit. No installer-related child tasks should be introduced.

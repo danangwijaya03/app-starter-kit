@@ -8,7 +8,7 @@
 
 Provide a scalable, repeatable single-tenant starter kit for business dashboards, inventory/PO tools, CRM, company websites, and administrative applications. A newly initialized project must not inherit user data, secrets, sessions, audit trails or backups from the template. Backend remains useful for future native/mobile consumers.
 
-**Success criteria:** a development environment can be initialized from an existing clean clone; a fresh production installation from **artifact only** produces a functioning login, permission-limited admin shell, CMS public pages, settings and backup workflows; adding a new module through module registry does not require changing existing RBAC internals or main menu shell.
+**Success criteria:** a development environment can be initialized from an existing clean clone; a fresh manual clone + configured production build produces a functioning login, permission-limited admin shell, CMS public pages, settings and backup workflows; adding a new module through module registry does not require changing existing RBAC internals or main menu shell.
 
 ## PRD-02 Actors and roles
 
@@ -37,8 +37,8 @@ Default roles are system seed templates. A user can hold multiple roles; grant u
 8. General settings (name, short name, logo, favicon, language, timezone/date format), theme appearance and Salt & Pepper default preset.
 9. Audit log viewer, system job status, verified MySQL backup; staged restore and documented recovery controls.
 10. OpenAPI docs for business API, typed contracts, migrations and repeatable system seed.
-11. Artifact production deployment without Docker, PM2 and aaPanel/Nginx instructions, first-admin bootstrap.
-12. Development docs + server README + agent tasks/checkpoints and CI/release verification.
+11. Clone-based manual setup and production deployment without Docker; npm migrate/seed/admin scripts, PM2 and aaPanel/Nginx guidance.
+12. Reference-driven feature docs + server README + selected coding agent task/checkpoint workflow and CI/manual-deploy verification.
 
 **Later (SHOULD/OPTIONAL, not MVP):** multi-tenant organization management, 2FA/SSO/passkeys, scheduled publication, multilingual content, arbitrary custom content types, drag-and-drop Webflow-style builder, S3 storage adapter (interface in MVP), multi-node clustering, notification/webhook, feature flag UI, custom dashboard builder, theme marketplace, advanced workflow approvals.
 
@@ -88,8 +88,8 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 | AUDIT-REQ-01 | MUST | Non-editable audit history | Role, publishing, settings, backup and restore events searchable |
 | BAK-REQ-01 | MUST | Consistent backup + checksum | Artifact verified and restorability checked in isolated database |
 | BAK-REQ-02 | MUST | Controlled restore | Re-auth, staging validation, maintenance/lock, no auto-retry |
-| REL-REQ-01 | MUST | Artifact-only installation | Fresh server runs compiled web/api/worker/installer without source repo |
-| REL-REQ-02 | MUST | Idempotent initialize | Re-run does not duplicate role/user/change password |
+| REL-REQ-01 | MUST | Manual clone + setup | Fresh project clone uses unique env/DB/Redis/storage, reviewed npm scripts, builds and runs web/api/worker without Docker |
+| REL-REQ-02 | MUST | Idempotent manual setup scripts | Re-run migration checks, permissions, seeds/admin bootstrap does not duplicate users/roles or reset passwords |
 | AGENT-REQ-01 | MUST | Phase task checkpoint system | Fresh agent session resumes WIP correctly and avoids repeats |
 
 ## PRD-06 Module behaviors
@@ -98,7 +98,7 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 
 - Only authenticated/active users can access admin business APIs; session revoke/disable becomes effective at next protected request.
 - First login sets a server-side must_change_password flag in user_profiles; enforcement also applies to API.
-- A bootstrap account uses admin@codelight.id; initial password supplied via protected private installer input, never embedded in source/docs. Require unique production password and change on first login.
+- A bootstrap account uses admin@codelight.id; initial password supplied via protected non-echo manual setup input, never embedded in source/docs. Require unique production password and change on first login.
 - Protected role changes, backup restore and credential actions require recent re-authentication.
 
 ### CMS
@@ -130,7 +130,7 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 | Reliability | Health probes for web, API, DB, Redis, worker; resumable jobs; controlled maintenance |
 | Performance | Paginated queries and indexes; measure baseline for representative seeded datasets; no invented SLA |
 | Security | CSRF/session safeguards, input validation, upload screening, audit, least privilege |
-| Portability | Clean Linux x64/arm64-compatible build target; artifact-only deployment |
+| Portability | Tested Node/npm dependency install and production build on target Linux; manual PM2/Nginx deployment |
 | Maintainability | Strict TypeScript, automated validation, stable task IDs, docs updated on contract changes |
 | Data integrity | FK/unique constraints, transactions for role/publish invariants, safe migration process |
 
@@ -151,8 +151,17 @@ Use IDs above in tests and phase tasks. Technical resolution in TRD, flows in AF
 - **DEV-REQ-01 (MUST):** Each meaningful delivery slice keeps source runnable, relevant tests repeatable and a user-visible preview or safe diagnostic before the full project finishes.
 - **DEV-REQ-02 (MUST):** Fixture/mock and integrated/API-backed states must be visibly differentiated. Never imply authentication, persistence or permissions exist merely because a layout renders.
 - **DEV-REQ-03 (MUST):** Log verified preview route and reproduction steps, test evidence, unresolved limitations and explicit user feedback separately from technical task completion.
-- **DEV-REQ-04 (MUST):** Low-reasoning agents can implement bounded tasks. Security-critical decisions are recommended for High reasoning and must respect independent high-risk review.
+- **DEV-REQ-04 (MUST):** selected coding agent implements all bounded tasks using curated official/source references. No High Reasoning model is required. Effective high-risk implementation requires independent qualified security review.
 - **DEV-REQ-05 (MUST):** Continue unrelated safe tasks without waiting for user visual approval; revision feedback creates bounded new work.
 - **DEV-REQ-06 (MUST):** Preserve main branch, existing Next.js scaffold, npm tooling, Lerd services and production no-Docker rule.
 
-See [Development Roadmap](DEVELOPMENT-ROADMAP.md), [Preview/Feedback](agent/PREVIEW-AND-FEEDBACK.md) and [Agent Routing](agent/AGENT-ROUTING.md).
+See [Development Roadmap](DEVELOPMENT-ROADMAP.md), [Preview/Feedback](agent/PREVIEW-AND-FEEDBACK.md) and [Agent Routing](agent/SINGLE-MODEL-WORKFLOW.md).
+## PRD-11 Clone-based and reference-driven reuse (2026-11-14)
+
+- **CLONE-REQ-01 (MUST):** Each new project is an independent Git template clone with private config, unique DB/Redis/storage and manual npm setup; never copy sessions/media/backups/secrets.
+- **CLONE-REQ-02 (MUST):** No installer CLI, project generator, release archive manager, Docker requirement or symlink switch workflow.
+- **REF-REQ-01 (MUST):** Task-specific reference mapping, version/license/compatibility check and attribution for copied source. Official packages preferred.
+- **REF-REQ-02 (MUST):** selected coding agent completes bounded positive/negative tests; high-risk tasks are not marked complete without independent qualified review.
+- **REF-REQ-03 (SHOULD):** Catalog optional reusable ideas (2FA, notifications, i18n, observability, optional storage) without making them new MVP requirements automatically.
+
+See [Reference Map](references/REFERENCE-MAP.md), [Manual Clone](MANUAL-CLONE-SETUP.md), [Single Model](agent/SINGLE-MODEL-WORKFLOW.md).

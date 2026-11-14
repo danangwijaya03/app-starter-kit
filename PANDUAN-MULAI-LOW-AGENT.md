@@ -1,99 +1,33 @@
-# Panduan Pengguna — Menjalankan Codex Low di app-starter-kit
+# Panduan Pengguna — app-starter-kit dengan coding agent yang dipilih
 
-**Ditujukan untuk: USER / DEVELOPER.** Dokumen ini menjelaskan langkah manusia untuk menyiapkan komputer, memulai, memantau, dan melanjutkan Codex. **Instruksi coding agent ada di [AGENTS.md](AGENTS.md)** dan [runbook](docs/agent/LOW-REASONING-RUNBOOK.md), bukan di panduan ini.
+**Ditujukan untuk: USER / DEVELOPER.** [AGENTS.md](AGENTS.md) adalah instruksi implementer.
 
-**Repository:** [danangwijaya03/app-starter-kit](https://github.com/danangwijaya03/app-starter-kit), branch `main`. Next.js 16.4.3 sudah terpasang pada root repository. Jangan membuat ulang aplikasi dengan `create-next-app`. Monorepo dan semua fitur lain masih akan dikerjakan melalui task.
+## Strategi
 
-## Hasil yang bisa direview dari awal
+Satu coding model: **coding agent yang dipilih**, mengerjakan satu task pada satu waktu. Coding agent mempelajari referensi yang ditentukan untuk task, menyesuaikan dengan Next.js/Hono/MySQL dan npm, menguji kode, menyediakan preview dan checkpoint. Tidak ada kewajiban mempunyai model reasoning tinggi; **review keamanan independen tetap wajib sebelum task high-risk disahkan**.
 
-Aplikasi pada `/` menyediakan **static development preview**, bukan admin dashboard yang sudah terintegrasi. Jalankan sesuai bagian 2 untuk melihat tampilan. Setelah tiap task/slice selesai, buka [REVIEW-QUEUE.md](docs/agent/REVIEW-QUEUE.md) untuk melihat route, perintah menjalankan aplikasi, cakupan tes, dan apakah implementasi masih fixture atau sudah terkoneksi ke API/MySQL.
+Penggunaan ulang starter kit: **clone repository + setup manual**, bukan installer atau generator. Baca [Manual Clone Setup](docs/MANUAL-CLONE-SETUP.md) dan [Reference Map](docs/references/REFERENCE-MAP.md).
 
-- [Roadmap hasil review setiap fase](docs/DEVELOPMENT-ROADMAP.md)
-- [Review dan feedback](docs/agent/PREVIEW-AND-FEEDBACK.md)
-- [Routing agent Low/Medium/High](docs/agent/AGENT-ROUTING.md)
-
-**Agent Low** dapat mengerjakan mayoritas task rutin. Untuk auth, permission, migrasi, bootstrap, backup/restore, release/installer, dan keputusan lintas domain yang ambigu, dokumen menyarankan **High reasoning** sebagai implementer atau reviewer. Task risiko tinggi memerlukan review independen meskipun kodenya ditulis agent High.
-
-Semua perubahan bertahap dilakukan di **branch `main`** sesuai keputusan proyek. Ini bukan izin melakukan mutasi database production otomatis.
-
-## 1. Periksa lingkungan lokal
-
-Gunakan **Lerd, Node.js 26, npm/npx, serta MySQL Lerd yang sudah tersedia**. Redis Lerd digunakan pada task BullMQ. Production tanpa Docker: hasil build diunggah ke server aaPanel.
-
-Di terminal, dari clone Git yang sudah ada:
+## Menjalankan baseline Next.js
 
 ```bash
 cd app-starter-kit
 git status --short
-```
-
-Jika ada perubahan lokal, periksa dan simpan terlebih dahulu. Bila working tree bersih:
-
-```bash
-git pull --ff-only origin main
-node --version
-npm --version
-lerd status
-lerd service list
-```
-
-Node diharapkan `v26.x`. Jangan membuat MySQL/Redis tambahan atau mengubah pengaturan global Lerd. Agent akan memverifikasi host/port dan membuat pemisahan database development dan testing di fase P02.
-
-## 2. Menjalankan Next.js yang sudah ada
-
-```bash
+git pull --ff-only origin main   # hanya bila working tree bersih
 npm ci
 npm run dev
 ```
 
-Buka `http://localhost:3000`; gunakan `Ctrl+C` untuk menghentikan proses. Perintah `npm run lint` dan `npm run build` tersedia pada instalasi awal. Setelah migrasi P01, command dapat berubah mengikuti npm workspace yang diimplementasikan dan diuji oleh agent.
+Buka `http://localhost:3000/`. Halaman saat ini **static preview**. Perintah root saat ini: `dev`, `build`, `lint`; npm workspaces, API, DB, worker, dan script migrasi merupakan target fase berikutnya. Lerd/MySQL/Redis yang sudah tersedia tidak boleh diinstal ulang.
 
-## 3. Setup tooling dilakukan Codex secara otomatis
+## Memulai coding agent
 
-**Anda tidak perlu membuat virtual environment, menginstal PyYAML, atau mengaktifkan `.venv-agent` secara manual.** Setelah START prompt diberikan, coding agent menjalankan `python3 tools/bootstrap_agent.py` di root project. Script otomatis membuat/memeriksa virtualenv, memasang dependency Python bila diperlukan, memvalidasi dokumentasi dan repository, lalu menampilkan task berikutnya.
+1. Buka folder repo yang sama di Codex/editor, pilih **coding agent yang dipilih**.
+2. Berikan isi [START-AGENT-PROMPT.md](docs/agent/START-AGENT-PROMPT.md).
+3. Agent menjalankan `python3 tools/bootstrap_agent.py` sendiri, memilih task ready, membaca **satu** card + satu domain referensi, lalu mengimplementasikan/mengetes/preview/checkpoint.
+4. Pantau dengan `.venv-agent/bin/python tools/agent_tasks.py summary`, `next`, [CHECKPOINT](docs/agent/CHECKPOINT.md), dan [REVIEW-QUEUE](docs/agent/REVIEW-QUEUE.md).
+5. Jika sesi habis gunakan [RESUME-SESSION-PROMPT.md](docs/agent/RESUME-SESSION-PROMPT.md). Jangan reset Git atau menjalankan ulang migrasi/seed sembarangan.
 
-Ini **tidak bergantung pada shell**: Fish, Bash, dan Zsh menggunakan interpreter `.venv-agent/bin/python` secara langsung. Jangan menjalankan `source .venv-agent/bin/activate` pada Fish.
+Status task CLI hanya `pending`, `in_progress`, `blocked`, `completed`, `verified`. Status feedback pengguna (`pending_review`, `approved`, `revision_requested`) dicatat di review queue terpisah. Jangan samakan lint/build dengan tes keamanan. Task high-risk dapat diimplementasikan coding agent yang dipilih tetapi menunggu independent review jika diperlukan; task aman lain tetap berjalan.
 
-Jika ingin memeriksa setup sendiri secara opsional:
-
-```bash
-python3 tools/bootstrap_agent.py
-```
-
-Jika bootstrap gagal (misalnya Python venv belum tersedia, internet tidak tersedia untuk instalasi dependency, atau permission tidak memadai), agent akan melaporkan penyebabnya dan **tidak** menandai task selesai. Jangan memakai `--break-system-packages` untuk memaksa instalasi.
-
-## 4. Jalankan Codex Low
-
-1. Buka folder **app-starter-kit** di editor/Codex CLI; gunakan branch dan working tree yang benar.
-2. Pilih reasoning **Low**.
-3. Salin isi [START-AGENT-PROMPT.md](docs/agent/START-AGENT-PROMPT.md) sebagai pesan pertama kepada agent.
-4. Agent otomatis melakukan bootstrap Python terlebih dahulu, lalu membaca `AGENTS.md`, memilih **satu task aktif**, mengimplementasikan, menguji, dan menyimpan checkpoint. Tidak perlu menempelkan semua task card dalam satu prompt.
-
-**Jangan gunakan panduan pengguna ini sebagai prompt implementasi agent.** Petunjuk teknis ditetapkan dalam dokumen khusus agent.
-
-## 5. Pantau dan lanjutkan sesi
-
-Lihat status dengan:
-
-```bash
-.venv-agent/bin/python tools/agent_tasks.py doctor
-.venv-agent/bin/python tools/agent_tasks.py next
-git status --short
-git log -5 --oneline
-```
-
-`in_progress` perlu dilanjutkan, `completed` sudah memiliki bukti tes tercatat, `verified` sudah melewati gate fase. Status review UI dicatat terpisah pada `docs/agent/REVIEW-QUEUE.md`. Status tidak menggantikan code review. Task dengan risiko tinggi perlu peninjau independen; Anda dapat memeriksa catatan review di `docs/agent/reviews/` sebelum task disahkan. Jika limit Codex habis, buka sesi baru di repository **yang sama** dan salin [RESUME-SESSION-PROMPT.md](docs/agent/RESUME-SESSION-PROMPT.md). Jangan reset Git atau mulai dari awal.
-
-## 6. Kapan perlu review pengguna
-
-Perlu persetujuan atau reasoning lebih tinggi untuk keamanan authentication/RBAC, credential, perubahan sistem global Lerd, migration destruktif, restore data, dan deployment production. Database test harus terpisah dari development dan tidak boleh memakai database proyek Lerd lain.
-
-Akun bootstrap `admin@codelight.id` menggunakan secret instalasi; password tidak boleh disimpan di source code maupun dokumentasi.
-
-## 7. Referensi menurut tujuan
-
-- [README.md](README.md): ringkasan repository dan menjalankan Next.js.
-- [DOCUMENTATION-MAP.md](docs/DOCUMENTATION-MAP.md): siapa membaca dokumen apa.
-- [PHASES.md](docs/agent/PHASES.md): roadmap/progres.
-- [PRD](docs/PRD.md), [TRD](docs/TRD.md), [IPD](docs/IPD.md): spesifikasi.
-- [README-SERVER.md](README-SERVER.md): panduan **setelah** release berhasil dibuat pada P16. CLI instalasi di dalamnya belum bisa dijalankan sekarang.
+**Branch:** `main` sesuai keputusan. Deployment ke server selalu manual dan memerlukan izin operator; lihat [README-SERVER](README-SERVER.md).

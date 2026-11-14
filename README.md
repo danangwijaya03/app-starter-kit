@@ -1,39 +1,45 @@
 # app-starter-kit
 
-**Ditujukan untuk: USER / DEVELOPER.** Repository sudah berisi Next.js 16.4.3, React 19.3.0, TypeScript, Tailwind v4, npm/npx. Aplikasi yang dibuat dengan `npx create-next-app@latest` masih berada pada root repository dan **akan dipindahkan oleh task P01**, bukan dibuat ulang.
+Reusable **single-tenant, clone-based** application foundation. **Approved approach:** build our architecture and selectively adapt **reviewed references** from established open-source projects. **No project generator/installer/release-archive manager.**
 
-## Menjalankan Next.js saat ini
+## Current source status
+
+The repository **currently runs root Next.js 16.4.3, React 19.3, Tailwind v4, npm** with a **static development-preview page**. It is **not yet** a completed monorepo; Hono API, MySQL integration, auth/RBAC, CMS, worker and backup are planned task implementations. Treat task descriptions and target scripts as plans until code/tests prove otherwise.
 
 ```bash
 npm ci
+npm run lint
+npm run build
 npm run dev
 ```
 
-Buka `http://localhost:3000`. Pemeriksaan awal: `npm run lint` dan `npm run build`. Setelah migrasi P01, gunakan script npm workspace yang sudah benar-benar dibuat oleh agent.
+Open `http://localhost:3000/` when the server is running. The visible dashboard is a **DEMO**, not live authentication or database data.
 
-**Development:** Lerd + Node.js 26 + MySQL existing (Redis Lerd saat diperlukan). **Production:** upload artifact ke server aaPanel dengan Node/PM2/Nginx, tanpa Docker.
+## Target architecture
 
-## Preview development yang langsung bisa direview
+```text
+apps/web             Next.js 16 / public and admin UI
+apps/api             Hono Node API / Better Auth / server authorization
+apps/worker          BullMQ with Redis
+packages/database    MySQL 8.4 / Drizzle schema & migrations
+packages/contracts   Typed Zod API contracts
+packages/permissions Single-tenant app RBAC
+packages/ui          Reusable Salt & Pepper components
+infra/nginx, infra/pm2  Manual aaPanel/VPS deployment examples
+```
 
-Halaman `/` sekarang berupa **static UI development preview** dengan preset Salt & Pepper dan empat menu rancangan. Bukan dashboard live: API/MySQL/auth belum aktif. Jalankan `npm ci` lalu `npm run dev`; akses `http://localhost:3000/` (jika server benar-benar menyala).
+npm workspaces + Turborepo, Node 26 baseline, **no Docker requirement**, one lockfile. When starting a new business application, **clone the template and configure DB/Redis/env manually**; no installer. Initial database migration, seed, permission sync and first-admin bootstrap will be standalone **manual npm scripts** after they are implemented.
 
-Development berlangsung incremental di **branch `main`**: task kecil → implementasi → tes → preview (fixture atau real integration diberi label) → checkpoint → task berikutnya. Review UI/UX pengguna dicatat terpisah dan tidak memblokir pekerjaan aman lainnya.
+## Where to start
 
-- [Development Roadmap](docs/DEVELOPMENT-ROADMAP.md) — hasil yang dapat dilihat di setiap fase.
-- [Preview & Feedback](docs/agent/PREVIEW-AND-FEEDBACK.md) — kontrak preview, langkah review, dan aturan feedback.
-- [Agent Routing](docs/agent/AGENT-ROUTING.md) — Low untuk rutin, rekomendasi High untuk keputusan/fitur penting.
-- [Installer Boundaries](docs/agent/INSTALLER-BOUNDARIES.md) — initializer, setup CLI dan deployment manager.
+- [Manual Clone Setup](docs/MANUAL-CLONE-SETUP.md) — new project from template (distinguishes current commands from planned scripts).
+- [Development Roadmap](docs/DEVELOPMENT-ROADMAP.md) — phases P00–P16 and incremental review checkpoints.
+- [Reference Map](docs/references/REFERENCE-MAP.md) — approved source candidates, feature playbooks, optional ideas.
+- [Reference Adoption Protocol](docs/references/ADOPTION-PROTOCOL.md) — safe reuse, source license/version, MySQL conversion and tests.
+- [Single-Model Workflow](docs/agent/SINGLE-MODEL-WORKFLOW.md) — coding agent yang dipilih for implementation, independent security review for high-risk.
+- [Start Agent Prompt](docs/agent/START-AGENT-PROMPT.md) — copy to coding agent.
+- [User Guide](PANDUAN-MULAI-LOW-AGENT.md) — run/monitor/resume.
+- [README-SERVER](README-SERVER.md) — **manual** PM2 + Nginx + aaPanel operations, not an installer.
+- [Documentation Map](docs/DOCUMENTATION-MAP.md) — technical specs and task navigation.
 
-## Memulai development lewat Codex Low
-
-Ikuti **[Panduan Pengguna](PANDUAN-MULAI-LOW-AGENT.md)** untuk setup, memulai, memantau, dan melanjutkan sesi. Prompt pertama: [START](docs/agent/START-AGENT-PROMPT.md); prompt sesi baru: [RESUME](docs/agent/RESUME-SESSION-PROMPT.md).
-
-Coding agent otomatis menyiapkan `.venv-agent` tanpa aktivasi shell melalui `python3 tools/bootstrap_agent.py` sebelum P00, kemudian membaca **[AGENTS.md](AGENTS.md)**, runbook dan task card; panduan pengguna **bukan** instruksi agent.
-
-**Monitoring agent:** `.venv-agent/bin/python tools/agent_tasks.py summary` menampilkan progres seluruh fase. `.venv-agent/bin/python tools/check_repo_contracts.py` memeriksa konsistensi README, script npm dan struktur aktual tanpa mengubah aplikasi. Agent harus mengikuti kebijakan tes/review pada [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md).
-
-## Dokumentasi lengkap
-
-[Lihat peta dokumen berdasarkan pembaca](docs/DOCUMENTATION-MAP.md). Di sana tersedia PRD, TRD, AFD, DBD, BSD, IPD, 17 fase, task registry dan kontrak Lerd.
-
-**Belum tersedia:** aplikasi full-stack monorepo, API, CMS, RBAC, worker dan installer. Preview di `/` hanyalah UI statis. [README-SERVER.md](README-SERVER.md) masih spesifikasi sampai release P16 dibangun dan diuji.
+Development uses **main** as approved; no full reset or forced overwrite. Work on a small task, test, preview, checkpoint, continue. Security-critical implementations are not declared production-ready without independent review.

@@ -4,7 +4,7 @@
 
 ## TRD-01 Architectural decision
 
-**Single-tenant modular monolith API within npm/Turborepo monorepo**. Next.js web, Hono API and BullMQ worker run as independent Node.js processes. A fourth installer CLI runs on demand. Runtime deployment on aaPanel + Nginx + PM2, MySQL/Redis native services; production uses precompiled, verified upload artifact, **no Docker**.
+**Single-tenant modular monolith API within npm/Turborepo monorepo**. Next.js web, Hono API and BullMQ worker run as independent Node.js processes. Runtime deployment is **manual clone + npm build** on aaPanel + Nginx + PM2 with native MySQL/Redis services, **no Docker** and no installer or artifact release manager.
 
 ```mermaid
 flowchart TD
@@ -40,7 +40,6 @@ apps/
   web/src/{app,features,components,hooks,lib}/
   api/src/{modules,middleware,lib}/
   worker/src/{jobs,processors}/
-  installer/src/{commands,services}/
 packages/
   database/{src,schema,migrations}/
   contracts/src/{common,users,rbac,cms,media,settings,backups}/
@@ -50,7 +49,7 @@ packages/
   storage/src/
   utils/src/
   config/
-infra/{scripts,nginx,pm2}/
+infra/{nginx,pm2}/
 ```
 
 Constraints:
@@ -124,39 +123,37 @@ Constraints:
 
 Development reuses Lerd-provided MySQL and Redis; no duplicate services or Docker are required. Verify Node 26 runtime, real MySQL version, host-vs-container networking, separate dev/test databases and test-only destructive operation guards. Preserve Lerd global Nginx/DNS/LAN exposure configuration. See [LOCAL-LERD-NODE26.md](agent/LOCAL-LERD-NODE26.md).
 
-## TRD-11 Build and production artifact
+## TRD-11 Manual build and runtime deployment
 
-Use `output: 'standalone'` on Next.js; set monorepo file-tracing root and include `public` and `.next/static` in normalized output. Compile API/worker/installer and make portable production runtime using compatible bundling/`npm-compatible runtime packaging` (verify exact pinned npm behavior). No source repo or package-manager install needed on server.
+Use Next.js `output: 'standalone'` where it simplifies runtime, with correct monorepo tracing/static/public assets; Hono and BullMQ worker build independently. Source is cloned from the authorized repository to a private server directory; use `npm ci`, reviewed migration scripts, `npm run build`, then tested PM2 entrypoints. No mandatory archive packaging, standalone installer CLI, release manifest, `releases/<version>`, or `current` symlink.
 
-**Artifact contract:** `web/`, `api/`, `worker/`, `cli/`, `database/migrations/`, `config/`, `README-SERVER.md`, `release-manifest.json`. API/web/worker are separate PM2 processes; API on 127.0.0.1:4000, web on 127.0.0.1:3000; worker no public port. Nginx same-origin routing to both, env file per service in server `shared/env/`, data under `shared/` outside public root, versioned `releases/<version>` plus `current` symlink.
+Each clone has its own MySQL schema/account, Redis prefix, secret, private media/backups/logs and environment. Web binds loopback :3000; Hono API binds loopback :4000; worker no public port. Nginx proxies `/api/*` without rewriting auth path, everything else to web. No source, environment or backup path is exposed through public webroot.
 
-**Build compatibility:** target OS, architecture, Node runtime/ABI and native deps tested on target-equivalent Linux. Distinguish compile, pack, manifest checksum, isolated smoke, and fresh-install gates. Build assets do not include `.env`, installer secrets, private media, logs, backup or user data.
+Build and run tests on supported Node 26 / exact pinned dependencies for the deployment OS and native modules. Do not include `.env`, secrets or private data in client/build assets. Docs: [Manual Clone](MANUAL-CLONE-SETUP.md), [Server](../README-SERVER.md).
 
 ## TRD-12 Testing strategy and CI
 
-- Per atomic task: affected package typecheck/lint/unit/integration only; expand tests for shared-contract/auth/RBAC/migration changes.
-- Phase gate: relevant E2E, API contract tests, negative permission tests, concurrent admin/role invariant tests, media upload rejects, public draft privacy tests.
-- Release: clean install, migration, seed idempotence, first login forced password change, worker job, CMS publish, backup/restore in disposable isolated DB, update, compatibility/rollback, server README reproduction.
-- CI cannot mark test skipped due to missing secret as passed; use disposable ephemeral test DB and documented environment gating.
+- Per atomic task: package typecheck/lint/unit/integration and actual preview/diagnostic evidence. Read one matching [reference playbook](references/REFERENCE-MAP.md) and record upstream version/license when adapting source.
+- Security: negative auth/RBAC API, concurrent last-super-admin race on isolated MySQL, media forgery/path traversal, private CMS draft isolation, worker replay/idempotency, encrypted backup/isolated restore.
+- Manual deployment gate: tested fresh clone/setup scripts, idempotent repeat seed/admin, clean npm install/build, PM2 startup, Nginx HTTPS cookie/forwarded path, recovery checklist.
+- CI must never turn a missing secret or skipped suite into a passing security claim; no forced build of unimplemented services.
+- selected coding agent is the single implementer; high-risk requires independent qualified review, not any mandatory High Reasoning model.
 
-## TRD-13 Deployment policy and rollback
+## TRD-13 Manual deployment and recovery
 
-- Production installation: upload archive → manifest/checksum verification → unpack new release → connect shared env/storage → DB backup/migration gate → migration+seed+bootstrap (first install only) → PM2 launch/switch → healthcheck → finalize.
-- Application rollback via `current` symlink only if migration backward compatibility established; if DB schema incompatible, maintenance and operator-directed recovery required.
-- Do not execute production mutations automatically by coding agent. Actual deployment instructions must be validated and kept up to date with release CLI.
+- Fresh: clone authorized repo → provision isolated env/DB/Redis/storage → reviewed Drizzle migration → permission sync/roles seed → secure one-time admin → npm build → PM2 three processes → aaPanel Nginx + HTTPS → health/login tests.
+- Update: backup/recovery readiness → review migration on disposable MySQL → operator-approved migration → pull/build/restart → verify. If code fails, manually check out trusted previous code only when DB schema remains compatible; a Git rollback does not restore database state.
+- Do not mutate production automatically from a coding agent. Restore is a separate controlled, reviewed, audited operation.
 
 ## v1.2 repository integration (approved 2026-10-29)
 
-The existing repository `danangwijaya03/app-starter-kit` already contains a working **root Next.js 16.4.3 npm scaffold** with `app/`, `public/`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs` and root `package-lock.json`. P01 must move the **existing** app into `apps/web`, not run create-next-app again. Use npm Workspaces and one root package-lock. This documentation-only commit does not relocate the source or claim new features implemented. The target production deployment is non-Docker artifact upload to aaPanel/PM2.
+The existing repository `danangwijaya03/app-starter-kit` already contains a working **root Next.js 16.4.3 npm scaffold** with `app/`, `public/`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs` and root `package-lock.json`. P01 must move the **existing** app into `apps/web`, not run create-next-app again. Use npm Workspaces and one root package-lock. This documentation-only commit does not relocate the source or claim new features implemented. The target production deployment is manual clone/build using npm, PM2 and aaPanel/Nginx without Docker or installer.
 
-## TRD-14 Incremental delivery architecture (2026-11-07)
+## TRD-14 Incremental, reference-driven development (2026-11-14)
 
-- Keep a running Next.js app from the initial root scaffold through P01 migration. A root `/` page may be an explicitly labeled static preview; real auth/RBAC/API/DB routes remain absent until implemented.
-- P01-08/P01-09 establish a fixture Salt & Pepper shell and repeatable local smoke. P02-07/P03-09 add dev-only, read-only diagnostics for local service and DB reachability. All diagnostics must refuse public/production access by default and disclose no secrets, database names or arbitrary query results.
-- P06 converts visual shell to authenticated, server-enforced permission-aware navigation; do not implement a parallel fake auth store.
-- After each slice: actual scoped typecheck/lint/unit/integration or denial tests, app startup if available, explicit preview route/mode/test results and checkpoint/commit. Build success is insufficient for security-critical authorization changes.
-- The agent task registry remains a technical DAG; review state is in REVIEW-QUEUE, not in `agent_tasks.py` statuses. Do not add unsupported statuses to tooling.
-- Low reasoning is default for explicit small modules. Medium for cross-package integration; High recommended for Auth, RBAC, MySQL migrations, private media/preview security, backup/restore, installer and deployment changes, with independent review per policy.
-- Installer is separated into derivative **Project Initializer**, **Application Setup CLI**, and **Deployment Manager**. Cold install must invoke CLI from a verified extracted release path before `current` exists. No duplicating P05 bootstrap logic in the deployment wrapper.
+- Keep runnable Next.js visual preview from root scaffold, migrate source into `apps/web` at P01; API/DB/auth claims only after integration and tests.
+- Preserve P01-08/P01-09 (fixture UI), P02-07/P03-09 (dev-only health) to deliver visible early checkpoints.
+- Implement with **selected coding agent** using curated [Reference Map](references/REFERENCE-MAP.md) and [Adoption Protocol](references/ADOPTION-PROTOCOL.md). Check upstream version/license; adapt PostgreSQL/pnpm/multi-tenant assumptions to MySQL/npm/single-tenant; do not copy feature installers.
+- Technical status and user UI review remain separate. One verified slice per checkpoint; high-risk independently reviewed by a qualified reviewer, regardless of reasoning model.
+- Only three app runtimes; manual setup commands, no installer. See [Manual Clone](MANUAL-CLONE-SETUP.md), [Server](../README-SERVER.md).
 
-See [roadmap](DEVELOPMENT-ROADMAP.md), [preview contract](agent/PREVIEW-AND-FEEDBACK.md) and [installer boundaries](agent/INSTALLER-BOUNDARIES.md).

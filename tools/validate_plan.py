@@ -11,12 +11,13 @@ T=D["tasks"];errors=[];ids=[x.get("id") for x in T];m={x["id"]:x for x in T}
 if not T or len(ids)!=len(set(ids)):errors.append("Missing or duplicate task IDs")
 if D["metadata"].get("task_count")!=len(T):errors.append("task_count mismatch; update metadata after splitting tasks")
 if D["metadata"].get("canonical_branch")!="main":errors.append("canonical_branch must be main for this approved workflow")
-for key in ("preview_policy","high_reasoning_guidance","review_queue"):
+if D["metadata"].get("coding_agent_policy")!="provider_agnostic_one_agent_per_task":errors.append("coding agent policy must remain provider-agnostic")
+for key in ("preview_policy","agent_workflow","reference_catalog","manual_setup","review_queue"):
  p=D["metadata"].get(key)
  if not p or not (R/p).is_file():errors.append("Missing delivery policy document "+key)
 if {x["phase"] for x in T}!={"P"+str(i).zfill(2) for i in range(17)}:errors.append("Missing phase")
 for t in T:
- if t.get("recommended_reasoning") not in ("low","medium","high"):errors.append("Missing/invalid reasoning recommendation "+str(t.get("id")))
+ if t.get("task_complexity") not in ("low","medium","high"):errors.append("Missing/invalid task complexity "+str(t.get("id")))
  if t.get("preview_expectation") not in ("when_reviewable","fixture","diagnostic","integrated"):errors.append("Missing/invalid preview expectation "+str(t.get("id")))
  i=t["id"]
  if not re.fullmatch(r"P(?:0[0-9]|1[0-6])-\d{2}[A-Z]?(?:-S\d{2})?",i):errors.append("Bad ID "+i)
@@ -54,7 +55,7 @@ for n in range(17):
  if match is None or int(match.group(1))!=expected:errors.append("Phase counter mismatch "+p+" expected "+str(expected))
 for path in ("tools/split_agent_task.py","tools/check_repo_contracts.py","docs/agent/TEST-AND-REVIEW-POLICY.md","docs/agent/TASK-SPLITTING.md"):
  if not (R/path).is_file():errors.append("Missing agent optimization "+path)
-for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md","docs/DEVELOPMENT-ROADMAP.md","docs/agent/AGENT-ROUTING.md","docs/agent/PREVIEW-AND-FEEDBACK.md","docs/agent/REVIEW-QUEUE.md","docs/agent/INSTALLER-BOUNDARIES.md"):
+for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md","docs/DEVELOPMENT-ROADMAP.md","docs/agent/AGENT-ROUTING.md","docs/agent/PREVIEW-AND-FEEDBACK.md","docs/agent/REVIEW-QUEUE.md","docs/agent/SINGLE-MODEL-WORKFLOW.md","docs/references/REFERENCE-MAP.md","docs/references/ADOPTION-PROTOCOL.md","docs/MANUAL-CLONE-SETUP.md"):
  if not (R/n).is_file():errors.append("Missing "+n)
 for path in R.rglob("*.md"):
  if any(part in (".venv-agent", "node_modules", ".git", ".next", "dist", "build") for part in path.relative_to(R).parts):continue

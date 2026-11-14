@@ -1,15 +1,17 @@
 metadata:
-  version: 1.3-incremental-preview-main
+  version: 2.0-clone-reference-single-model
   baseline_date: '2026-10-29'
   initial_status: pending
   canonical_branch: main
   delivery_policy: incremental_preview
-  default_implementation_reasoning: low
-  high_reasoning_guidance: docs/agent/AGENT-ROUTING.md
+  coding_agent_policy: provider_agnostic_one_agent_per_task
+  agent_workflow: docs/agent/SINGLE-MODEL-WORKFLOW.md
+  reference_catalog: docs/references/REFERENCE-MAP.md
+  manual_setup: docs/MANUAL-CLONE-SETUP.md
   preview_policy: docs/agent/PREVIEW-AND-FEEDBACK.md
   review_queue: docs/agent/REVIEW-QUEUE.md
-  rules: TASKS.yaml is authoritative; modify statuses only via tools/agent_tasks.py. Next.js root scaffold exists; full-stack implementation tasks pending; four early preview tasks added; technical verification and user review remain separate.
-  task_count: 161
+  rules: TASKS.yaml authoritative, clone + manual setup, provider-agnostic coding agent, independent high-risk review, no installer.
+  task_count: 156
   microtask_parent_ids:
   - P01-01
   - P01-04
@@ -21,13 +23,12 @@ metadata:
   - P15-05
   - P16-02
   - P16-04
-  - P16-07
   - P16-09
 tasks:
 - id: P00-01
   phase: P00
   title: Verify specification decisions
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on: []
   scope:
@@ -55,7 +56,7 @@ tasks:
 - id: P00-02
   phase: P00
   title: Initialize documentation and link index
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P00-01
@@ -84,7 +85,7 @@ tasks:
 - id: P00-03
   phase: P00
   title: Preserve root AGENTS and specify nested rules for later creation
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P00-01
@@ -113,7 +114,7 @@ tasks:
 - id: P00-04
   phase: P00
   title: Initialize task registry and checkpoint tooling
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P00-02
@@ -143,7 +144,7 @@ tasks:
 - id: P00-05
   phase: P00
   title: Document architecture decisions and starter baseline
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P00-04
@@ -171,7 +172,7 @@ tasks:
 - id: P01-01A
   phase: P01
   title: "Prepare npm workspace root from existing Next.js project"
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P00-05
@@ -204,19 +205,21 @@ tasks:
     session
 - id: P01-01B
   phase: P01
-  title: Create four application package identities
-  recommended_reasoning: low
+  title: "Create three application package identities"
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-01A
   scope:
-  - apps/web/package.json, apps/api/package.json, apps/worker/package.json, apps/installer/package.json
+  - "apps/web/package.json"
+  - "apps/api/package.json"
+  - "apps/worker/package.json"
   steps:
-  - "Prepare apps/web/package.json using the existing root dependency versions (Next.js 16.4.3, React 19.3.0); create unique private npm package identities for apps/api, apps/worker and apps/installer."
-  - "Do not introduce workspace:* or pnpm configuration."
+  - "Prepare apps/web package using existing Next.js root versions and create apps/api and apps/worker package identities; no installer workspace."
+  - "Use npm workspace identities and one npm lockfile, never pnpm."
   acceptance_criteria:
-  - Create four package.json files with unique @repo/* names and private:true
-  - Verify expected artifact exists and affected checks pass
+  - "Three unique private npm app packages only"
+  - "Frozen npm ci and package identity checks pass"
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -226,7 +229,7 @@ tasks:
   tests_evidence: []
   parent_task: P01-01
   card: docs/agent/tasks/P01-01B.md
-  output_artifact: apps/web/package.json, apps/api/package.json, apps/worker/package.json, apps/installer/package.json
+  output_artifact: "apps/web/package.json"
   risk: low
   spec_refs: *id002
   execution_mode: local_disposable_only
@@ -235,7 +238,7 @@ tasks:
 - id: P01-01C
   phase: P01
   title: Create shared package identities
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-01B
@@ -265,7 +268,7 @@ tasks:
 - id: P01-01
   phase: P01
   title: Create npm workspace and package identities
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-01C
@@ -278,9 +281,9 @@ tasks:
   - Integration-only gate for child tasks of P01-01. Inspect each child output, run cross-boundary tests and resolve
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Initialize apps web/api/worker/installer and all shared packages
-  - Frozen install succeeds
+  - "All child tasks completed with actual test evidence"
+  - "Only web/API/worker and shared packages"
+  - "Frozen npm install/build passes"
   validation:
   - Frozen install succeeds
   status: pending
@@ -298,7 +301,7 @@ tasks:
 - id: P01-02
   phase: P01
   title: Pin Node, npm and TypeScript strict configuration
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-01
@@ -329,7 +332,7 @@ tasks:
 - id: P01-03
   phase: P01
   title: Define Turborepo task graph and package exports
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-02
@@ -358,7 +361,7 @@ tasks:
 - id: P01-04A
   phase: P01
   title: "Relocate existing root Next.js into apps/web"
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-03
@@ -396,7 +399,7 @@ tasks:
 - id: P01-04B
   phase: P01
   title: Create minimal Hono API runtime
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P01-04A
@@ -425,7 +428,7 @@ tasks:
 - id: P01-04C
   phase: P01
   title: Create minimal BullMQ worker runtime
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P01-04B
@@ -454,7 +457,7 @@ tasks:
 - id: P01-04
   phase: P01
   title: Scaffold independent Next.js, Hono and worker entrypoints
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P01-04C
@@ -486,7 +489,7 @@ tasks:
 - id: P01-08
   phase: P01
   title: Deliver early Salt & Pepper shell as explicit UI fixture
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: fixture
   depends_on:
   - P01-04
@@ -517,52 +520,23 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
 
-- id: P01-05
-  phase: P01
-  title: Add installer CLI shell and command registry
-  recommended_reasoning: high
-  preview_expectation: when_reviewable
-  depends_on:
-  - P01-03
-  scope:
-  - apps/installer
-  steps:
-  - Create Node CLI entrypoint with preflight,migrate,seed,bootstrap,verify placeholders returning explicit not-implemented
-    status
-  acceptance_criteria:
-  - Create Node CLI entrypoint with preflight,migrate,seed,bootstrap,verify placeholders returning explicit not-implemented
-    status
-  - CLI help displays and unknown command fails
-  validation:
-  - CLI help displays and unknown command fails
-  status: pending
-  priority: normal
-  blocked_reason: null
-  completed_commit: null
-  tests_evidence: []
-  card: docs/agent/tasks/P01-05.md
-  output_artifact: apps/installer/src/cli.ts
-  risk: low
-  spec_refs: *id002
-  execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
 - id: P01-06
   phase: P01
-  title: Proof of Next standalone and API/worker package output
-  recommended_reasoning: medium
+  title: "Verify web API worker dev build targets"
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
-  - P01-04
-  - P01-05
+  - "P01-04"
   scope:
-  - apps/web/next.config.ts
-  - infra/scripts
+  - "apps/web/next.config.ts"
+  - "apps/api"
+  - "apps/worker"
+  - "package.json"
   steps:
-  - Configure tracing root; build minimal standalone and portable API/worker/installer; copy Next static assets
+  - "Build/typecheck existing Next.js, Hono API, BullMQ worker with actual npm scripts; verify entrypoints; no portable artifact, installer or archive manager."
   acceptance_criteria:
-  - Configure tracing root
-  - Source-free smoke run works for minimal sample
+  - "Three apps start/build in scoped smoke test"
+  - "Missing workspace/invalid config fails clearly"
   validation:
   - Source-free smoke run works for minimal sample
   status: pending
@@ -571,7 +545,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P01-06.md
-  output_artifact: infra/scripts/package-release.mjs
+  output_artifact: "package.json"
   risk: low
   spec_refs: *id002
   execution_mode: local_disposable_only
@@ -580,7 +554,7 @@ tasks:
 - id: P01-07
   phase: P01
   title: Create CI checks and secret scanning baseline
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P01-06
@@ -609,7 +583,7 @@ tasks:
 - id: P01-09
   phase: P01
   title: Add repeatable development preview smoke and review handoff
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: fixture
   depends_on:
   - P01-08
@@ -645,7 +619,7 @@ tasks:
 - id: P02-01
   phase: P02
   title: Create typed environment validation and examples
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-04
@@ -676,7 +650,7 @@ tasks:
 - id: P02-02
   phase: P02
   title: Reuse existing Lerd MySQL with isolated dev/test schemas
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P02-01
@@ -705,7 +679,7 @@ tasks:
 - id: P02-03
   phase: P02
   title: Reuse existing Lerd Redis and isolate queue connectivity
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P02-01
@@ -734,7 +708,7 @@ tasks:
 - id: P02-04
   phase: P02
   title: Build database pool and Redis clients
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P02-02
@@ -765,7 +739,7 @@ tasks:
 - id: P02-05
   phase: P02
   title: Add local development orchestration
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P02-04
@@ -795,7 +769,7 @@ tasks:
 - id: P02-06
   phase: P02
   title: Validate all environment isolation and secrets hygiene
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P02-05
@@ -824,7 +798,7 @@ tasks:
 - id: P02-07
   phase: P02
   title: Expose safe dev-only health diagnostics for API and local services
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: diagnostic
   depends_on:
   - P02-05
@@ -860,7 +834,7 @@ tasks:
 - id: P03-01
   phase: P03
   title: Generate Better Auth Drizzle MySQL schema
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P02-04
@@ -890,7 +864,7 @@ tasks:
 - id: P03-02
   phase: P03
   title: Define app user profile and RBAC tables
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-01
@@ -918,7 +892,7 @@ tasks:
 - id: P03-03A
   phase: P03
   title: Define CMS pages and revisions schema
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-01
@@ -948,7 +922,7 @@ tasks:
 - id: P03-03B
   phase: P03
   title: Define CMS menus and menu items schema
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-03A
@@ -978,7 +952,7 @@ tasks:
 - id: P03-03
   phase: P03
   title: Add CMS pages/revisions and navigation schema
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-03B
@@ -1008,7 +982,7 @@ tasks:
 - id: P03-04
   phase: P03
   title: Add media, settings and user preferences schema
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-01
@@ -1036,7 +1010,7 @@ tasks:
 - id: P03-05
   phase: P03
   title: Add audit, system jobs and backup tables
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P03-01
@@ -1064,7 +1038,7 @@ tasks:
 - id: P03-06
   phase: P03
   title: Generate and review migration history
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P03-02
@@ -1095,7 +1069,7 @@ tasks:
 - id: P03-07
   phase: P03
   title: Build transaction helper and repository abstractions
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-06
@@ -1124,13 +1098,13 @@ tasks:
 - id: P03-08
   phase: P03
   title: Implement audit event service and seed base
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-07
   scope:
   - apps/api/src/modules/audit
-  - apps/installer
+  - tools/manual-setup
   steps:
   - Central audit creation within transactions; seed framework with idempotent marker
   acceptance_criteria:
@@ -1153,7 +1127,7 @@ tasks:
 - id: P03-09
   phase: P03
   title: Connect safe DB readiness to development health diagnostic
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: diagnostic
   depends_on:
   - P03-08
@@ -1188,7 +1162,7 @@ tasks:
 - id: P04-01
   phase: P04
   title: Configure Better Auth MySQL adapter
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P03-07
@@ -1218,7 +1192,7 @@ tasks:
 - id: P04-02
   phase: P04
   title: Mount auth routes in Hono and session middleware
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P04-01
@@ -1247,7 +1221,7 @@ tasks:
 - id: P04-03
   phase: P04
   title: Implement login/logout UI and auth client
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P04-02
@@ -1276,7 +1250,7 @@ tasks:
 - id: P04-04
   phase: P04
   title: Implement password reset and activation flow
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P04-02
@@ -1305,7 +1279,7 @@ tasks:
 - id: P04-05
   phase: P04
   title: Enforce user status and must-change-password guard
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P04-02
@@ -1335,7 +1309,7 @@ tasks:
 - id: P04-06
   phase: P04
   title: Implement own profile/session termination
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P04-03
@@ -1365,7 +1339,7 @@ tasks:
 - id: P04-07
   phase: P04
   title: Complete authentication security gate
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P04-04
@@ -1395,7 +1369,7 @@ tasks:
 - id: P05-01
   phase: P05
   title: Define canonical permission manifest and validation
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P03-02
@@ -1426,13 +1400,13 @@ tasks:
 - id: P05-02
   phase: P05
   title: Build permission sync check/apply commands
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-01
   - P03-08
   scope:
-  - apps/installer/src/commands
+  - tools/manual-setup
   - apps/api
   steps:
   - Idempotent DB upsert; obsolete codes deactivate not delete; check/apply modes
@@ -1447,7 +1421,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P05-02.md
-  output_artifact: apps/installer/src/commands/sync-permissions.ts
+  output_artifact: tools/manual-setup/permissions-sync.ts
   risk: high
   spec_refs: *id006
   execution_mode: local_disposable_only
@@ -1456,12 +1430,12 @@ tasks:
 - id: P05-03
   phase: P05
   title: Seed default protected roles
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-02
   scope:
-  - apps/installer/src/commands
+  - tools/manual-setup
   steps:
   - Seed super_admin, administrator, content_editor, viewer with BSD grants; system role immutability
   acceptance_criteria:
@@ -1475,7 +1449,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P05-03.md
-  output_artifact: apps/installer/src/commands/seed-roles.ts
+  output_artifact: tools/manual-setup/seed-roles.ts
   risk: high
   spec_refs: *id006
   execution_mode: local_disposable_only
@@ -1484,7 +1458,7 @@ tasks:
 - id: P05-04
   phase: P05
   title: Implement authorization service and policies
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-03
@@ -1513,7 +1487,7 @@ tasks:
 - id: P05-05
   phase: P05
   title: Implement route permission middleware
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-04
@@ -1541,7 +1515,7 @@ tasks:
 - id: P05-06
   phase: P05
   title: Build role assignment concurrency invariants
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-04
@@ -1570,14 +1544,15 @@ tasks:
 - id: P05-07A
   phase: P05
   title: Create safe bootstrap credential input
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-03
   - P05-06
   - P04-05
   scope:
-  - apps/installer/src/commands/bootstrap-admin.ts
+  - "apps/api/src/modules/auth"
+  - "tools/manual-setup"
   steps:
   - Read initial password from secure prompt or private password file; forbid plaintext in argv/console/log; fail
     closed if unavailable
@@ -1593,7 +1568,7 @@ tasks:
   tests_evidence: []
   parent_task: P05-07
   card: docs/agent/tasks/P05-07A.md
-  output_artifact: apps/installer/src/commands/bootstrap-admin.ts
+  output_artifact: "apps/api/src/modules/auth/bootstrap-input.ts"
   risk: high
   spec_refs: *id006
   execution_mode: local_disposable_only
@@ -1602,7 +1577,7 @@ tasks:
 - id: P05-07B
   phase: P05
   title: Provision first user and assign super_admin
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-07A
@@ -1632,7 +1607,7 @@ tasks:
 - id: P05-07C
   phase: P05
   title: Verify first login bootstrap flow
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-07B
@@ -1663,12 +1638,13 @@ tasks:
 - id: P05-07
   phase: P05
   title: Implement secure idempotent first-admin bootstrap
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-07C
   scope:
-  - apps/installer/src/commands
+  - "apps/api/src/modules/auth"
+  - "tools/manual-setup"
   steps:
   - Integration-only gate for child tasks of P05-07. Inspect each child output, run cross-boundary tests and resolve
     mismatches. Do not reimplement child work.
@@ -1684,7 +1660,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P05-07.md
-  output_artifact: apps/installer/src/commands/bootstrap-admin.ts
+  output_artifact: "apps/api/src/modules/auth/admin-bootstrap.cli.ts"
   risk: high
   spec_refs: *id006
   execution_mode: local_disposable_only
@@ -1693,7 +1669,7 @@ tasks:
 - id: P05-08
   phase: P05
   title: Implement authorization invalidation and module nav registry
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-05
@@ -1724,7 +1700,7 @@ tasks:
 - id: P05-09
   phase: P05
   title: Verify comprehensive RBAC/security gate
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P05-07
@@ -1753,7 +1729,7 @@ tasks:
 - id: P06-01
   phase: P06
   title: Implement Salt & Pepper semantic tokens
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P01-04
@@ -1784,7 +1760,7 @@ tasks:
 - id: P06-02A
   phase: P06
   title: Install and configure shadcn base components
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-01
@@ -1814,7 +1790,7 @@ tasks:
 - id: P06-02B
   phase: P06
   title: Integrate limited Aceternity components
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-02A
@@ -1844,7 +1820,7 @@ tasks:
 - id: P06-02
   phase: P06
   title: Set up shadcn UI, Aceternity and shared components
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-02B
@@ -1874,7 +1850,7 @@ tasks:
 - id: P06-03
   phase: P06
   title: Implement responsive admin shell
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-02
@@ -1903,7 +1879,7 @@ tasks:
 - id: P06-04
   phase: P06
   title: Integrate dynamic navigation with RBAC
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-03
@@ -1932,7 +1908,7 @@ tasks:
 - id: P06-05
   phase: P06
   title: Implement reusable table/form/dialog patterns
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-02
@@ -1960,7 +1936,7 @@ tasks:
 - id: P06-06
   phase: P06
   title: Add theme mode and reduced motion handling
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-03
@@ -1989,7 +1965,7 @@ tasks:
 - id: P06-07
   phase: P06
   title: Verify UI/admin shell quality gate
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P06-04
@@ -2019,7 +1995,7 @@ tasks:
 - id: P07-01
   phase: P07
   title: Implement user list and detail APIs
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P05-05
@@ -2050,7 +2026,7 @@ tasks:
 - id: P07-02
   phase: P07
   title: Implement invitation and user updates
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P07-01
@@ -2079,7 +2055,7 @@ tasks:
 - id: P07-03
   phase: P07
   title: Implement roles CRUD and policy APIs
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P05-06
@@ -2108,7 +2084,7 @@ tasks:
 - id: P07-04
   phase: P07
   title: Build Users management UI
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P07-01
@@ -2138,7 +2114,7 @@ tasks:
 - id: P07-05
   phase: P07
   title: Build Roles and grouped permissions editor
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P07-03
@@ -2167,7 +2143,7 @@ tasks:
 - id: P07-06
   phase: P07
   title: Integrate multi-role assignment and audit
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P07-04
@@ -2198,7 +2174,7 @@ tasks:
 - id: P07-07
   phase: P07
   title: Verify user and role management gate
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P07-06
@@ -2226,7 +2202,7 @@ tasks:
 - id: P08-01
   phase: P08
   title: Define dashboard widget registry and contracts
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P06-04
@@ -2257,7 +2233,7 @@ tasks:
 - id: P08-02
   phase: P08
   title: Implement permission-scoped dashboard APIs
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P08-01
@@ -2286,7 +2262,7 @@ tasks:
 - id: P08-03
   phase: P08
   title: Build dashboard responsive widgets
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P08-02
@@ -2315,7 +2291,7 @@ tasks:
 - id: P08-04
   phase: P08
   title: Add widget composition and error isolation
-  recommended_reasoning: low
+  task_complexity: low
   preview_expectation: when_reviewable
   depends_on:
   - P08-03
@@ -2343,7 +2319,7 @@ tasks:
 - id: P08-05
   phase: P08
   title: Verify dashboard permission gate
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P08-04
@@ -2371,7 +2347,7 @@ tasks:
 - id: P09-01
   phase: P09
   title: Define storage interface and filesystem adapter
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-04
@@ -2402,7 +2378,7 @@ tasks:
 - id: P09-02
   phase: P09
   title: Implement media validation and temp upload pipeline
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P09-01
@@ -2431,7 +2407,7 @@ tasks:
 - id: P09-03
   phase: P09
   title: Implement media metadata and usage repository
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P09-02
@@ -2460,7 +2436,7 @@ tasks:
 - id: P09-04
   phase: P09
   title: Implement media CRUD and protected delivery API
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P09-03
@@ -2488,7 +2464,7 @@ tasks:
 - id: P09-05
   phase: P09
   title: Build Media Library and file picker UI
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P09-04
@@ -2517,7 +2493,7 @@ tasks:
 - id: P09-06
   phase: P09
   title: Add thumbnail/orphan reconciliation path
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P09-04
@@ -2546,7 +2522,7 @@ tasks:
 - id: P09-07
   phase: P09
   title: Verify media security and persistence gate
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P09-05
@@ -2575,7 +2551,7 @@ tasks:
 - id: P10-01
   phase: P10
   title: Define typed CMS block schema and registry
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P09-01
@@ -2607,7 +2583,7 @@ tasks:
 - id: P10-02
   phase: P10
   title: Implement CMS page/revision repository
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-01
@@ -2636,7 +2612,7 @@ tasks:
 - id: P10-03
   phase: P10
   title: Implement CMS Pages CRUD and paginated routes
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-02
@@ -2665,7 +2641,7 @@ tasks:
 - id: P10-04
   phase: P10
   title: Implement rich text Tiptap client editor
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-01
@@ -2694,7 +2670,7 @@ tasks:
 - id: P10-05A
   phase: P10
   title: Create block palette and add/remove actions
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-04
@@ -2724,7 +2700,7 @@ tasks:
 - id: P10-05B
   phase: P10
   title: Create properties panel with validated writes
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-05A
@@ -2753,7 +2729,7 @@ tasks:
 - id: P10-05C
   phase: P10
   title: Create reorder and responsive canvas
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-05B
@@ -2782,7 +2758,7 @@ tasks:
 - id: P10-05
   phase: P10
   title: Implement block canvas and properties editor
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-05C
@@ -2812,7 +2788,7 @@ tasks:
 - id: P10-06
   phase: P10
   title: Implement revision save and conflicts
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-03
@@ -2842,7 +2818,7 @@ tasks:
 - id: P10-07
   phase: P10
   title: Implement publish/unpublish transactions
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P10-06
@@ -2871,7 +2847,7 @@ tasks:
 - id: P10-08
   phase: P10
   title: Implement revision restore as new draft
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P10-07
@@ -2900,7 +2876,7 @@ tasks:
 - id: P10-09
   phase: P10
   title: Verify CMS editor/revision gate
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P10-08
@@ -2928,7 +2904,7 @@ tasks:
 - id: P11-01
   phase: P11
   title: Implement public published-only page service
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P10-07
@@ -2958,7 +2934,7 @@ tasks:
 - id: P11-02
   phase: P11
   title: Implement Next.js public block renderer
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P11-01
@@ -2987,7 +2963,7 @@ tasks:
 - id: P11-03
   phase: P11
   title: Implement navigation menus API with tree validation
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-03
@@ -3016,7 +2992,7 @@ tasks:
 - id: P11-04
   phase: P11
   title: Implement public navigation and admin editor
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P11-03
@@ -3045,7 +3021,7 @@ tasks:
 - id: P11-05
   phase: P11
   title: Implement secure preview and draft mode
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P11-02
@@ -3075,7 +3051,7 @@ tasks:
 - id: P11-06
   phase: P11
   title: Implement SEO, sitemap and cache revalidation
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P11-05
@@ -3105,7 +3081,7 @@ tasks:
 - id: P11-07
   phase: P11
   title: Verify public CMS gate
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P11-06
@@ -3133,7 +3109,7 @@ tasks:
 - id: P12-01
   phase: P12
   title: Define typed settings registry and service
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-04
@@ -3164,7 +3140,7 @@ tasks:
 - id: P12-02
   phase: P12
   title: Implement general settings API and audit
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P12-01
@@ -3193,7 +3169,7 @@ tasks:
 - id: P12-03
   phase: P12
   title: Build branding upload and General UI
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P12-02
@@ -3222,7 +3198,7 @@ tasks:
 - id: P12-04
   phase: P12
   title: Implement theme configuration schema and contrast gate
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P12-01
@@ -3252,7 +3228,7 @@ tasks:
 - id: P12-05
   phase: P12
   title: Implement Appearance UI global theme preview
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P12-04
@@ -3281,7 +3257,7 @@ tasks:
 - id: P12-06
   phase: P12
   title: Implement audit logs query and page
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P03-08
@@ -3312,7 +3288,7 @@ tasks:
 - id: P12-07
   phase: P12
   title: Implement runtime branding revalidation
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P12-03
@@ -3342,7 +3318,7 @@ tasks:
 - id: P12-08
   phase: P12
   title: Verify settings/accessibility gate
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P12-06
@@ -3371,7 +3347,7 @@ tasks:
 - id: P13-01
   phase: P13
   title: Initialize BullMQ worker and Redis queues
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P02-04
@@ -3403,7 +3379,7 @@ tasks:
 - id: P13-02
   phase: P13
   title: Implement job metadata, status and owner security
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P13-01
@@ -3432,7 +3408,7 @@ tasks:
 - id: P13-03
   phase: P13
   title: Implement retry/idempotency and reconciliation
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P13-02
@@ -3460,7 +3436,7 @@ tasks:
 - id: P13-04
   phase: P13
   title: Implement job locks and concurrency policy
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P13-03
@@ -3488,7 +3464,7 @@ tasks:
 - id: P13-05
   phase: P13
   title: Implement operational health and request IDs
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P13-02
@@ -3518,7 +3494,7 @@ tasks:
 - id: P13-06
   phase: P13
   title: Verify worker resilience gate
-  recommended_reasoning: medium
+  task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
   - P13-04
@@ -3547,7 +3523,7 @@ tasks:
 - id: P14-01
   phase: P14
   title: Implement backup manifest and encryption interface
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P13-04
@@ -3578,7 +3554,7 @@ tasks:
 - id: P14-02A
   phase: P14
   title: Prepare safe mysqldump command builder
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-01
@@ -3608,7 +3584,7 @@ tasks:
 - id: P14-02B
   phase: P14
   title: Implement dump streaming and cancellation
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-02A
@@ -3638,7 +3614,7 @@ tasks:
 - id: P14-02
   phase: P14
   title: Implement safe MySQL logical dump
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-02B
@@ -3668,7 +3644,7 @@ tasks:
 - id: P14-03
   phase: P14
   title: Implement archive write/verify and metadata
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-02
@@ -3698,7 +3674,7 @@ tasks:
 - id: P14-04
   phase: P14
   title: Implement isolated restore verification
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-03
@@ -3726,7 +3702,7 @@ tasks:
 - id: P14-05
   phase: P14
   title: Implement backup API and protected download
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-03
@@ -3755,7 +3731,7 @@ tasks:
 - id: P14-06
   phase: P14
   title: Build Backup UI and job progress
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-05
@@ -3784,7 +3760,7 @@ tasks:
 - id: P14-07
   phase: P14
   title: Verify backup security and restorability gate
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-04
@@ -3813,7 +3789,7 @@ tasks:
 - id: P15-01
   phase: P15
   title: Define restore workflow, policy and approval gates
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-07
@@ -3845,7 +3821,7 @@ tasks:
 - id: P15-02
   phase: P15
   title: Implement restoration archive preflight
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-01
@@ -3873,7 +3849,7 @@ tasks:
 - id: P15-03
   phase: P15
   title: Implement isolated staging restore and comparison
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-02
@@ -3901,7 +3877,7 @@ tasks:
 - id: P15-04
   phase: P15
   title: Implement external journal and pre-restore backup
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-03
@@ -3929,7 +3905,7 @@ tasks:
 - id: P15-05A
   phase: P15
   title: Implement maintenance mode and queue draining
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-04
@@ -3958,7 +3934,7 @@ tasks:
 - id: P15-05B
   phase: P15
   title: Implement controlled import stage
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05A
@@ -3988,7 +3964,7 @@ tasks:
 - id: P15-05C
   phase: P15
   title: Implement restore failure hold and response
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05B
@@ -4017,7 +3993,7 @@ tasks:
 - id: P15-05
   phase: P15
   title: Implement maintenance/drain/import orchestration
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05C
@@ -4048,7 +4024,7 @@ tasks:
 - id: P15-06
   phase: P15
   title: Implement post-restore reconciliation and runbook
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05
@@ -4077,7 +4053,7 @@ tasks:
 - id: P15-07
   phase: P15
   title: Verify restore chaos and rollback gate
-  recommended_reasoning: high
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-06
@@ -4104,30 +4080,33 @@ tasks:
     session
 - id: P16-01
   phase: P16
-  title: Freeze release target matrix and runtime ABI
-  recommended_reasoning: high
+  title: "Document manual production runtime prerequisites"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P01-06
-  - P15-07
+  - "P01-06"
+  - "P15-07"
   scope:
-  - infra/scripts
-  - docs/architecture
+  - "docs/architecture"
+  - "infra/pm2"
   steps:
-  - Record OS/arch Node version, compatible native deps, release naming and manifest
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Document verified Node/npm/Linux/MySQL/Redis/PM2/Nginx manual clone requirements and private paths"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Record OS/arch Node version, compatible native deps, release naming and manifest
-  - Compatibility matrix reviewed
+  - "Document verified Node/npm/Linux/MySQL/Redis/PM2/Nginx manual clone requirements and private paths"
+  - "Incompatible target or shared secrets/DB rejected"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Compatibility matrix reviewed
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-01.md
-  output_artifact: docs/architecture/RELEASE-MATRIX.md
-  risk: high
+  output_artifact: "docs/architecture/DEPLOYMENT-MATRIX.md"
+  risk: "medium"
   spec_refs: &id017
   - docs/TRD.md
   - README-SERVER.md
@@ -4136,24 +4115,28 @@ tasks:
     session
 - id: P16-02A
   phase: P16
-  title: Build standalone web artifact
-  recommended_reasoning: high
+  title: "Validate web production build from source"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-01
-  - P11-07
-  - P12-08
-  - P08-05
+  - "P16-01"
+  - "P11-07"
+  - "P12-08"
+  - "P08-05"
   scope:
-  - infra/scripts/build-web.mjs
+  - "apps/web"
+  - "package.json"
   steps:
-  - Build Next standalone with tracing root; copy .next/static and public; assert server.js exists in resulting
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Verify Next.js build/start and static assets from npm workspace without archive packaging"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     release/web
   acceptance_criteria:
-  - Build Next standalone with tracing root
-  - Verify expected artifact exists and affected checks pass
+  - "Verify Next.js build/start and static assets from npm workspace without archive packaging"
+  - "Missing build/static asset or invalid config fails"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4161,28 +4144,32 @@ tasks:
   tests_evidence: []
   parent_task: P16-02
   card: docs/agent/tasks/P16-02A.md
-  output_artifact: infra/scripts/build-web.mjs
-  risk: medium
+  output_artifact: "apps/web/next.config.ts"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-02B
   phase: P16
-  title: Build portable Hono API artifact
-  recommended_reasoning: high
+  title: "Validate Hono API production build from source"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-02A
+  - "P16-02A"
   scope:
-  - infra/scripts/build-api.mjs
+  - "apps/api"
+  - "package.json"
   steps:
-  - Compile/bundle API and runtime production deps; assert release/api entrypoint works without workspace sources
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Verify Hono compiled entrypoint and runtime start/stop with private environment"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Compile/bundle API and runtime production deps
-  - Verify expected artifact exists and affected checks pass
+  - "Verify Hono compiled entrypoint and runtime start/stop with private environment"
+  - "Missing entrypoint or invalid config fails explicitly"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4190,28 +4177,33 @@ tasks:
   tests_evidence: []
   parent_task: P16-02
   card: docs/agent/tasks/P16-02B.md
-  output_artifact: infra/scripts/build-api.mjs
-  risk: medium
+  output_artifact: "apps/api/package.json"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-02C
   phase: P16
-  title: Build portable BullMQ worker artifact
-  recommended_reasoning: high
+  title: "Validate BullMQ worker production build from source"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-02B
+  - "P16-02B"
+  - "P13-06"
   scope:
-  - infra/scripts/build-worker.mjs
+  - "apps/worker"
+  - "package.json"
   steps:
-  - Compile/bundle worker and runtime deps; prove queue connection in disposable test Redis
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Verify worker build, isolated Redis connection, shutdown and retry"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Compile/bundle worker and runtime deps
-  - Verify expected artifact exists and affected checks pass
+  - "Verify worker build, isolated Redis connection, shutdown and retry"
+  - "Wrong queue or unavailable Redis fails safely"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4219,118 +4211,101 @@ tasks:
   tests_evidence: []
   parent_task: P16-02
   card: docs/agent/tasks/P16-02C.md
-  output_artifact: infra/scripts/build-worker.mjs
-  risk: medium
-  spec_refs: *id017
-  execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
-- id: P16-02D
-  phase: P16
-  title: Build portable installer artifact
-  recommended_reasoning: high
-  preview_expectation: when_reviewable
-  depends_on:
-  - P16-02C
-  scope:
-  - infra/scripts/build-installer.mjs
-  steps:
-  - Compile CLI and bundle runtime deps/migrations; prove --help executes without source repository
-  acceptance_criteria:
-  - Compile CLI and bundle runtime deps/migrations
-  - Verify expected artifact exists and affected checks pass
-  validation:
-  - Relevant focused checks pass; record command + exit code
-  status: pending
-  priority: normal
-  blocked_reason: null
-  completed_commit: null
-  tests_evidence: []
-  parent_task: P16-02
-  card: docs/agent/tasks/P16-02D.md
-  output_artifact: infra/scripts/build-installer.mjs
-  risk: medium
+  output_artifact: "apps/worker/package.json"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-02
   phase: P16
-  title: Build standalone web and portable API/worker/CLI
-  recommended_reasoning: high
+  title: "Integrate web API and worker npm build"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-02D
+  - "P16-02C"
   scope:
-  - infra/scripts
-  - apps/*
+  - "package.json"
+  - "turbo.json"
+  - "apps"
   steps:
-  - Integration-only gate for child tasks of P16-02. Inspect each child output, run cross-boundary tests and resolve
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Check three processes build and independent runtime targets with one npm lockfile"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Build Next standalone + static assets, package production deps of API/worker/installer
-  - Independent boot tests pass
+  - "Check three processes build and independent runtime targets with one npm lockfile"
+  - "Missing workspace/build target fails, no CLI/archive created"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Independent boot tests pass
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-02.md
-  output_artifact: infra/scripts/build-release.mjs
-  risk: high
+  output_artifact: "package.json"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-03
   phase: P16
-  title: Implement release layout, manifest and checksums
-  recommended_reasoning: high
+  title: "Create read-only manual production environment preflight"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-02
+  - "P16-02"
   scope:
-  - infra/scripts
+  - "tools/manual-setup"
+  - "packages/config"
   steps:
-  - Assemble web/api/worker/cli/migrations/config/README-SERVER, checksum each artifact
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Verify required env keys, database/Redis targets, paths and Node version without provisioning"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Assemble web/api/worker/cli/migrations/config/README-SERVER, checksum each artifact
-  - Manifest verification detects tamper
+  - "Verify required env keys, database/Redis targets, paths and Node version without provisioning"
+  - "Wrong DB/secret or missing env fails closed without leaking values"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Manifest verification detects tamper
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-03.md
-  output_artifact: infra/scripts/manifest.mjs
-  risk: high
+  output_artifact: "tools/manual-setup/preflight.mjs"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-04A
   phase: P16
-  title: Implement installer preflight and migrate
-  recommended_reasoning: high
+  title: "Implement guarded manual Drizzle migration npm scripts"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-03
-  - P05-07
+  - "P16-03"
+  - "P05-07"
   scope:
-  - apps/installer/src/commands/migrate.ts
+  - "packages/database"
+  - "tools/manual-setup"
+  - "package.json"
   steps:
-  - Check environment/target compatibility, migration history and advisory lock before migration; never auto-run
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Expose db:migrate:check and db:migrate with reviewed SQL and explicit DB target guard"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     destructive SQL
   acceptance_criteria:
-  - Check environment/target compatibility, migration history and advisory lock before migration
-  - Verify expected artifact exists and affected checks pass
+  - "Expose db:migrate:check and db:migrate with reviewed SQL and explicit DB target guard"
+  - "Drift destructive migration or wrong DB rejected"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4338,28 +4313,34 @@ tasks:
   tests_evidence: []
   parent_task: P16-04
   card: docs/agent/tasks/P16-04A.md
-  output_artifact: apps/installer/src/commands/migrate.ts
-  risk: medium
+  output_artifact: "tools/manual-setup/migrate.mjs"
+  risk: "high"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-04B
   phase: P16
-  title: Implement permission and system seed
-  recommended_reasoning: high
+  title: "Implement idempotent manual permission sync and seed"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-04A
+  - "P16-04A"
   scope:
-  - apps/installer/src/commands/seed.ts
+  - "packages/database"
+  - "packages/permissions"
+  - "tools/manual-setup"
+  - "package.json"
   steps:
-  - Synchronize registry codes, seed default roles, Salt & Pepper theme; repeat run must not duplicate data
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Expose permissions:sync and db:seed using canonical P05 roles and Salt & Pepper defaults"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Synchronize registry codes, seed default roles, Salt & Pepper theme
-  - Verify expected artifact exists and affected checks pass
+  - "Expose permissions:sync and db:seed using canonical P05 roles and Salt & Pepper defaults"
+  - "Rerun must never duplicate grants reset password or overgrant"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4367,28 +4348,33 @@ tasks:
   tests_evidence: []
   parent_task: P16-04
   card: docs/agent/tasks/P16-04B.md
-  output_artifact: apps/installer/src/commands/seed.ts
-  risk: medium
+  output_artifact: "tools/manual-setup/seed.mjs"
+  risk: "high"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-04C
   phase: P16
-  title: Wire secure bootstrap command
-  recommended_reasoning: high
+  title: "Wire secure manual admin bootstrap npm command"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-04B
+  - "P16-04B"
   scope:
-  - apps/installer/src/commands/bootstrap-admin.ts
+  - "tools/manual-setup"
+  - "apps/api/src/modules/auth"
+  - "package.json"
   steps:
-  - Call verified P05 bootstrap service; consume secret file or prompt without printing or packaging it
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Expose setup:admin as non-echo TTY/private input wrapper around P05 service"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Call verified P05 bootstrap service
-  - Verify expected artifact exists and affected checks pass
+  - "Expose setup:admin as non-echo TTY/private input wrapper around P05 service"
+  - "No plaintext argv log or reset/duplicate admin on rerun"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4396,28 +4382,32 @@ tasks:
   tests_evidence: []
   parent_task: P16-04
   card: docs/agent/tasks/P16-04C.md
-  output_artifact: apps/installer/src/commands/bootstrap-admin.ts
-  risk: medium
+  output_artifact: "tools/manual-setup/bootstrap-admin.mjs"
+  risk: "high"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-04D
   phase: P16
-  title: Implement installer verify command
-  recommended_reasoning: high
+  title: "Implement read-only manual setup verification"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-04C
+  - "P16-04C"
   scope:
-  - apps/installer/src/commands/verify.ts
+  - "tools/manual-setup"
+  - "package.json"
   steps:
-  - Read-only verification of DB, Redis, API env, media directory, migration marker and initial admin presence
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Expose setup:verify for DB Redis role migration and admin readiness without mutation"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Read-only verification of DB, Redis, API env, media directory, migration marker and initial admin presence
-  - Verify expected artifact exists and affected checks pass
+  - "Expose setup:verify for DB Redis role migration and admin readiness without mutation"
+  - "Missing admin/stale migration must be reported, no secret leak"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4425,268 +4415,200 @@ tasks:
   tests_evidence: []
   parent_task: P16-04
   card: docs/agent/tasks/P16-04D.md
-  output_artifact: apps/installer/src/commands/verify.ts
-  risk: medium
+  output_artifact: "tools/manual-setup/verify.mjs"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-04
   phase: P16
-  title: Implement installer CLI migrate/seed/bootstrap/verify
-  recommended_reasoning: high
+  title: "Gate manual npm setup commands on disposable clone"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-04D
+  - "P16-04D"
   scope:
-  - apps/installer
-  - infra/scripts
+  - "tools/manual-setup"
+  - "package.json"
+  - "docs/MANUAL-CLONE-SETUP.md"
   steps:
-  - Integration-only gate for child tasks of P16-04. Inspect each child output, run cross-boundary tests and resolve
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Verify preflight migrate permissions seed setup:admin and setup:verify using actual npm scripts"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Installer locks, env validations, migrate/seed/secure admin bootstrap, health status
-  - Fresh install & rerun idempotency tests pass
+  - "Verify preflight migrate permissions seed setup:admin and setup:verify using actual npm scripts"
+  - "Wrong env repeated bootstrap and incompatible DB rejected"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Fresh install & rerun idempotency tests pass
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-04.md
-  output_artifact: apps/installer/src/cli.ts
-  risk: high
+  output_artifact: "package.json"
+  risk: "high"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-05
   phase: P16
-  title: Implement PM2 ecosystem and safe env loading
-  recommended_reasoning: high
+  title: "Configure PM2 for three service runtimes"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-03
-  - P13-05
+  - "P16-03"
+  - "P13-05"
   scope:
-  - infra/pm2
+  - "infra/pm2"
   steps:
-  - 3 services, cwd/exec/interpreter/env file per service, restart/log/health
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Define web API worker with private env, correct cwd, tested start/stop/restart"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - 3 services, cwd/exec/interpreter/env file per service, restart/log/health
-  - PM2 boot/restart works
+  - "Define web API worker with private env, correct cwd, tested start/stop/restart"
+  - "Missing build entrypoint/secret exposure or unsafe public bind rejected"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - PM2 boot/restart works
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-05.md
-  output_artifact: infra/pm2/ecosystem.config.cjs
-  risk: high
+  output_artifact: "infra/pm2/ecosystem.config.cjs"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-06
   phase: P16
-  title: Implement aaPanel Nginx config and HTTPS guide
-  recommended_reasoning: high
+  title: "Verify aaPanel Nginx HTTPS same-origin proxy"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-05
+  - "P16-05"
   scope:
-  - infra/nginx
-  - README-SERVER.md
+  - "infra/nginx"
+  - "README-SERVER.md"
   steps:
-  - Proxy /api/* to Hono and /* to web, forwarded headers, SSL, upload limits, bind loopback
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Proxy /api/* to Hono preserving path and /* to Next.js with HTTPS/cookies"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Proxy /api/* to Hono and /* to web, forwarded headers, SSL, upload limits, bind loopback
-  - Auth cookie and proxy E2E passes
+  - "Proxy /api/* to Hono preserving path and /* to Next.js with HTTPS/cookies"
+  - "Wrong auth proxy header or publicly exposed Redis rejected"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Auth cookie and proxy E2E passes
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-06.md
-  output_artifact: infra/nginx/locations.conf
-  risk: high
-  spec_refs: *id017
-  execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
-- id: P16-07A
-  phase: P16
-  title: Verify uploaded archive and extract versioned release
-  recommended_reasoning: high
-  preview_expectation: when_reviewable
-  depends_on:
-  - P16-04
-  - P16-06
-  scope:
-  - infra/scripts/install-release.sh
-  steps:
-  - Validate manifest, target CPU/Node, SHA256 and tar traversal; extract into new nonpublic releases directory
-  acceptance_criteria:
-  - Validate manifest, target CPU/Node, SHA256 and tar traversal
-  - Verify expected artifact exists and affected checks pass
-  validation:
-  - Relevant focused checks pass; record command + exit code
-  status: pending
-  priority: normal
-  blocked_reason: null
-  completed_commit: null
-  tests_evidence: []
-  parent_task: P16-07
-  card: docs/agent/tasks/P16-07A.md
-  output_artifact: infra/scripts/install-release.sh
-  risk: medium
-  spec_refs: *id017
-  execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
-- id: P16-07B
-  phase: P16
-  title: Implement guarded current symlink switch
-  recommended_reasoning: high
-  preview_expectation: when_reviewable
-  depends_on:
-  - P16-07A
-  scope:
-  - infra/scripts/switch-release.sh
-  steps:
-  - Atomically replace current symlink only after preflight checks; preserve shared/env, media and backups
-  acceptance_criteria:
-  - Atomically replace current symlink only after preflight checks
-  - Verify expected artifact exists and affected checks pass
-  validation:
-  - Relevant focused checks pass; record command + exit code
-  status: pending
-  priority: normal
-  blocked_reason: null
-  completed_commit: null
-  tests_evidence: []
-  parent_task: P16-07
-  card: docs/agent/tasks/P16-07B.md
-  output_artifact: infra/scripts/switch-release.sh
-  risk: medium
-  spec_refs: *id017
-  execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
-- id: P16-07C
-  phase: P16
-  title: Implement safe update orchestration
-  recommended_reasoning: high
-  preview_expectation: when_reviewable
-  depends_on:
-  - P16-07B
-  scope:
-  - infra/scripts/upgrade-release.sh
-  steps:
-  - Backup/compatibility gate, migration only after approval, drain workers, switch, PM2 restart and health checks;
-    retain release on failure
-  acceptance_criteria:
-  - Backup/compatibility gate, migration only after approval, drain workers, switch, PM2 restart and health checks
-  - Verify expected artifact exists and affected checks pass
-  validation:
-  - Relevant focused checks pass; record command + exit code
-  status: pending
-  priority: normal
-  blocked_reason: null
-  completed_commit: null
-  tests_evidence: []
-  parent_task: P16-07
-  card: docs/agent/tasks/P16-07C.md
-  output_artifact: infra/scripts/upgrade-release.sh
-  risk: medium
+  output_artifact: "infra/nginx/locations.conf"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-07
   phase: P16
-  title: Implement upload install/version-switch/upgrade script
-  recommended_reasoning: high
+  title: "Rehearse manual Git update build and restart"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-07C
+  - "P16-04"
+  - "P16-06"
   scope:
-  - infra/scripts
+  - "docs/architecture"
+  - "tests/manual-deploy"
   steps:
-  - Integration-only gate for child tasks of P16-07. Inspect each child output, run cross-boundary tests and resolve
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Document and test git pull --ff-only npm ci build migration gate PM2 restart and health on disposable environment"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Verify manifest, extract versioned release, preserve shared data, migration gate, current switch
-  - Dry-run upgrade and rejection tests pass
+  - "Document and test git pull --ff-only npm ci build migration gate PM2 restart and health on disposable environment"
+  - "Dirty tree or failed migration/health stops without force reset"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Dry-run upgrade and rejection tests pass
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-07.md
-  output_artifact: infra/scripts/install-release.sh
-  risk: high
+  output_artifact: "docs/architecture/MANUAL-UPDATE.md"
+  risk: "high"
   spec_refs: *id017
   execution_mode: manual_authorized_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-08
   phase: P16
-  title: Implement rollback and recovery controls
-  recommended_reasoning: high
+  title: "Document manual source rollback and database recovery"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-07
-  - P15-07
+  - "P16-07"
+  - "P15-07"
   scope:
-  - infra/scripts
-  - README-SERVER.md
+  - "docs/architecture"
+  - "README-SERVER.md"
+  - "tests/manual-deploy"
   steps:
-  - Code rollback when schema compatible, maintenance/restore recovery when not
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Document operator-approved recovery and separate DB compatibility requirements"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Code rollback when schema compatible, maintenance/restore recovery when not
-  - Rollback compatibility tests pass
+  - "Document operator-approved recovery and separate DB compatibility requirements"
+  - "Git checkout must never be assumed to undo DB schema or trigger auto-restore"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Rollback compatibility tests pass
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-08.md
-  output_artifact: infra/scripts/rollback-release.sh
-  risk: high
+  output_artifact: "docs/architecture/MANUAL-RECOVERY.md"
+  risk: "high"
   spec_refs: *id017
   execution_mode: manual_authorized_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-09A
   phase: P16
-  title: Write and verify developer README
-  recommended_reasoning: high
+  title: "Validate developer clone and npm script guide"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-04
-  - P16-07
-  - P16-08
+  - "P16-04"
+  - "P16-07"
+  - "P16-08"
   scope:
-  - README.md
+  - "README.md"
+  - "docs/MANUAL-CLONE-SETUP.md"
   steps:
-  - Document clone, local prerequisites, install, test, seed, agent workflow; mark planned app scripts until implemented
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Synchronize developer docs with actual clone env/manual scripts and reference workflow"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Document clone, local prerequisites, install, test, seed, agent workflow
-  - Verify expected artifact exists and affected checks pass
+  - "Synchronize developer docs with actual clone env/manual scripts and reference workflow"
+  - "No obsolete installer or falsely runnable command"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4694,30 +4616,34 @@ tasks:
   tests_evidence: []
   parent_task: P16-09
   card: docs/agent/tasks/P16-09A.md
-  output_artifact: README.md
-  risk: medium
+  output_artifact: "README.md"
+  risk: "low"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-09B
   phase: P16
-  title: Write and verify production upload README
-  recommended_reasoning: high
+  title: "Validate manual aaPanel server documentation"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-09A
+  - "P16-09A"
   scope:
-  - README-SERVER.md
+  - "README-SERVER.md"
   steps:
-  - Document release upload, checksum, MySQL/Redis native install, PM2, Nginx aaPanel, first-login, upgrade, rollback
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Document tested clone npm build PM2 Nginx migrate and recovery paths"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     and troubleshooting; use tested paths
   acceptance_criteria:
-  - Document release upload, checksum, MySQL/Redis native install, PM2, Nginx aaPanel, first-login, upgrade, rollback
+  - "Document tested clone npm build PM2 Nginx migrate and recovery paths"
+  - "No archive manifest symlink or untested script instructions"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
     and troubleshooting
   - Verify expected artifact exists and affected checks pass
   validation:
-  - Relevant focused checks pass; record command + exit code
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
@@ -4725,99 +4651,108 @@ tasks:
   tests_evidence: []
   parent_task: P16-09
   card: docs/agent/tasks/P16-09B.md
-  output_artifact: README-SERVER.md
-  risk: medium
+  output_artifact: "README-SERVER.md"
+  risk: "low"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-09
   phase: P16
-  title: Write and test developer README and server README
-  recommended_reasoning: high
+  title: "Gate manual user and operator documentation"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-09B
+  - "P16-09B"
   scope:
-  - README.md
-  - README-SERVER.md
+  - "README.md"
+  - "README-SERVER.md"
+  - "docs/MANUAL-CLONE-SETUP.md"
   steps:
-  - Integration-only gate for child tasks of P16-09. Inspect each child output, run cross-boundary tests and resolve
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Run isolated-clone smoke and verify both READMEs and manual setup guide match real source"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Include tested commands, aaPanel UI, fresh/update/rollback/troubleshoot and no source required
-  - Second operator can reproduce install
+  - "Run isolated-clone smoke and verify both READMEs and manual setup guide match real source"
+  - "Mismatched commands and secret-bearing examples rejected"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Second operator can reproduce install
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-09.md
-  output_artifact: README-SERVER.md
-  risk: high
+  output_artifact: "README-SERVER.md"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-10
   phase: P16
-  title: Implement new-project initializer and isolation test
-  recommended_reasoning: high
+  title: "Verify new clone isolation without project initializer"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-04
-  - P12-08
+  - "P16-04"
+  - "P12-08"
   scope:
-  - apps/installer
-  - infra/scripts
+  - "tests/manual-clone"
+  - "docs/MANUAL-CLONE-SETUP.md"
   steps:
-  - Create unique project name/db/storage/secret, default theme and roles; never copy data
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Prove independent project DB Redis prefix storage origin secrets and first-admin setup"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Create unique project name/db/storage/secret, default theme and roles
-  - Fresh derived project isolation tests pass
+  - "Prove independent project DB Redis prefix storage origin secrets and first-admin setup"
+  - "No cross-project data sessions backups jobs or credentials copied"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - Fresh derived project isolation tests pass
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-10.md
-  output_artifact: apps/installer/src/commands/init-project.ts
-  risk: high
+  output_artifact: "tests/manual-clone/clone-isolation.test.ts"
+  risk: "medium"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
 - id: P16-11
   phase: P16
-  title: Run full security and release verification
-  recommended_reasoning: high
+  title: "Run manual deployment and security end-to-end gate"
+  task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P16-09
-  - P16-10
+  - "P16-09"
+  - "P16-10"
   scope:
-  - tests/release
-  - docs/agent
+  - "tests/manual-deploy"
+  - "docs/architecture"
   steps:
-  - Full E2E, restore smoke on disposable DB, artifact-only fresh install, update, secret scan, docs consistency
+  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
+  - "Verify isolated clone three-app startup auth RBAC CMS uploads queue backup restore and operator docs"
+  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
   acceptance_criteria:
-  - Full E2E, restore smoke on disposable DB, artifact-only fresh install, update, secret scan, docs consistency
-  - All milestone gates pass
+  - "Verify isolated clone three-app startup auth RBAC CMS uploads queue backup restore and operator docs"
+  - "Negative env migration authorization and recovery cases fail safely without production mutation"
+  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
   validation:
-  - All milestone gates pass
+  - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
   priority: normal
   blocked_reason: null
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P16-11.md
-  output_artifact: docs/architecture/TEST-MATRIX.md
-  risk: high
+  output_artifact: "docs/architecture/TEST-MATRIX.md"
+  risk: "high"
   spec_refs: *id017
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one

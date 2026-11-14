@@ -28,10 +28,10 @@ A preview is not a release and does not substitute authentication, authorization
 - P06–P08: authorized shell, user/role management, dashboard using real APIs.
 - P09–P12: media, CMS drafts/public publish, settings.
 - P13–P15: queue, backup, staging restore as controlled local tests; dangerous operations never exposed through debug preview.
-- P16: artifact-only install, upgrade and rollback exercised in disposable/test environment.
+- P16: verify manual clone/setup scripts, npm production build, PM2/Nginx, upgrade/recovery rehearsal in a disposable test environment; no installer or archive release manager.
 
 ## State and boundaries
 
 - Current `agent_tasks.py` statuses remain `pending / in_progress / blocked / completed / verified`. Do not invent unsupported CLI status commands.
 - Review status lives only in `REVIEW-QUEUE.md`; do not mutate task registry status to represent UX approval.
-- A low-reasoning coding agent may implement well-scoped slices. Follow `AGENT-ROUTING.md` to identify tasks recommended for high-reasoning implementation/review, and block on unclear security-critical decisions.
+- A low-reasoning coding agent may implement well-scoped slices. Follow `SINGLE-MODEL-WORKFLOW.md` to identify tasks recommended for high-reasoning implementation/review, and block on unclear security-critical decisions.

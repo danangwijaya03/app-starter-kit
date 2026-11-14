@@ -1,4 +1,4 @@
-# SOP Coding Agent Low — Satu Task per Unit
+# SOP coding agent yang dipilih — Satu Task per Unit
 
 **Ditujukan untuk: CODING AGENT.** Perilaku wajib diatur [AGENTS.md](../../AGENTS.md). Dokumen untuk manusia adalah [PANDUAN-MULAI-LOW-AGENT.md](../../PANDUAN-MULAI-LOW-AGENT.md); jangan jadikan user guide sebagai instruksi implementasi.
 
@@ -8,11 +8,11 @@ Agent sendiri menjalankan `python3 tools/bootstrap_agent.py` **sebelum** membaca
 
 Seluruh command `agent_tasks.py` dan `validate_plan.py` selanjutnya memakai `.venv-agent/bin/python` agar tidak tergantung shell. Untuk validasi P00 melalui evidence runner, pilih `-- .venv-agent/bin/python tools/validate_plan.py` setelah script terpasang.
 
-## Preview-first execution without increasing reasoning burden
+## Single-model reference-driven work
 
-The default coding agent can be **Low reasoning** because work is bounded by a single task card and actual pre-existing contracts. Use the development preview and [PREVIEW-AND-FEEDBACK.md](PREVIEW-AND-FEEDBACK.md) in **each meaningful slice**. Route security, architectural ambiguity and high-risk work to a separate **High reasoning** design/implementation reviewer per [AGENT-ROUTING.md](AGENT-ROUTING.md). A High implementer does not replace independent approval.
+**coding agent yang dipilih is the only required coding implementer.** Read [Single-Model Workflow](SINGLE-MODEL-WORKFLOW.md), [Reference Map](../references/REFERENCE-MAP.md) and [Adoption Protocol](../references/ADOPTION-PROTOCOL.md). No High Reasoning model is required; independently reviewed high-risk tasks still cannot be self-approved.
 
-Use **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. Preview means exact route, validated local command/URL if observed, fixture vs integrated vs diagnostic, review steps and limitations recorded in CHECKPOINT/REVIEW-QUEUE. If dev server cannot start, document the failed command, do not invent an accessible URL or mark the feature reviewable. The user may request UI revisions asynchronously; convert them to bounded tasks, while unrelated work continues. Development branch is **main**, never force-reset to make tools pass.
+Task lifecycle: **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. At each slice capture actual scope, upstream reference/version/license when source adapted, safe tests, fixture/integrated/diagnostic status, actual URL if verified and user review queue. If dev server fails, record failure rather than falsely claiming preview. Use `main`; never force reset or install Docker/installer CLI.
 
 ## Startup setiap sesi
 
@@ -52,9 +52,9 @@ Teks dalam tanda `<...>` adalah placeholder, jangan dijalankan literal. Periksa 
 ## Bukti tes, review dan pemecahan task
 
 - Baca [kebijakan uji/review](TEST-AND-REVIEW-POLICY.md) untuk menentukan jenis bukti yang wajib: gunakan flag --kind docs/unit/integration/negative/build. Untuk task high-risk diperlukan integration, negative test dan review independen sebelum complete.
-- High-reasoning/human reviewer harus melakukan peninjauan sendiri dan menulis laporan pada docs/agent/reviews/<ID>.md. Setelah itu operator merekam menggunakan: .venv-agent/bin/python tools/agent_tasks.py review <ID> --reviewer "Reviewer" --evidence docs/agent/reviews/<ID>.md. CLI tidak membuktikan identitas reviewer; agent Low tidak boleh membuat persetujuan palsu.
+- Reviewer independen yang kompeten (tidak harus model High Reasoning) harus melakukan peninjauan sendiri dan menulis laporan pada docs/agent/reviews/<ID>.md. Setelah itu operator merekam menggunakan: .venv-agent/bin/python tools/agent_tasks.py review <ID> --reviewer "Reviewer" --evidence docs/agent/reviews/<ID>.md. CLI tidak membuktikan identitas reviewer; agent Low tidak boleh membuat persetujuan palsu.
 - Jika task masih pending dan terlalu besar, lakukan [split plan](TASK-SPLITTING.md) setelah review. Perintah: .venv-agent/bin/python tools/agent_tasks.py split <ID> --plan /path/to/reviewed-plan.json. Parent tetap integration checkpoint.
-- Ringkasan per fase: .venv-agent/bin/python tools/agent_tasks.py summary atau summary --json. Tidak perlu membaca 157 task untuk mengetahui progres.
+- Ringkasan per fase: .venv-agent/bin/python tools/agent_tasks.py summary atau summary --json. Tidak perlu membaca 156 task untuk mengetahui progres.
 - Validasi dokumentasi bukan bukti implementasi. CI juga menjalankan tools/check_repo_contracts.py untuk memeriksa instruksi npm terhadap repo sebenarnya.
 
 ## Kontrak lingkungan dan scope
@@ -69,4 +69,4 @@ Teks dalam tanda `<...>` adalah placeholder, jangan dijalankan literal. Periksa 
 
 Pada sesi baru ikuti [RESUME-SESSION-PROMPT.md](RESUME-SESSION-PROMPT.md); **cek state sebelum mengulang migration/seed/bootstrap/job**. Jangan gunakan `git reset --hard` atau `git clean -fd` untuk pemulihan.
 
-Block dan minta review independen/high reasoning pada bypass auth/session, race condition Super Admin, destructive migration, restore, secret, atau operasi production. Jalankan task independen lain hanya jika benar-benar aman.
+Block dan minta review independen pada bypass auth/session, race condition Super Admin, destructive migration, restore, secret, atau operasi production. Jalankan task independen lain hanya jika benar-benar aman.

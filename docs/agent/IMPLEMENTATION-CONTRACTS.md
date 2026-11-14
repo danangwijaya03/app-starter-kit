@@ -26,7 +26,6 @@ Lerd provides MySQL and Redis locally. Do not create duplicate services or Docke
 | `apps/web` | Next.js pages, client feature UI, typed API calls | Import API service, MySQL pool, Drizzle credentials |
 | `apps/api` | Hono routes, auth, policies, service/repository | Import React frontend modules |
 | `apps/worker` | Queue consumers, backup/restore/media jobs | Public HTTP listener unless separately specified |
-| `apps/installer` | CLI preflight, migration, seeds, bootstrap, verify | Background public server, embedding secrets |
 | `packages/database` | Schema, DB client, migration files | React UI |
 | `packages/contracts` | Public request/response Zod schemas | Database connection or secrets |
 | `packages/permissions` | Role permission codes, navigation manifest | User-specific UI state |
@@ -34,7 +33,7 @@ Lerd provides MySQL and Redis locally. Do not create duplicate services or Docke
 | `packages/cms-blocks` | Versioned block schema and public renderer components | Arbitrary executable content from database |
 | `packages/storage` | Safe local/S3 adapters | Hardcoded deployment paths |
 
-Avoid circular dependencies. Only API/worker/installer import server-only database modules. Never save credentials to web's public assets or `NEXT_PUBLIC_` variables.
+Avoid circular dependencies. Only API/worker and explicit server-only manual setup scripts import server-only database modules. Never save credentials to web's public assets or `NEXT_PUBLIC_` variables.
 
 ## 3. Canonical module directory conventions
 
@@ -85,35 +84,34 @@ Error:
 - CMS navigation only manages **public site menus**, not admin sidebar. Menu depth max two levels.
 - Storage key opaque and server-generated; media stored outside immutable release folder. Referenced published media cannot be physically deleted.
 
-## 6. Seed and installer order
+## 6. Manual migration, seeds and administrator setup
 
-**Order on a new empty disposable environment:**
+**New empty dedicated database, executed manually after reviewing .env and DB target:**
 
-1. Validate Node/platform/URLs and MySQL/Redis readiness.
-2. Apply **reviewed** Drizzle migrations to the intended empty database.
-3. Sync permissions idempotently.
-4. Seed system roles and Salt & Pepper general/theme configuration.
-5. Bootstrap initial administrator from secret prompt/file, assign protected `super_admin`, enforce password change.
-6. Verify login, database connectivity and permission-protected endpoints.
+1. Validate Node/env/MySQL/Redis and dedicated database target.
+2. Apply reviewed Drizzle migrations with npm script (`db:migrate:check` then `db:migrate`).
+3. Sync canonical permission registry (`permissions:sync`) and seed system roles + Salt & Pepper defaults (`db:seed`) idempotently.
+4. Bootstrap initial super admin via protected non-echo manual npm script (`setup:admin`) after roles exist. Never pass password as argument or commit it. First login must force a password change.
+5. Verify private endpoints and identity via `setup:verify` and actual tests.
 
-Rerunning seeds/installer must not duplicate users or reset existing passwords. Never run destructive migration on shared/production DB without authorization.
+Repeated seed/bootstrap must **not** duplicate accounts/reset credentials; no destructive production migration without explicit operator authorization. No `apps/installer` or project initializer.
 
-## 7. Deployment & artifact paths
+## 7. Deployment paths — clone based
 
-The release archive must include `web`, `api`, `worker`, `cli`, `database/migrations`, manifest/checksums, config templates, and `README-SERVER.md`. After upload, install under a **non-public** base such as `/srv/apps/<project>/` with `releases/`, `current` symlink, `shared/env`, `shared/media`, `shared/backups`, and `shared/logs`.
+Clone an authorized project repository to a private working directory such as `/srv/apps/<project>/` using separate private `.env`, `storage/media`, `storage/backups`, `storage/logs`. Build/run web, API and worker with PM2 and Nginx same-origin routing. Source may reside on the server; no portable release archive, `current` symlink manager, or release manifest is required. Validate secrets/storage outside public root.
 
-Production uses Node.js standalone web, compiled API + worker, MySQL/Redis services, PM2 and Nginx path proxy (`/api/*` to 127.0.0.1:4000, everything else to 127.0.0.1:3000). Do not package `.env`, secrets, logs, media, database data or actual backup archives. A failed DB migration is **not** solved by a blind symlink rollback.
+Production migration/recovery performed manually from source with reviewed SQL; Git code rollback does not roll back schema state.
 
 ## 8. Version and file existence policy
 
 As soon as P01 installs dependencies, commit a lockfile and write exact resolved versions into `docs/agent/DEPENDENCY-LOCK.md`. After that, Low agents use those versions and do not silently upgrade. If a cited package API differs from the exact installed version, record the mismatch and request a scoped update/review rather than inventing compatibility glue.
 
 Any path described as a **target** may not exist until its task completes. Never report successful `npm` checks just because they are written in this document.
-## 9. Incremental source and review contract (2026-11-07)
+## 9. Single-model, reference-driven implementation contract
 
-- Keep a runnable local Next.js preview at each safe milestone. The initial root page is static **fixture**, not real admin functionality; phase P01 refines it after monorepo migration, P06 integrates authenticated/authorized shell.
-- For every meaningful slice, record actual route/verified preview URL or failure, fixture/integrated/diagnostic mode, tests and observations in CHECKPOINT / REVIEW-QUEUE. Do not invent running servers.
-- Low reasoning is default for explicit bounded modules. High reasoning is recommended for security/architecture/migration/restore/release/installer. Independent high-risk review is mandatory regardless of coding agent reasoning.
-- `main` remains canonical; preview reviews must not force branch changes or dangerous repository resets.
-- Installers are distinct: project initialization, application setup CLI, deployment manager. Bootstrap uses P05 service and cold release setup uses extracted version path before current symlink.
-- Details in [Preview & Feedback](PREVIEW-AND-FEEDBACK.md), [Agent Routing](AGENT-ROUTING.md) and [Installer Boundaries](INSTALLER-BOUNDARIES.md).
+- Preserve static Next.js fixture until integrated paths exist; provide honest preview/diagnostic checkpoints.
+- Use **selected coding agent for all bounded implementation tasks**. No High Reasoning model routing or mandatory model upgrade.
+- Read per-task [Reference Map](../references/REFERENCE-MAP.md) and [Adoption Protocol](../references/ADOPTION-PROTOCOL.md): official libraries first; record version/license/source only when copying code; adapt MySQL/npm/single-tenant boundary.
+- Keep independent qualified review for effective high-risk tasks. User UI feedback in REVIEW-QUEUE cannot substitute technical approval.
+- Work on main; clone-based reuse and manual PM2/Nginx operations, no installer or Docker. See [Single Model](SINGLE-MODEL-WORKFLOW.md).
+

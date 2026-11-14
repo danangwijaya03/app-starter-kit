@@ -460,7 +460,7 @@ Role grant codes checked against registry and privilege of actor; type schema is
 5. Bootstrap initial `admin@codelight.id` using **private password input** via Better Auth-approved credential API, set `must_change_password`, assign `super_admin`.
 6. Seed/idempotency verification; repeated bootstrap must not replace existing password or downgrade account role.
 
-No hardcoded password or insecure fixed secret in code/repo/archive. Production initializer requires unique password; user-supplied development password must not become a universal production default. Check migrations in isolated DB before deployment and maintain pre-migration recovery path.
+No hardcoded password or insecure fixed secret in code/repo/archive. Manual first-admin bootstrap requires a unique password; user-supplied development password must not become a universal production default. Check migrations in isolated DB before deployment and maintain pre-migration recovery path.
 
 ## BSD-10 Verification cases
 

@@ -1,57 +1,35 @@
-# Codelight app-starter-kit — Instruksi Coding Agent
+# app-starter-kit — single-model coding agent instructions
 
-**Ditujukan untuk: CODING AGENT.** File ini adalah pintu masuk utama agent. [PANDUAN-MULAI-LOW-AGENT.md](PANDUAN-MULAI-LOW-AGENT.md) untuk **USER**, bukan instruksi implementasi. Lihat [peta dokumentasi](docs/DOCUMENTATION-MAP.md).
+**Ditujukan untuk: CODING AGENT.** User-facing guide: [PANDUAN-MULAI-LOW-AGENT.md](PANDUAN-MULAI-LOW-AGENT.md). Approved development branch: **main**; no destructive reset.
 
-**Baseline:** Next.js 16.4.3 + React 19.3.0 sudah ada di root repository. P01 yang nanti memigrasikan aplikasi ke `apps/web`, bukan `create-next-app` ulang. Gunakan npm/npx, satu `package-lock.json`. Lingkungan lokal: Lerd + Node.js 26 + MySQL/Redis yang sudah tersedia.
+**Baseline:** existing root Next.js 16.4.3 + React 19.3, Tailwind v4, npm/npx and one `package-lock.json`. P01 migrates the **existing** app using Git moves into `apps/web`. Local environment: Lerd, Node.js 26, existing MySQL/Redis. **Do not run create-next-app, install duplicate services, or create Docker requirements.**
 
-## Bootstrap tooling otomatis (wajib sebelum P00, termasuk sesi RESUME)
+## Mandatory startup (START and RESUME)
 
-1. Dari root repository, periksa `git status --short` dan jalankan **`python3 tools/bootstrap_agent.py`** sendiri. Script ini tidak membutuhkan PyYAML, tidak menggunakan `source`/aktivasi, serta mendukung Fish, Bash, dan Zsh.
-2. Script memastikan `.venv-agent/bin/python` tersedia, memasang `tools/requirements-agent.txt` **hanya jika dependency belum cocok**, lalu menjalankan validator, `doctor`, `next`, dan `summary`. Script aman untuk dijalankan ulang. Ia tidak menjalankan `npm install`, mengatur service Lerd, atau memodifikasi database.
-3. Sesudah bootstrap lulus, **semua perintah Python tooling** gunakan `.venv-agent/bin/python tools/<nama_script>.py`. Jangan gunakan `python3 tools/agent_tasks.py` tanpa environment yang benar, jangan `source .venv-agent/bin/activate`, dan jangan pakai `pip --break-system-packages`.
-4. Jika bootstrap gagal karena Python/venv/pip, jaringan atau izin terminal, **hentikan P00** dan laporkan blocker yang faktual. Jangan mengklaim task dimulai/selesai, menurunkan keamanan, atau memperbaiki Python sistem tanpa izin operator.
+1. `git status --short`; inspect `docs/agent/CHECKPOINT.md`. Run **`python3 tools/bootstrap_agent.py`** (automatic scoped Python venv; Fish/Bash/Zsh compatible, no `source`).
+2. Use `.venv-agent/bin/python tools/agent_tasks.py doctor`, `next`, and `summary`. If bootstrap fails, report actual blocker; do not change global Python/Lerd or task statuses.
+3. Recover any `in_progress` task and actual Git evidence first. Otherwise, take only one `ready` task according to `docs/agent/TASKS.yaml`.
+4. Read that single task card, `spec_refs`, corresponding domain [Reference Map](docs/references/REFERENCE-MAP.md), [Adoption Protocol](docs/references/ADOPTION-PROTOCOL.md), and relevant source. No wholesale research or all-task loading.
 
-## Incremental preview dan routing kemampuan agent
+## Single required model and flow
 
-**Target utama:** perubahan source bisa dicoba setiap increment; jangan menunggu semua fase rampung. Kerjakan **vertical slice paling kecil** yang dependency-nya sudah siap. UI fixture boleh muncul lebih awal dengan label `DEMO`; untuk fitur nyata, gunakan kontrak API/MySQL/permission yang benar, bukan dummy endpoint yang diam-diam dipakai produksi.
+**Implementer:** any selected coding agent. One active agent/model per bounded task or session, without required provider or reasoning-tier routing. `risk: high` represents security/complexity, **not a demand for a High model**; keep independent qualified review for such tasks. See [Single-Model Workflow](docs/agent/SINGLE-MODEL-WORKFLOW.md) and [Test/Review Policy](docs/agent/TEST-AND-REVIEW-POLICY.md).
 
-1. Mulai dari `main` yang sudah ada. Jangan buat branch `dev` atau mengubah main lewat reset paksa. Kerja lokal tetap harus melewati tes sebelum commit.
-2. Baca [PREVIEW-AND-FEEDBACK.md](docs/agent/PREVIEW-AND-FEEDBACK.md) dan [DEVELOPMENT-ROADMAP.md](docs/DEVELOPMENT-ROADMAP.md) ketika task menyentuh output pengguna. Catat actual preview URL/path **hanya jika terverifikasi**, mock/integrated/diagnostic, langkah review, dan test result di CHECKPOINT serta REVIEW-QUEUE.
-3. Lifecycle: **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. Jangan ubah status CLI menjadi label UX; `reviewable` dan review pengguna adalah catatan di review queue, status teknis tetap sesuai CLI.
-4. **Low reasoning adalah implementer default** untuk task kecil yang eksplisit. Baca [AGENT-ROUTING.md](docs/agent/AGENT-ROUTING.md); rekomendasikan **High reasoning** untuk schema/auth/RBAC, migrations, secret/backup/restore, CMS private preview, installer/upgrade/rollback, graph refactor, dan keputusan arsitektur tak jelas. Pekerjaan berisiko tinggi tetap memerlukan **review independen**, bahkan jika implementer menggunakan High.
-5. Tidak ada penantian konfirmasi pengguna untuk preview biasa; feedback dapat diterapkan sebagai task revisi terbatas setelah diterima. Jika tidak ada reviewer untuk gate high-risk, catat blocked dan lanjut hanya task independen yang aman.
-6. Bila terjadi konflik antara fase visual dan dependency teknis, **TASKS.yaml tetap otoritatif**; gunakan milestone preview tambahan, jangan menggeser/menamai ulang 157 task lama secara sembarangan.
+**RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT.**
 
-## Alur tunggal untuk seluruh sesi
+- Work one bounded vertical slice, respecting task scopes, dependency graph, MySQL schema and server RBAC. Prefer official packages over copying code. Record upstream URL/commit/license and exclusions if adapting from Celestia, Blur Stack, Hono Starter, etc.
+- Run **real scoped tests after the final edit**, including negative paths and MySQL concurrency when relevant. Record evidence with `agent_tasks.py run <ID> --kind docs|unit|integration|negative|build -- COMMAND` (do not treat recorder as sandbox).
+- For UI, test current route/behavior and label fixture vs integrated. Record actual observed URL (or `not verified`) and steps in [Preview & Feedback](docs/agent/PREVIEW-AND-FEEDBACK.md) and [Review Queue](docs/agent/REVIEW-QUEUE.md).
+- Complete with CLI only after acceptance/evidence; independent reviewer is required by the effective high-risk gate. Implementer cannot self-approve. If reviewer unavailable, block that task and continue other safe ready tasks.
+- Commit validated increments in `main` when safe; checkpoint before task switching/session limits. **Never** claim asynchronous future completion.
 
-1. Jalankan bootstrap di atas, periksa `git status --short`, checkpoint, dan pekerjaan yang tersisa.
-2. Baca [LOW-REASONING-RUNBOOK.md](docs/agent/LOW-REASONING-RUNBOOK.md) untuk **command task yang otoritatif**. Jalankan `.venv-agent/bin/python tools/agent_tasks.py doctor` dan `.venv-agent/bin/python tools/agent_tasks.py next`.
-3. Jika ada `in_progress`, audit Git/file/evidence dan **lanjutkan task itu**. Kalau tidak ada, pilih hanya task `ready`.
-4. Baca **satu** card `docs/agent/tasks/<ID>.md`, referensi `spec_refs` dan source terkait, bukan seluruh spesifikasi/task cards.
-5. Implementasikan satu task kecil dalam scope, jalankan test yang relevan **setelah edit terakhir**, periksa acceptance criteria, simpan evidence dan `complete`/`progress`/`block`.
-6. Lanjut ke task siap berikutnya secara otomatis saat aman. Simpan checkpoint sebelum sesi berakhir; jangan meminta user mengetik "lanjutkan" untuk pekerjaan rutin.
+## Architecture / non-negotiable boundaries
 
-**Bukti tes dan review risiko:** Sebelum menyelesaikan task, jalankan bukti dengan `agent_tasks.py run <ID> --kind docs|unit|integration|negative|build -- COMMAND`. Task high-risk memerlukan tes integrasi, negative test, dan review independen yang direkam melalui `review`; agent Low dilarang menyetujui pekerjaannya sendiri. Baca [TEST-AND-REVIEW-POLICY.md](docs/agent/TEST-AND-REVIEW-POLICY.md). Task terlalu besar boleh [dipecah secara resmi](docs/agent/TASK-SPLITTING.md) hanya selama masih `pending`. Untuk status fase gunakan `.venv-agent/bin/python tools/agent_tasks.py summary`.
-
-**Dokumentasi utuh adalah prasyarat:** Sebelum P00, `tools/bootstrap_agent.py` menjalankan `check_document_integrity.py` atas seluruh Markdown. Jika PRD atau spesifikasi lain berisi pesan gagal referensi file, placeholder, atau konten terpotong, **block dulu**; jangan menyimpulkan requirement dari pesan error. Pulihkan dari sumber yang dapat diverifikasi, lalu validasi ulang.
-
-**Sumber status tunggal:** `docs/agent/TASKS.yaml` melalui `tools/agent_tasks.py`. Jumlah task awal 161 (157 task warisan dan 4 task preview baru), tetapi jangan menganggap semuanya tetap pending setelah development berlangsung. Validator dokumentasi tidak membuktikan kode aplikasi sudah lolos test; exit code 0 juga tidak menjamin cakupan test benar.
-
-## Aturan repository
-
-- Jangan menjalankan ulang `npx create-next-app`. Pertahankan `app/`, `public/`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `package.json`, dan `package-lock.json` sebelum task migrasi P01 yang terkait.
-- Pertahankan konfigurasi Next.js `cacheComponents`, `partialPrefetching`, `experimental.agentFeedback` dan Turbopack CSS rules kecuali tes scoped menunjukkan kebutuhan perubahan.
-- Jangan ubah/hapus aturan Next.js autogenerated di bawah ini (dev server dapat menulis ulang).
-- Pada task runtime/database/queue baca [LOCAL-LERD-NODE26.md](docs/agent/LOCAL-LERD-NODE26.md). Jangan membuat MySQL/Redis duplikat, mengubah Lerd proxy/LAN exposure global, atau memakai database development/production untuk destructive tests.
-
-## Kontrak arsitektur dan keamanan
-
-- Next.js App Router + Hono API + BullMQ worker + installer CLI; MySQL/Drizzle, Better Auth, Zod, custom database-driven RBAC.
-- Salt & Pepper default theme; empat menu admin utama saja: Dashboard, Manage Content, Manage User, Setting.
-- Bootstrap `admin@codelight.id` sebagai `super_admin` menggunakan secret instalasi dan wajib ganti password; tidak ada password/secret di repo, log, command atau evidence.
-- Production **tanpa Docker**: tested release artifact diunggah ke aaPanel; Node.js/PM2/Nginx dan service MySQL/Redis.
-- Larang restore production, perubahan credential live, destructive migration, deploy production atau penghapusan data tanpa otorisasi khusus. Jangan gunakan `git reset --hard` atau `git clean -fd` sebagai recovery.
-- Pada schema, permission, library API, atau keamanan yang ambigu: catat blocker dan minta review, jangan berasumsi.
+- Only three app runtimes: **Next.js web**, **Hono API**, **BullMQ worker**. MySQL/Drizzle, Better Auth, database-driven application RBAC, Redis, Salt & Pepper UI, typed Zod contracts.
+- **Clone-based new projects only.** Do not implement `apps/installer`, `init-project`, release archive packaging, switch-release scripts, versioned-symlink deployment, or a feature installer. Manual npm scripts for migrate/seed/permission-sync/admin-bootstrap/verify are retained.
+- Production **without Docker**: clone/pull trusted source, environment setup, review-gated migration, build, PM2, aaPanel/Nginx and health check. Live mutations/deploy/restore require explicit operator approval.
+- Never store credentials, user data, uploaded media, backup archives or secrets in a starter clone. Test with isolated DB/Redis; never use live production data for fixtures.
+- Preserve Next.js generated rules below and baseline config until a verified scoped migration.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

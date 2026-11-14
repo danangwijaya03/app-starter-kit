@@ -131,18 +131,14 @@ For a Hono business endpoint, middleware order is auth → RBAC → request vali
 - Restore uses a separate high-risk workflow: authorization and recent reauth → checksum + compatibility preflight → staging test restore → pre-restore recovery snapshot → maintenance/drain → controlled import → health/reconcile.
 - **Never auto-retry restore** and never let SQL import failure clear maintenance automatically. Journal must live outside restored DB.
 
-## Recipe H: Portable production artifact
+## Recipe H: Clone-based production build and manual operations
 
-Build separately:
-
-1. Next.js standalone (`output: 'standalone'`, monorepo tracing root). Package `server.js`, `.next/static`, `public` and runtime dependencies.
-2. Hono API, BullMQ worker and installer: build/bundle with runtime dependencies, using packaging supported by installed npm/TS toolchain.
-3. Include Drizzle SQL migration files and manifest with target OS/arch/Node ABI and file checksums.
-4. Perform smoke test **from extracted release directory without source monorepo** on a target-compatible Linux runtime.
-5. Only then package `.tar.gz` and include tested `README-SERVER.md`.
-
-**Deploy:** upload to non-public `releases/<version>`, checksum verify, configure `shared` paths, review migration safety, switch `current` symlink, restart PM2 and healthcheck. DB migration failure is not automatically reversible by a code symlink change.
+1. Clone authorized project Git repository into a private server directory; create project-specific environment/DB/Redis/storage. Never inherit starter sessions/secrets/media.
+2. Run `npm ci` and verified scripts for migration check/apply, permission sync, idempotent seed, secure admin setup. Review SQL and back up before live database modifications.
+3. Build the three apps using npm workspace scripts actually implemented: Next.js web (optional standalone output), Hono API, BullMQ worker. PM2 starts three independent processes.
+4. Configure aaPanel Nginx `/api/*` to Hono and `/*` to Next.js, HTTPS, same-origin secure session cookies; test real login/denials.
+5. For update/recovery, record current commit, rehearse migrations in disposable DB, backup, pull/build/restart, smoke test. A Git checkout does not roll back the DB. **No installer CLI, tar artifact, archive manifest, versioned symlink or automated rollout manager.**
 
 ## P01–P16 final rule
 
-Use these recipes for shapes, but **the atomic task card defines the next permitted change**, and `docs/BSD.md` defines final fields, permission codes, indexes, and endpoints. Do not implement everything from a recipe in a single task.
+Read the matching [Reference Map](../references/REFERENCE-MAP.md) and [Adoption Protocol](../references/ADOPTION-PROTOCOL.md) first. Use these recipes for shapes, but **the atomic task card defines the next permitted change**, and `docs/BSD.md` defines final fields, permission codes, indexes, and endpoints. Do not implement everything from a recipe in a single task.

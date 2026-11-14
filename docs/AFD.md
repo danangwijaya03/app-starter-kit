@@ -195,4 +195,4 @@ flowchart TD
 
 The initial `/` page is an illustrative static layout with four menu groups, not a real administration session. Early visual preview is intentionally available before P04/P05 auth/RBAC and P06 full authorized shell. Fixture mode may not fake login, user identity, saved settings or database metrics. All new `/dev/status` diagnostics must be disabled in production and return only safe availability signals.
 
-Feedback queue status `pending_review / approved / revision_requested` is distinct from task CLI statuses. Route, mode and test evidence must be factual. High-reasoning review is recommended for security-critical paths; independent security review cannot be replaced by visual review. See [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md).
+Feedback queue status `pending_review / approved / revision_requested` is distinct from task CLI statuses. Route, mode and test evidence must be factual. GPT-5.6 Terra Medium may implement security-critical paths using curated references; independent qualified security review cannot be replaced by visual review. See [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md).

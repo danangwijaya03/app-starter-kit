@@ -1,31 +1,25 @@
-# Start Coding Agent — Low Reasoning
+# Start Coding Agent — provider-agnostic
 
 **Ditujukan untuk: CODING AGENT (prompt disalin oleh USER).**
 
 ```text
-Mulai implementasi app-starter-kit pada repository yang SUDAH ADA.
+Kerjakan app-starter-kit dari repository yang SUDAH ADA pada branch main, menggunakan satu coding agent aktif per task; bebas provider/model (Codex, Claude Code, Antigravity, DeepSeek, dll), boleh ganti antar task/sesi setelah checkpoint. Tujuan: Clone-Based Reusable Starter Kit + Reference-Driven Development + Single Coding Model.
 
-Baca AGENTS.md sebagai instruksi utama dan docs/agent/LOW-REASONING-RUNBOOK.md sebagai SOP. Gunakan npm/npx, Lerd, Node.js 26, MySQL/Redis yang sudah tersedia. Jangan menjalankan create-next-app atau memasang database kedua.
+Baca AGENTS.md, docs/agent/SINGLE-MODEL-WORKFLOW.md dan dokumen task aktif saja. Jangan membuat installer, generator, Docker requirement, archive release manager, atau re-run create-next-app. Pertahankan root Next.js sampai task P01 memigrasikannya ke apps/web; gunakan npm/npx dan Lerd MySQL/Redis yang sudah tersedia.
 
-Dari root repo, periksa git status --short dan docs/agent/CHECKPOINT.md. LAKUKAN BOOTSTRAP PYTHON TOOLING SENDIRI SEBELUM P00:
+git status --short
 python3 tools/bootstrap_agent.py
-
-Jangan gunakan source activate, bahkan bila terminal Fish; gunakan interpreter .venv-agent/bin/python secara langsung. Bootstrap melakukan instalasi dependency ke virtualenv hanya bila perlu, lalu validasi, doctor, next, dan summary. Setelah sukses, jalankan bila perlu:
 .venv-agent/bin/python tools/agent_tasks.py doctor
 .venv-agent/bin/python tools/agent_tasks.py next
 .venv-agent/bin/python tools/agent_tasks.py summary
 
-Jika bootstrap gagal, hentikan pekerjaan sebelum mengubah status task; laporkan error yang nyata tanpa mengubah Python sistem atau Lerd.
+Jika bootstrap gagal, berhenti dengan laporan blocker; jangan mengganti Python sistem atau status task. Jika task in_progress, audit Git/source/evidence dahulu. Pilih hanya satu task ready dan baca card + spec_refs + satu domain referensi docs/references/ (lihat REFERENCE-MAP.md dan ADOPTION-PROTOCOL.md). Tidak perlu membaca seluruh task atau meneliti semua starter kit.
 
-Flow wajib RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. Baca docs/agent/PREVIEW-AND-FEEDBACK.md. Gunakan reasoning Low untuk task kecil; rekomendasikan High untuk security/migrations/restore/deploy/installer dan perubahan DAG. Jangan menganggap review UI menggantikan review keamanan.
+Flow: RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. Ikuti kontrak MySQL/Drizzle/Better Auth/Hono/RBAC, catat sumber/version/license bila adaptasi kode, tidak copy source besar. Pecah tugas yang terlalu luas ketika masih pending.
 
-Jika ada task in_progress, lanjutkan setelah audit perubahan dan bukti tes. Jika tidak ada, pilih hanya task ready pertama dari CLI. Baca card task itu dan referensi relevan saja. Implementasikan scope kecil, jalankan tes nyata setelah edit terakhir, verifikasi acceptance criteria, dan catat status/checkpoint melalui CLI.
+Jalankan scoped tests nyata dan negative tests relevan setelah edit terakhir dengan agent_tasks.py run. Task risiko tinggi memerlukan independent qualified reviewer untuk complete; model High Reasoning tidak wajib. Jangan self-approve, jangan minta izin deploy production otomatis. Jika blocked karena review, lanjut task independen yang aman.
 
-Sebelum complete, gunakan jenis bukti yang benar melalui --kind; ikuti docs/agent/TEST-AND-REVIEW-POLICY.md. Task high-risk memerlukan review independen, jangan self-approve. Bila task pending terlalu luas, lihat docs/agent/TASK-SPLITTING.md dan siapkan rencana pemecahan yang direview. Jalankan tools/check_repo_contracts.py untuk pemeriksaan konsistensi yang relevan.
-
-Lanjut otomatis ke task aman berikutnya selama sesi masih berjalan tanpa menunggu pesan "lanjutkan". Jika risikonya production/destruktif atau tidak bisa membuktikan hasil, catat blocker yang tepat. Jangan menebak schema, password, permission atau hasil tes.
+Untuk UI, jalankan preview bila memungkinkan: URL nyata, fixture/integrated, langkah review, CHECKPOINT dan REVIEW-QUEUE. Catat 'not verified' jika browser/dev server tidak dapat diuji. Commit bounded hasil teruji di main jika aman. Lanjut otomatis ke ready task berikutnya selama sesi berjalan, tanpa menunggu user untuk review visual biasa.
 ```
 
-**Tambahan flow:** kerja pada `main`. Setelah tiap task dengan output tampilan, record preview mode fixture/integrated, URL jika terbukti, langkah review, dan status di `docs/agent/REVIEW-QUEUE.md`. Jika backend belum tersedia, jangan menampilkan status sukses palsu. Tugas penting: rekomendasikan High reasoning sesuai `docs/agent/AGENT-ROUTING.md`. Persetujuan review harus independen.
-
-Prompt ini bukan pengganti AGENTS.md atau task card. Jangan meminta user menempelkan seluruh dokumen dalam satu sesi.
+Panduan untuk pengguna: [PANDUAN-MULAI-LOW-AGENT.md](../../PANDUAN-MULAI-LOW-AGENT.md).

@@ -1,11 +1,11 @@
-# Development checkpoint — baseline planning state
+# Coding-agent checkpoint — clone-based reference-driven plan
 
-- Repository: `danangwijaya03/app-starter-kit`, **branch `main`**.
-- Source currently: existing root Next.js 16.4.3 + React 19.3.0; npm lockfile and Tailwind 4. P01 must `git mv` the existing app to `apps/web` rather than reinitialize.
-- This revision introduces a **static development preview at `/`** (Salt & Pepper shell mock). It is **NOT** real auth, API, RBAC, MySQL, or dashboard data. Availability/build is **not verified by local execution from this GitHub documentation edit**; run `npm ci`, `npm run lint`, `npm run build` and `npm run dev` locally and record observed results.
-- Plan: 157 original tasks preserved, 4 incremental preview tasks appended: **161 pending**; statuses must not be marked done by a docs commit.
-- Agent lifecycle: RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT.
-- Default low reasoning for explicit microtasks. High recommended for security, migrations, restore, releases and dependency rewrite; independent reviewer still mandatory for effective high risk.
-- `docs/agent/PREVIEW-AND-FEEDBACK.md` explains handoff and `docs/agent/REVIEW-QUEUE.md` records asynchronous user feedback independent of CLI status.
-- Run `python3 tools/bootstrap_agent.py` (one-time/reentrant tooling), then `.venv-agent/bin/python tools/validate_plan.py`, `.venv-agent/bin/python tools/agent_tasks.py doctor` and `next`.
-- Do not modify live DB or run production deployment; no initial admin passwords, secrets or real data in source/preview/logs.
+- Repo: `danangwijaya03/app-starter-kit`, branch `main`.
+- Existing Next.js 16.4.3 root scaffold and **static demo preview**; web/api/worker monorepo, MySQL integration, auth, RBAC, CMS, operations remain task targets.
+- Architecture decision: **Clone-Based Reusable Starter Kit + Reference-Driven Development + Single Active Coding Agent**.
+- Active implementer (provider-independent): **coding agent yang dipilih**. High reasoning AI model not mandatory. Effective **high-risk task** still requires **independent qualified review** under `agent_tasks.py`; do not self-approve.
+- **NO** `apps/installer`, project generator, release archive/version-symlink deployment manager, or Docker requirement. New projects = clone + private env + new DB/Redis/storage + reviewed manual npm setup scripts; deploy manually using PM2 + Nginx.
+- Current documentation task statuses are pending; never mark tasks completed based on planning changes. Start `python3 tools/bootstrap_agent.py`, run `.venv-agent/bin/python tools/validate_plan.py`, `agent_tasks.py doctor`, `next`, `summary`.
+- Read one active card + one matching domain under `docs/references/`. Record source URL/version/license only if verified and adapted; tests after last edit, actual preview (or not verified) and user feedback.
+- No live DB mutations, restore, production deploy or secrets in repository. Existing working tree should never be force-reset or reinitialized.
+- **Documentation-only change:** monorepo and target npm scripts have **not** been implemented/tested as part of this update. Validate docs integrity/CI and npm baseline separately.

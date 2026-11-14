@@ -1,24 +1,21 @@
-# P10 — CMS editor and revisions
+# P10 — CMS Editor & Revisions
 
-> This phase is an implementation target; it is **not** completed by this documentation commit.
+**Ditujukan untuk: CODING AGENT.** This phase is a planned implementation, not evidence of completed functionality. **Provider/model agnostic:** use the active coding agent available (Codex/Claude Code/Antigravity/DeepSeek/etc.); risk gate is independent of model name.
 
-## Incremental preview checkpoint and agent reasoning
+## Reviewable outcome
 
-Review a real draft/save/publish vertical slice, keeping unpublished content private. High reasoning for publication invariants and preview tokens.
+Drafts, immutable revisions, typed blocks, publish with conflicts handled. A demo/fixture is labelled as such; do not claim a working API, RBAC or DB because a static page renders.
 
-At each safe increment run **RECOVER → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. For UI tasks record fixture/integrated/diagnostic mode, actual URL only if verified, test evidence and user review state via [preview/feedback](../PREVIEW-AND-FEEDBACK.md) and [review queue](../REVIEW-QUEUE.md). Low reasoning may implement bounded work; [Agent Routing](../AGENT-ROUTING.md) identifies critical work recommended for High reasoning and any required independent review. User UI review is non-blocking for other safe ready tasks.
+## Implementation flow
 
-## Gate before advancing
-Immutable draft revisions and atomic publish behavior verified.
+1. `python3 tools/bootstrap_agent.py`, check `git status --short`, `docs/agent/CHECKPOINT.md` and next ready task.
+2. Read one task card and [Reference Map](../../references/REFERENCE-MAP.md); follow the [Adoption Protocol](../../references/ADOPTION-PROTOCOL.md) and focused playbook [CMS](../../references/CMS.md).
+3. **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT.**
+4. Follow the exact `depends_on` graph from TASKS.yaml rather than assuming list order is executable.
+5. On security-sensitive work, run appropriate positive, negative and concurrency/recovery tests; an **independent qualified reviewer** must approve effective high-risk tasks, regardless of the implementer's model/provider. Production changes require separate operator approval.
+6. Record actual source/test evidence, the verified preview route (or unavailable), feature mode and next task. Do not deploy automatically. All work targets clone-based setup; no installer, feature generator or Docker dependency.
 
-## Instructions for low-reasoning agent
-1. Run `python3 tools/agent_tasks.py doctor` then `next`; do not manually skip dependencies.
-2. Read and execute **one** [task card](../tasks/) at a time. Use npm/npx only.
-3. Keep scope narrow, record real test evidence, update checkpoint; stop on ambiguous or unsafe operations.
-4. Run the real integration/phase test before marking phase verified. Documentation validation alone is not an implementation test.
-5. Follow [Repository Baseline](../REPOSITORY-BASELINE.md) and [Implementation Contracts](../IMPLEMENTATION-CONTRACTS.md). Preserve preexisting Next.js until P01 performs Git moves.
-
-## Tasks in this phase
+## Tasks in this phase (12)
 
 | ID | Work unit |
 |---|---|
@@ -35,22 +32,10 @@ Immutable draft revisions and atomic publish behavior verified.
 | [P10-08](../tasks/P10-08.md) | Implement revision restore as new draft |
 | [P10-09](../tasks/P10-09.md) | Verify CMS editor/revision gate |
 
+## Gate before advancing
+
+Every task in the phase must have current-source scoped test evidence, meet the reviewable outcome, and pass any independent high-risk review required by `agent_tasks.py`. Tests on disposable databases only. Do not claim documentation validation proves the runtime is implemented.
+
 ## Recovery
-Inspect `docs/agent/CHECKPOINT.md`, `git status`, and the active task before resuming. Never blindly repeat DB migrations, bootstrap, restore, or deployment.
 
-## Complete task index from TASKS.yaml
-
-The table above may summarize parent work units. **The authoritative task registry contains all units below, including microtasks.** Select next with `python3 tools/agent_tasks.py next`.
-
-- [P10-01](../tasks/P10-01.md)
-- [P10-02](../tasks/P10-02.md)
-- [P10-03](../tasks/P10-03.md)
-- [P10-04](../tasks/P10-04.md)
-- [P10-05A](../tasks/P10-05A.md)
-- [P10-05B](../tasks/P10-05B.md)
-- [P10-05C](../tasks/P10-05C.md)
-- [P10-05](../tasks/P10-05.md)
-- [P10-06](../tasks/P10-06.md)
-- [P10-07](../tasks/P10-07.md)
-- [P10-08](../tasks/P10-08.md)
-- [P10-09](../tasks/P10-09.md)
+Inspect Git diff, current task/evidence and real DB migration state before resuming. Never blindly repeat bootstrap, migrations or restore. Manual clone/setup reference: [Manual Clone Setup](../../MANUAL-CLONE-SETUP.md).

@@ -1,16 +1,14 @@
-# Agent operational runbook — incremental preview, npm, main
+# Coding Agent Runbook — single model + incremental preview
 
-**Canonical branch:** `main`. No planned dev branch; no force-reset. **Default implementer:** low-reasoning coding agent. High reasoning recommended for sensitive work; see [AGENT-ROUTING](AGENT-ROUTING.md).
+**Implementer: coding agent yang dipilih.** **Branch: main.** **Runtime plan:** three apps (web/API/worker) + manual clone/setup, no installer.
 
-1. RECOVER: read root AGENTS.md, checkpoint, `git status --short`, actual source and one task card. `python3 tools/bootstrap_agent.py` sets up safe local Python tooling.
-2. Select only the first safe ready task from `.venv-agent/bin/python tools/agent_tasks.py next`; honor dependency graph, no hand-waving.
-3. IMPLEMENT one bounded end-to-end vertical slice. For early UI display label fixture/demonstration plainly; never use a mock to bypass auth/permission/DB.
-4. TEST scoped lint/typecheck/unit/integration/negative in disposable test systems **after the final change**, record actual exit code via agent_tasks.py.
-5. VERIFY all acceptance and security denial cases. Independent reviewer required for high-risk effective classification.
-6. PREVIEW: run actual available npm dev script (if environment accessible), record path/URL as *verified* only if tested. For infra-only work, report read-only diagnostic, not invented UI. See [preview contract](PREVIEW-AND-FEEDBACK.md).
-7. CHECKPOINT: record code state, test evidence, fixture/integrated state, user review queue, commit and remaining task. Maintain [REVIEW-QUEUE](REVIEW-QUEUE.md). Review requested revisions separately from technical CLI status.
-8. NEXT: continue automatically to next safe ready task within current session; block ambiguous/destructive/high-risk tasks while allowing independent work to proceed.
+1. RECOVER — `git status --short`, checkpoint, `python3 tools/bootstrap_agent.py`, `.venv-agent/bin/python tools/agent_tasks.py doctor` and `next`. Resume in-progress work after inspecting real diff.
+2. REFERENCE — read only active task, relevant specs, one domain [reference](../references/REFERENCE-MAP.md) and [adoption protocol](../references/ADOPTION-PROTOCOL.md). Pin external source/version/license before adapting code.
+3. IMPLEMENT — one bounded responsibility/end-to-end slice. Prefer official library; preserve local contracts, MySQL and npm. No installer/generator/feature installer.
+4. TEST — run actual scoped positive/negative checks on isolated fixtures **after last edit**, use `agent_tasks.py run` for evidence.
+5. VERIFY — check API permission/DB data/side effects, rollback/retry/concurrency where relevant. For effective high-risk, independently reviewed result required; no self-approval or need for a High Reasoning model.
+6. PREVIEW — verify local UI/API/diagnostic, record actual route/URL and fixture/integrated status; if unavailable record failure truthfully.
+7. CHECKPOINT — source and test evidence, reference attribution, review queue, commit and next ready task.
+8. NEXT — continue another safe ready task during the session. Production actions and destructive DB operations require explicit authorization.
 
-**Existing repo:** npm root Next.js 16.4.3. P01 moves it to `apps/web`, never create-next-app again. Production: no Docker, uploaded artifact and aaPanel/PM2. No automatic production DB writes, restore or deploy.
-
-**Installer responsibilities:** [initializer / setup CLI / deployment manager](INSTALLER-BOUNDARIES.md); use an extracted-version CLI on first install before the `current` symlink exists.
+Current scripts: root `npm run dev`, `lint`, `build`. Future workspace scripts must exist before running; `docs/MANUAL-CLONE-SETUP.md` lists planned commands.
