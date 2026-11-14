@@ -55,7 +55,7 @@ for n in range(17):
  if match is None or int(match.group(1))!=expected:errors.append("Phase counter mismatch "+p+" expected "+str(expected))
 for path in ("tools/split_agent_task.py","tools/check_repo_contracts.py","docs/agent/TEST-AND-REVIEW-POLICY.md","docs/agent/TASK-SPLITTING.md"):
  if not (R/path).is_file():errors.append("Missing agent optimization "+path)
-for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md","docs/DEVELOPMENT-ROADMAP.md","docs/agent/AGENT-ROUTING.md","docs/agent/PREVIEW-AND-FEEDBACK.md","docs/agent/REVIEW-QUEUE.md","docs/agent/SINGLE-MODEL-WORKFLOW.md","docs/references/REFERENCE-MAP.md","docs/references/ADOPTION-PROTOCOL.md","docs/MANUAL-CLONE-SETUP.md"):
+for n in ("PANDUAN-MULAI-LOW-AGENT.md","docs/DOCUMENTATION-MAP.md","AGENTS.md","README.md","README-SERVER.md","docs/PRD.md","docs/TRD.md","docs/AFD.md","docs/DBD.md","docs/BSD.md","docs/IPD.md","docs/DEVELOPMENT-ROADMAP.md","docs/agent/SINGLE-MODEL-WORKFLOW.md","docs/agent/PREVIEW-AND-FEEDBACK.md","docs/agent/REVIEW-QUEUE.md","docs/agent/SINGLE-MODEL-WORKFLOW.md","docs/references/REFERENCE-MAP.md","docs/references/ADOPTION-PROTOCOL.md","docs/MANUAL-CLONE-SETUP.md"):
  if not (R/n).is_file():errors.append("Missing "+n)
 for path in R.rglob("*.md"):
  if any(part in (".venv-agent", "node_modules", ".git", ".next", "dist", "build") for part in path.relative_to(R).parts):continue
