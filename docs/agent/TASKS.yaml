@@ -4106,13 +4106,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-01.md
   output_artifact: "docs/architecture/DEPLOYMENT-MATRIX.md"
-  risk: "medium"
-  spec_refs: &id017
-  - docs/TRD.md
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
   - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02A
   phase: P16
   title: "Validate web production build from source"
@@ -4130,7 +4130,6 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Verify Next.js build/start and static assets from npm workspace without archive packaging"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    release/web
   acceptance_criteria:
   - "Verify Next.js build/start and static assets from npm workspace without archive packaging"
   - "Missing build/static asset or invalid config fails"
@@ -4145,11 +4144,13 @@ tasks:
   parent_task: P16-02
   card: docs/agent/tasks/P16-02A.md
   output_artifact: "apps/web/next.config.ts"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02B
   phase: P16
   title: "Validate Hono API production build from source"
@@ -4178,11 +4179,13 @@ tasks:
   parent_task: P16-02
   card: docs/agent/tasks/P16-02B.md
   output_artifact: "apps/api/package.json"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02C
   phase: P16
   title: "Validate BullMQ worker production build from source"
@@ -4212,11 +4215,13 @@ tasks:
   parent_task: P16-02
   card: docs/agent/tasks/P16-02C.md
   output_artifact: "apps/worker/package.json"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02
   phase: P16
   title: "Integrate web API and worker npm build"
@@ -4232,7 +4237,6 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Check three processes build and independent runtime targets with one npm lockfile"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Check three processes build and independent runtime targets with one npm lockfile"
   - "Missing workspace/build target fails, no CLI/archive created"
@@ -4246,11 +4250,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-02.md
   output_artifact: "package.json"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-03
   phase: P16
   title: "Create read-only manual production environment preflight"
@@ -4278,11 +4284,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-03.md
   output_artifact: "tools/manual-setup/preflight.mjs"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04A
   phase: P16
   title: "Implement guarded manual Drizzle migration npm scripts"
@@ -4299,7 +4307,6 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Expose db:migrate:check and db:migrate with reviewed SQL and explicit DB target guard"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    destructive SQL
   acceptance_criteria:
   - "Expose db:migrate:check and db:migrate with reviewed SQL and explicit DB target guard"
   - "Drift destructive migration or wrong DB rejected"
@@ -4314,11 +4321,13 @@ tasks:
   parent_task: P16-04
   card: docs/agent/tasks/P16-04A.md
   output_artifact: "tools/manual-setup/migrate.mjs"
-  risk: "high"
-  spec_refs: *id017
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04B
   phase: P16
   title: "Implement idempotent manual permission sync and seed"
@@ -4349,11 +4358,13 @@ tasks:
   parent_task: P16-04
   card: docs/agent/tasks/P16-04B.md
   output_artifact: "tools/manual-setup/seed.mjs"
-  risk: "high"
-  spec_refs: *id017
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04C
   phase: P16
   title: "Wire secure manual admin bootstrap npm command"
@@ -4383,11 +4394,13 @@ tasks:
   parent_task: P16-04
   card: docs/agent/tasks/P16-04C.md
   output_artifact: "tools/manual-setup/bootstrap-admin.mjs"
-  risk: "high"
-  spec_refs: *id017
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04D
   phase: P16
   title: "Implement read-only manual setup verification"
@@ -4416,11 +4429,13 @@ tasks:
   parent_task: P16-04
   card: docs/agent/tasks/P16-04D.md
   output_artifact: "tools/manual-setup/verify.mjs"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04
   phase: P16
   title: "Gate manual npm setup commands on disposable clone"
@@ -4436,7 +4451,6 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Verify preflight migrate permissions seed setup:admin and setup:verify using actual npm scripts"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Verify preflight migrate permissions seed setup:admin and setup:verify using actual npm scripts"
   - "Wrong env repeated bootstrap and incompatible DB rejected"
@@ -4450,11 +4464,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-04.md
   output_artifact: "package.json"
-  risk: "high"
-  spec_refs: *id017
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-05
   phase: P16
   title: "Configure PM2 for three service runtimes"
@@ -4482,11 +4498,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-05.md
   output_artifact: "infra/pm2/ecosystem.config.cjs"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-06
   phase: P16
   title: "Verify aaPanel Nginx HTTPS same-origin proxy"
@@ -4514,11 +4532,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-06.md
   output_artifact: "infra/nginx/locations.conf"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-07
   phase: P16
   title: "Rehearse manual Git update build and restart"
@@ -4534,7 +4554,6 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Document and test git pull --ff-only npm ci build migration gate PM2 restart and health on disposable environment"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Document and test git pull --ff-only npm ci build migration gate PM2 restart and health on disposable environment"
   - "Dirty tree or failed migration/health stops without force reset"
@@ -4548,11 +4567,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-07.md
   output_artifact: "docs/architecture/MANUAL-UPDATE.md"
-  risk: "high"
-  spec_refs: *id017
-  execution_mode: manual_authorized_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
+  execution_mode: local_disposable_only
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-08
   phase: P16
   title: "Document manual source rollback and database recovery"
@@ -4582,11 +4603,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-08.md
   output_artifact: "docs/architecture/MANUAL-RECOVERY.md"
-  risk: "high"
-  spec_refs: *id017
-  execution_mode: manual_authorized_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
+  execution_mode: local_disposable_only
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-09A
   phase: P16
   title: "Validate developer clone and npm script guide"
@@ -4617,11 +4640,13 @@ tasks:
   parent_task: P16-09
   card: docs/agent/tasks/P16-09A.md
   output_artifact: "README.md"
-  risk: "low"
-  spec_refs: *id017
+  risk: low
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-09B
   phase: P16
   title: "Validate manual aaPanel server documentation"
@@ -4635,13 +4660,10 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Document tested clone npm build PM2 Nginx migrate and recovery paths"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    and troubleshooting; use tested paths
   acceptance_criteria:
   - "Document tested clone npm build PM2 Nginx migrate and recovery paths"
   - "No archive manifest symlink or untested script instructions"
   - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
-    and troubleshooting
-  - Verify expected artifact exists and affected checks pass
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4652,11 +4674,13 @@ tasks:
   parent_task: P16-09
   card: docs/agent/tasks/P16-09B.md
   output_artifact: "README-SERVER.md"
-  risk: "low"
-  spec_refs: *id017
+  risk: low
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-09
   phase: P16
   title: "Gate manual user and operator documentation"
@@ -4672,7 +4696,6 @@ tasks:
   - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
   - "Run isolated-clone smoke and verify both READMEs and manual setup guide match real source"
   - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Run isolated-clone smoke and verify both READMEs and manual setup guide match real source"
   - "Mismatched commands and secret-bearing examples rejected"
@@ -4686,11 +4709,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-09.md
   output_artifact: "README-SERVER.md"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-10
   phase: P16
   title: "Verify new clone isolation without project initializer"
@@ -4719,11 +4744,13 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-10.md
   output_artifact: "tests/manual-clone/clone-isolation.test.ts"
-  risk: "medium"
-  spec_refs: *id017
+  risk: medium
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-11
   phase: P16
   title: "Run manual deployment and security end-to-end gate"
@@ -4752,9 +4779,10 @@ tasks:
   tests_evidence: []
   card: docs/agent/tasks/P16-11.md
   output_artifact: "docs/architecture/TEST-MATRIX.md"
-  risk: "high"
-  spec_refs: *id017
+  risk: high
+  spec_refs:
+  - docs/MANUAL-CLONE-SETUP.md
+  - docs/references/OPERATIONS.md
+  - README-SERVER.md
   execution_mode: local_disposable_only
-  estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
-    session
-
+  estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
