@@ -964,11 +964,11 @@ tasks:
   scope:
   - packages/database/src/schema/cms-pages.ts
   steps:
-  - "Generate Better Auth tables from the exact installed version and integrate via Drizzle; retain existing vendor schema compatibility and one migration history."
-    alter existing auth tables
+  - "Define MySQL Drizzle CMS page and immutable revision tables, same-page published pointer, save_key/request_hash and unique(page_id,save_key), with indexes and safe migration compatibility."
+  - "Check BSD and v2 database contract; do not invent or modify Better Auth vendor tables in this CMS schema task."
   acceptance_criteria:
-  - "Exactly one reviewed Better Auth schema owner; no manual guess or parallel migration journal."
-  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
+  - "CMS page/revision table relations and save-key uniqueness match v2 database contract."
+  - "Duplicate save key and cross-page published revision are denied on isolated MySQL."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -995,11 +995,11 @@ tasks:
   scope:
   - packages/database/src/schema/cms-navigation.ts
   steps:
-  - "Apply v2 application table fields: user_profiles invited, permissions delegable/sensitive, media status/visibility, CMS save key, durable jobs lease and backup verification; preserve existing 21 tables."
-    parents in service layer
+  - "Define CMS menus and menu items schema with scoped FK and valid parent/order relationships; maximum depth is enforced in service validation."
+  - "Use central migration journal for table schema; never mix unrelated auth schema."
   acceptance_criteria:
-  - "Drizzle MySQL migration/schema covers v2 DB contract with safe backfill/indexes, no lost old rows."
-  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
+  - "CMS menu/item FK and indexes maintain valid ordered trees."
+  - "Cross-menu parent, orphan, cycle and excessive depth are denied."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -1026,11 +1026,11 @@ tasks:
   scope:
   - packages/database/src/schema
   steps:
-  - "Integrate all 21 logical tables into ONE versioned Drizzle/MySQL migration journal, including disabled module tables; include Better Auth generated schema and v2 contract deltas."
-    mismatches. Do not reimplement child work.
+  - "Integration-only gate for child CMS schema tasks P03-03A/B: review pages, revisions, menus relational integrity and migration compatibility; do not reimplement child schemas."
+  - "The central 21-table and Better Auth migration certification is P03-10, not this CMS subtask."
   acceptance_criteria:
-  - "Single Drizzle journal and MySQL 8.4 migration work; disabling a module never drops or skips tables."
-  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
+  - "Both child CMS schemas integrate in single Drizzle migration journal."
+  - "Invalid references, duplicate keys and missing parents fail safely; no independent schema journal."
   validation:
   - Migration and FK tests pass
   status: pending
@@ -1676,7 +1676,6 @@ tasks:
   - "tools/manual-setup"
   steps:
   - "Accept first-admin EMAIL and password from protected non-echo operator input, validate uniqueness; never hardcode admin@codelight.id or plaintext secrets."
-    closed if unavailable
   acceptance_criteria:
   - "Admin email is operator supplied and password never logged/argv; reruns do not reset existing administrator."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
@@ -2962,7 +2961,6 @@ tasks:
   - apps/web/src/features/cms/editor
   steps:
   - "Verify CMS immutable revision save with save_key + request_hash + expectedRevisionNo, idempotent retries, 409 stale conflict and same-page pointer."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Replay same key is idempotent; mismatched hash/stale revision 409; no cross-page publication."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
@@ -3819,7 +3817,6 @@ tasks:
   - "tools/recovery/mysql-dump.ts"
   steps:
   - "Use argv arrays and restricted temporary credentials for MySQL consistent dump, with --single-transaction and safe SQL version checks. No worker dependency."
-    prohibit shell interpolation
   acceptance_criteria:
   - "Safe independent dump argv builder, no command injection/credential leakage."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
@@ -3850,7 +3847,6 @@ tasks:
   - "tools/recovery/dump-runner.ts"
   steps:
   - "Run protected MySQL dump streaming to temporary files with timeout, cancellation and non-zero exit guard, erasing credentials after use."
-    and partial files
   acceptance_criteria:
   - "Interrupted dump leaves no verified partial backup and wipes temporary secret."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
@@ -3881,7 +3877,6 @@ tasks:
   - "tools/recovery"
   steps:
   - "Compose child tasks into independent CLI, not BullMQ job or Operations dashboard; test without Redis."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Backup CLI functions with Hono/worker stopped on disposable MySQL."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
@@ -4245,7 +4240,6 @@ tasks:
   - "tools/recovery/import-runner.ts"
   steps:
   - "Perform reviewed operator-approved DB/media cutover from verified staging; never through background BullMQ job or Hono route."
-    stage externally
   acceptance_criteria:
   - "Operator gate, target isolation and manual verification before cutover."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
@@ -4307,7 +4301,6 @@ tasks:
   - "apps/api"
   steps:
   - "Verify operator-only CLI recovery and conditional worker drain, staged validation, journal, failure hold and no HTTP restore."
-    mismatches. Do not reimplement child work.
   acceptance_criteria:
   - "Independent CLI recovery works without running Hono/Redis; full destructive action only on test fixtures."
   - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
