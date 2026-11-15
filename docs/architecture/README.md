@@ -26,6 +26,6 @@ Jika ada kontradiksi, *block task* dan ajukan ADR/PR, jangan menebak. `TASKS.yam
 
 Installer, SaaS multi-tenancy, multi-node distributed architecture, zero-downtime guarantees, custom security framework, arbitrary visual HTML builder. Semua backup/restore contoh harus diuji di lingkungan terisolasi lebih dulu.
 
-## Integrasi dua ZIP oleh pengguna
+## Status integrasi dan pemeliharaan
 
-Paket **architecture-v2** adalah sumber ADR/kontrak dan addenda lama; paket **references-v2** adalah sumber pengganti 12 playbook serta 3 dokumen baru dalam [docs/references/INDEX-V2.md](../references/INDEX-V2.md). Keduanya menyatakan desain, tidak mengklaim fitur sudah live. Task registry direbase dari 156 menjadi 162 ID dengan sejarah status/evidence tidak dinaikkan. Integrasi dokumentasi tidak menjalankan migrasi MySQL, worker, server, atau backup.
+ADR, kontrak arsitektur, addendum, dan reference playbooks v2 sudah berada di repository. Registry sudah memuat **162 task** (156 ID awal + 6 tambahan), tanpa menaikkan status/evidence hanya karena dokumentasi. Review konsistensi lanjutan terdokumentasi di [V2-CONSISTENCY-RECONCILIATION.md](V2-CONSISTENCY-RECONCILIATION.md). Semua file ini merupakan target desain, bukan bukti runtime atau migrasi produksi.

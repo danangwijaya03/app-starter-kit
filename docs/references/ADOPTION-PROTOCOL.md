@@ -4,7 +4,7 @@ One bounded task, one primary upstream reference, one **testable responsibility*
 
 ## Priority and scope
 
-Read [ARCHITECTURE-BASELINE.md](ARCHITECTURE-BASELINE.md). Approved v2 ADRs (when installed) and current verified implementation contracts beat third-party examples. The old PRD/TASKS may still contain all-in-one assumptions; use them to identify legacy work, not to override approved decisions. If current canonical migration/API specifications contradict the baseline, stop affected changes and request a scoped resolution.
+Read [ARCHITECTURE-BASELINE.md](ARCHITECTURE-BASELINE.md). Accepted v2 ADRs in `docs/architecture/ADR/`, current implementation contracts and the validated 162-task registry take precedence over third-party examples. PRD/TRD/BSD/AFD are integrated but may retain isolated legacy wording; when a concrete conflict is found, stop the affected change and open a scoped documentation/ADR correction. Never silently override a live task or assume a referenced module is already implemented.
 
 No automatic package manager switch, PostgreSQL, tenancy/organization model, Docker requirement, installer, BFF, runtime plugin system or one-click production restore.
 

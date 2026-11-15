@@ -39,7 +39,7 @@ erDiagram
 
 ## BSD-03 Vendor auth tables (4)
 
-`user`, `session`, `account`, `verification`: **do not freeze columns manually**. Generate from the actual Better Auth version, chosen plugins and Drizzle MySQL adapter. Preserve generated PKs/indexes/unique constraints, and review any Admin plugin fields/tables before migration. Application may rely on canonical `user.id`, `user.email`, `user.name`, and session identity only after confirming the generated field schema. The installer should compare actual schema with pinned version. Treat user deletion as application deactivation rather than removing vendor-owned records.
+`user`, `session`, `account`, `verification`: **do not freeze columns manually**. Generate from the actual Better Auth version, chosen plugins and Drizzle MySQL adapter. Preserve generated PKs/indexes/unique constraints, and review any Admin plugin fields/tables before migration. Application may rely on canonical `user.id`, `user.email`, `user.name`, and session identity only after confirming the generated field schema. The reviewed schema-compatibility preflight must compare the generated schema against the pinned Better Auth version; there is no installer. Treat user deletion as application deactivation rather than removing vendor-owned records.
 
 ## BSD-04 App schema — all 17 tables
 
@@ -50,7 +50,7 @@ Notation: `PK`, `FK`, `UQ`, `NN` = primary key, foreign key, unique, not null. `
 | Column | Type | Constraints/default |
 |---|---|---|
 | `user_id` | auth-user-ID type | PK, FK `user.id`, NN, ON DELETE RESTRICT |
-| `status` | VARCHAR(16) | NN, `active` / `inactive` / `suspended`, default `active` |
+| `status` | VARCHAR(16) | NN, `invited` / `active` / `inactive` / `suspended`, default `invited` for ordinary provisioning; bootstrap Super Admin explicitly set `active` |
 | `must_change_password` | BOOLEAN | NN default true for bootstrap; normal invited account policy defined separately |
 | `authorization_version` | INT UNSIGNED | NN default 1 |
 | `last_status_changed_at` | DATETIME(3) | nullable |
@@ -268,7 +268,15 @@ INDEX `(actor_user_id,created_at)`, `(module,created_at)`, `(action,created_at)`
 |---|---|---|
 | `id` | CHAR(36) | PK |
 | `job_type` | VARCHAR(80) | NN |
-| `queue_job_id` | VARCHAR(150) | NN UQ (namespaced) |
+| `queue_job_id` | VARCHAR(150) | NN UQ (deterministic, namespaced) |
+| `dispatch_state` | VARCHAR(16) | NN default `pending` (`pending`,`claimed`,`sent`), separate from execution status |
+| `payload_json` | JSON | Nullable for existing-row migration; validated job references only, no secrets |
+| `idempotency_key` | VARCHAR(150) | Nullable; UQ with `job_type` for non-null values |
+| `dispatch_attempts` | INT UNSIGNED | NN default 0 |
+| `next_dispatch_at` | DATETIME(3) | Nullable; retry eligibility |
+| `dispatch_lease_until` | DATETIME(3) | Nullable; expired claims may be reclaimed |
+| `dispatch_lease_owner` | VARCHAR(128) | Nullable; fencing conditional ACK to current dispatcher |
+| `request_id` | VARCHAR(100) | Nullable; API/job correlation |
 | `status` | VARCHAR(20) | NN queued/running/succeeded/failed/cancelled |
 | `requested_by` | auth-user-ID type | nullable FK user |
 | `progress` | TINYINT UNSIGNED | NN default 0 (0–100) |
@@ -279,7 +287,7 @@ INDEX `(actor_user_id,created_at)`, `(module,created_at)`, `(action,created_at)`
 | `created_at` | DATETIME(3) | NN |
 | `updated_at` | DATETIME(3) | NN |
 
-INDEX `(status,created_at)`, `(job_type,created_at)`. Redis queue is execution source; DB status reconciled against queue. A restore has retries disabled and exclusive lock.
+INDEX `(status,created_at)`, `(job_type,created_at)`, `(dispatch_state,next_dispatch_at)`, `(dispatch_state,dispatch_lease_until)`; UNIQUE `(job_type,idempotency_key)`. MySQL records durable job intent; Redis/BullMQ is conditional execution transport with at-least-once delivery. Production restore is never a job and cannot be retried by a worker.
 
 ### 17. `database_backups`
 
@@ -315,12 +323,12 @@ Each code below is one active registry entry; user-facing grouping aligns with f
 | Roles | `roles.view`, `roles.create`, `roles.update`, `roles.delete`, `roles.permissions.update` |
 | General | `settings.general.view`, `settings.general.update` |
 | Appearance | `settings.appearance.view`, `settings.appearance.update` |
-| Backups | `backups.view`, `backups.create`, `backups.verify`, `backups.download`, `backups.delete`, `backups.restore` |
+| Backups (optional Operations) | `backups.view`, `backups.create`, `backups.verify`, `backups.download`, `backups.delete` — sensitive operations require reviewed approval; **no `backups.restore` business permission/route** |
 | Audit | `audit_logs.view` |
 
 Default role grants:
 - `super_admin`: implicit all active permissions with critical re-auth; never make this implicit access user-configurable.
-- `administrator`: broad users/roles/content/dashboard/settings general/appearance permissions but **not** `backups.restore`, `backups.delete`, privileged super_admin assignment, or critical credential operations by default.
+- `administrator`: eligible operational grants subject to limited delegation; **not** `backups.delete`, protected super_admin assignment or critical credential operations by default. Production restore is operator-only CLI, not an app permission.
 - `content_editor`: dashboard.view, CMS pages view/create/update/preview/publish, media view/upload/update, navigation view/update.
 - `viewer`: dashboard.view and CMS pages.view (may add access per project).
 
@@ -446,7 +454,7 @@ Role grant codes checked against registry and privilege of actor; type schema is
 | Replace role permissions | Compare expected version, replace grants, bump role & user auth versions, audit atomically |
 | Create page and first revision | Insert page+revision in one transaction; no published pointer initially |
 | Save draft | Insert immutable new revision; use expected revision/version to reject racing writes |
-| Publish | Validate same-page revision, unique live slug, compare pointer; set pointer+slug and audit in transaction, invalidate cache after commit |
+| Publish | Validate same-page revision, unique live slug, compare pointer; set pointer+slug and audit in transaction; public CMS SSR reads latest published pointer on next request (no persistent-cache invalidation in MVP) |
 | Change navigation | Validate entire tree/cycles and save change atomically |
 | Update settings | Compare version, typed validation, audit within transaction; invalidate cache after commit |
 | Media upload | Prepare temp storage, DB commit; compensate failed storage changes safely |

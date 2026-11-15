@@ -116,7 +116,7 @@ Constraints:
 ## TRD-10 Observability and protection
 
 - Structured logs with request ID/correlation ID, no passwords/credentials/PII by default; audit events with minimal redacted before/after values.
-- Health: `/api/health/live` (no dependencies), `/api/health/ready` (DB probe with timeouts for Core and optional Redis/jobs subsystem probe, private/limited) and web `/health`; worker heartbeat in jobs/ops.
+- Health: `/api/health/live` (process only), `/api/health/ready` (Core MySQL/schema only, timeout bounded), protected `/api/health/subsystems` (optional Redis/jobs and backup freshness), and Web `/health`. Optional worker exposes a heartbeat; disabled modules cannot fail Core readiness.
 - Rate limit login, credential reset, invitations and sensitive endpoints; server-side pagination max `limit` (e.g. 100); body/file limits.
 - Security headers, CSP where compatible, anti-CSRF, HTTPS and secure cookies, timing-safe token validation, URL safety for nav/SSRF prevention, media malware-policy.
 - Basic deployment backups: limited disk permissions and offsite copy, audit immutable from application API.
@@ -143,7 +143,7 @@ Build and run tests on supported Node 26 / exact pinned dependencies for the dep
 
 ## TRD-13 Manual deployment and recovery
 
-- Fresh: clone authorized repo → provision isolated env/DB/Redis/storage → reviewed Drizzle migration → permission sync/roles seed → secure one-time admin → npm build → PM2 Web/API and optional worker → aaPanel Nginx + HTTPS → health/login tests.
+- Fresh: clone authorized repo → provision isolated env/MySQL/private storage (Redis only if jobs required) → reviewed Drizzle migration → permission sync/roles seed → secure one-time admin → npm build → PM2 Web/API and conditional worker → aaPanel Nginx + HTTPS → Core and enabled-module smoke tests.
 - Update: backup/recovery readiness → review migration on disposable MySQL → operator-approved migration → pull/build/restart → verify. If code fails, manually check out trusted previous code only when DB schema remains compatible; a Git rollback does not restore database state.
 - Do not mutate production automatically from a coding agent. Restore is a separate controlled, reviewed, audited operation.
 
@@ -157,7 +157,7 @@ The existing repository `danangwijaya03/app-starter-kit` already contains a work
 - Preserve P01-08/P01-09 (fixture UI), P02-07/P03-09 (dev-only health) to deliver visible early checkpoints.
 - Implement with **selected coding agent** using curated [Reference Map](references/REFERENCE-MAP.md) and [Adoption Protocol](references/ADOPTION-PROTOCOL.md). Check upstream version/license; adapt PostgreSQL/pnpm/multi-tenant assumptions to MySQL/npm/single-tenant; do not copy feature installers.
 - Technical status and user UI review remain separate. One verified slice per checkpoint; high-risk independently reviewed by a qualified reviewer, regardless of reasoning model.
-- Only three app runtimes; manual setup commands, no installer. See [Manual Clone](MANUAL-CLONE-SETUP.md), [Server](../README-SERVER.md).
+- Two required app runtimes (Next.js Web and Hono API); a third BullMQ worker is conditional on active jobs modules. Manual setup only, no installer. See [Manual Clone](MANUAL-CLONE-SETUP.md), [Server](../README-SERVER.md).
 
 
 ## TRD-15 Architecture v2 enforcement references

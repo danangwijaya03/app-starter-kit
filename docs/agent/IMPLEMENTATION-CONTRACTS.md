@@ -69,7 +69,7 @@ Error:
 
 - Permission source: `packages/permissions/src/registry.ts` contains all codes from `docs/BSD.md`. UI labels are derived from registry; do not hardcode a second permission list.
 - Multi-role union, default deny. Each route must enforce permission on **server**; hiding a menu does not grant security.
-- Canonical examples: `dashboard.view`, `users.view`, `users.create`, `users.roles.assign`, `roles.permissions.update`, `cms.pages.publish`, `settings.appearance.update`, `backups.restore`.
+- Canonical business examples: `dashboard.view`, `users.view`, `users.create`, `users.roles.assign`, `roles.permissions.update`, `cms.pages.publish`, `settings.appearance.update`, optional `backups.view`. Production restore has **no business permission**; it is an independent operator CLI process.
 - `super_admin` protected. The system must prevent deleting/deactivating the **last active** one under concurrent requests. Use appropriate locking and transaction, not a count-then-update without a lock.
 - Ordinary administrators cannot promote themselves or others to `super_admin`. Session permission changes take effect at the next protected API request.
 - Public signup disabled. First-login change-password is server-enforced; user must not escape by calling APIs directly.
@@ -79,7 +79,7 @@ Error:
 
 - Versioned JSON blocks with Zod schema, no executable JSX/HTML/JS injected from database.
 - Draft revisions immutable; published revision selected by pointer. Saving draft **never** changes the public page.
-- Publishing switches published pointer and slug under DB transaction, handles uniqueness collision and invalidates old/new slug caches after commit.
+- Publishing switches published pointer and slug under DB transaction and handles uniqueness collisions. MVP published CMS uses SSR without persistent cache, so no `revalidatePath`/`revalidateTag` or cross-process cache invalidation is required.
 - Public queries return published only. Preview requires login + authorized token; no-store.
 - CMS navigation only manages **public site menus**, not admin sidebar. Menu depth max two levels.
 - Storage key opaque and server-generated; media stored outside immutable release folder. Referenced published media cannot be physically deleted.
@@ -98,7 +98,7 @@ Repeated seed/bootstrap must **not** duplicate accounts/reset credentials; no de
 
 ## 7. Deployment paths — clone based
 
-Clone an authorized project repository to a private working directory such as `/srv/apps/<project>/` using separate private `.env`, `storage/media`, `storage/backups`, `storage/logs`. Build/run web, API and worker with PM2 and Nginx same-origin routing. Source may reside on the server; no portable release archive, `current` symlink manager, or release manifest is required. Validate secrets/storage outside public root.
+Clone an authorized project repository to a private working directory such as `/srv/apps/<project>/` using separate private `.env`, `storage/media`, `storage/backups`, `storage/logs`. Build/run Web and API with PM2 and Nginx same-origin routing; start a worker only when enabled modules require jobs. Source may reside on the server; no portable release archive, `current` symlink manager, or release manifest is required. Validate secrets/storage outside public root.
 
 Production migration/recovery performed manually from source with reviewed SQL; Git code rollback does not roll back schema state.
 
@@ -121,7 +121,7 @@ Any path described as a **target** may not exist until its task completes. Never
 The authoritative [v2 addendum](../revisions/IMPLEMENTATION-CONTRACTS-v2-ADDENDUM.md), [Module Boundaries](../architecture/MODULE-BOUNDARIES.md), [Auth/RBAC](../architecture/AUTH-RBAC-CONTRACT.md), [Database](../architecture/DATABASE-CONTRACT.md) and [Operations](../architecture/OPERATIONS-RUNBOOK.md) supersede any older unconditional worker or dashboard recovery examples.
 
 1. **Core always on**; static Media/CMS/Operations map compiled/tested at startup. CMS→Media; Operations needing Jobs→Redis/worker. All optional tables still migrate centrally. Disabled module route/OpenAPI/nav/grants not exposed. Revoked disabled-module grants must not silently reappear on re-enable.
-2. **Better Auth + one application permission authority**. `user_profiles.status = invited|active|disabled` and `must_change_password` guard; no parallel RBAC. `delegable`/`sensitive` grants and actor-owned delegation only; last-active-superadmin role row serialised and transactional audit.
+2. **Better Auth + one application permission authority**. `user_profiles.status = invited|active|inactive|suspended` and `must_change_password` guard; no parallel RBAC. `delegable`/`sensitive` grants and actor-owned delegation only; last-active-superadmin role row serialised and transactional audit.
 3. **Hono sole business API**. Next SSR internal HTTP via `API_INTERNAL_ORIGIN` forwarding only chosen auth cookies; browser relative /api/v1 same-origin. Auth/admin/draft no-store. CMS public published-only SSR without persistent cache/revalidation MVP.
 4. **Worker/Redis optional**, MySQL durable system_jobs dispatch, lease/idempotency and ACK crash reconciliation. A missing optional service never falsely fails Core-only readiness.
 5. **Media LocalFs** ready/public gating and private RBAC, strict upload bytes+dimensions, reference-retaining cleanup; CMS save uses save_key/request_hash and 409 stale conflict.

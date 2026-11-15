@@ -78,14 +78,14 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 | CMS-REQ-03 | SHOULD | Typed block registry | Invalid block props rejected; missing renderer handled safely |
 | CMS-REQ-04 | SHOULD | Public SEO | Title, description, OG assets reflect published revision |
 | MEDIA-REQ-01 | SHOULD | Safe upload | Server validates type, size, signature, authorized storage key |
-| MEDIA-REQ-02 | SHOULD | Safe delete | Files referenced by published content cannot be deleted |
+| MEDIA-REQ-02 | SHOULD | Safe delete | Files referenced by any retained CMS revision or active branding/settings cannot be physically deleted |
 | NAV-REQ-01 | SHOULD | 2-level public nav | No cycle/cross-menu parent; unpublished links excluded |
-| SET-REQ-01 | MUST | General branding configuration | Name/logo update without rebuild after cache invalidation |
+| SET-REQ-01 | MUST | General branding configuration | Name/logo update without rebuild; subsequent public SSR request sees committed branding without persistent-cache invalidation |
 | THEME-REQ-01 | MUST | Salt & Pepper preset customizable | Light/dark/system and validated semantic tokens |
 | AUDIT-REQ-01 | MUST | Non-editable audit history | Role, publishing, settings, backup and restore events searchable |
 | BAK-REQ-01 | MUST | Consistent backup + checksum | Artifact verified and restorability checked in isolated database |
-| BAK-REQ-02 | MUST | Controlled restore | Re-auth, staging validation, maintenance/lock, no auto-retry |
-| REL-REQ-01 | MUST | Manual clone + setup | Fresh project clone uses unique env/DB/Redis/storage, reviewed npm scripts, builds and runs web/api/worker without Docker |
+| BAK-REQ-02 | MUST | Independent operator recovery | Offsite snapshot verification, isolated staging, external approval/journal, maintenance cutover; never an app HTTP endpoint or worker retry |
+| REL-REQ-01 | MUST | Manual clone + setup | Fresh Core clone uses isolated env/MySQL/private storage, reviewed npm scripts, Web + API without Docker; Redis/worker required only by enabled jobs modules |
 | REL-REQ-02 | MUST | Idempotent manual setup scripts | Re-run migration checks, permissions, seeds/admin bootstrap does not duplicate users/roles or reset passwords |
 | AGENT-REQ-01 | MUST | Phase task checkpoint system | Fresh agent session resumes WIP correctly and avoids repeats |
 
@@ -96,7 +96,7 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 - Only authenticated/active users can access admin business APIs; session revoke/disable becomes effective at next protected request.
 - First login sets a server-side must_change_password flag in user_profiles; enforcement also applies to API.
 - A bootstrap account uses operator-supplied initial admin email; initial password supplied via protected non-echo manual setup input, never embedded in source/docs. Require unique production password and change on first login.
-- Protected role changes, backup restore and credential actions require recent re-authentication.
+- Protected role and credential actions require recent application re-authentication. Production recovery is an independent operator CLI workflow with out-of-band approval and external journal, never a web-session operation.
 
 ### CMS
 
@@ -108,7 +108,7 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 
 ### Settings
 
-- Setting categories: General, Appearance, Backup & Restore, Audit Logs.
+- Core settings/navigation: General, Appearance and Audit Logs. An optional Operations area may display backup status/history; production restore is never a Settings/browser action.
 - Global app preset stored in DB with source-defined fallback; separate per-user color-mode preference.
 - Secrets are environment-only, never editable in Settings UI.
 
@@ -124,7 +124,7 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 |---|---|
 | Accessibility | Keyboard operation, visible focus, reduced motion; WCAG 2.2 AA targeted |
 | Authorization | All private endpoint operations deny by default; negative permission tests |
-| Reliability | Health probes for web, API, DB, Redis, worker; resumable jobs; controlled maintenance |
+| Reliability | Core probes Web/API/MySQL; optional Redis/worker subsystem monitoring only when jobs enabled; durable job intent where applicable and controlled maintenance |
 | Performance | Paginated queries and indexes; measure baseline for representative seeded datasets; no invented SLA |
 | Security | CSRF/session safeguards, input validation, upload screening, audit, least privilege |
 | Portability | Tested Node/npm dependency install and production build on target Linux; manual PM2/Nginx deployment |

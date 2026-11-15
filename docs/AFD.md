@@ -24,7 +24,7 @@
 | `/admin/users/roles/:id/permissions` | `roles.permissions.update` | Grouped permission matrix |
 | `/admin/settings/general` | `settings.general.view` | Branding, locale/timezone |
 | `/admin/settings/appearance` | `settings.appearance.view` | Presets, colors, mode preview |
-| `/admin/settings/backups` | `backups.view` | Backup list/create/verify/restore |
+| `/admin/settings/backups` | `backups.view` (Operations module only) | Backup status/history and approved non-restore actions; no production restore button/API |
 | `/admin/settings/audit-logs` | `audit_logs.view` | Filter/search/read audit |
 | `/admin/profile` | Authenticated | Own profile/session/password |
 | `/admin/change-password-required` | Password-change session | Limited first-login flow |
@@ -109,7 +109,7 @@ Preview requires a valid admin session, `cms.pages.view` plus appropriate editor
 
 ## AFD-07 Media upload and delete
 
-Open media picker → choose file → client size hints → server revalidates type/signature/authorization → generate storage key → store temp/scan → DB record → rename/commit → list refresh. If DB step fails, clean orphan temp file; if storage step fails, no successful DB record. On delete, query `media_usages` and check published revision/current branding; deny referenced file; otherwise soft-delete and queue physical cleanup. Background reconciliation cleans orphan media conservatively.
+Open media picker → choose file → client size hints → server revalidates type/signature/authorization → generate storage key → store temp/scan → DB record → rename/commit → list refresh. If DB step fails, clean orphan temp file; if storage step fails, no successful DB record. On delete, query `media_usages` and check every retained revision plus active settings/branding; deny referenced file; otherwise soft-delete and perform safe physical cleanup (synchronously for Core-only Media or via optional jobs). Background reconciliation cleans orphan media conservatively.
 
 ## AFD-08 Public navigation
 
@@ -173,7 +173,7 @@ A module manifest registers permission definitions, nav items and route IDs. Top
 | FLOW-07 | Referenced media cannot be deleted |
 | FLOW-08 | Theme/branding reflects runtime change |
 | FLOW-09 | Restore rejects unverified artifact |
-| FLOW-10 | Worker restart does not execute restore twice |
+| FLOW-10 | Production recovery is CLI-only and cannot be dispatched/retried via worker or HTTP |
 ## AFD-14 Incremental development preview flow
 
 ```mermaid
@@ -194,7 +194,7 @@ flowchart TD
 
 The initial `/` page is an illustrative static layout with four menu groups, not a real administration session. Early visual preview is intentionally available before P04/P05 auth/RBAC and P06 full authorized shell. Fixture mode may not fake login, user identity, saved settings or database metrics. All new `/dev/status` diagnostics must be disabled in production and return only safe availability signals.
 
-Feedback queue status `pending_review / approved / revision_requested` is distinct from task CLI statuses. Route, mode and test evidence must be factual. GPT-5.6 Terra Medium may implement security-critical paths using curated references; independent qualified security review cannot be replaced by visual review. See [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md).
+Feedback queue status `pending_review / approved / revision_requested` is distinct from task CLI statuses. Route, mode and test evidence must be factual. Any selected coding agent may implement security-critical paths using curated references; independent qualified security review cannot be replaced by visual review. See [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md).
 ## AFD-15 Static modules & Core-first flows
 
 [AFD v2 addendum](revisions/AFD-v2-ADDENDUM.md) is binding. Core-only: Dashboard/Users/Roles/Settings/Audit without Manage Content or optional Operations. Disabled module URL/API returns 404 and publishes no grants or OpenAPI; CMS depends on Media. Invitations start as `invited`, server checks active and required first-password change. CMS save uses idempotent `saveKey` and optimistic `expectedRevisionNo` with 409 on conflict; public published pages use SSR without persistent caching. Media public delivery requires ready/public status and private delivery requires permission.

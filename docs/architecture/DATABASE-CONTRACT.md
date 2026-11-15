@@ -12,7 +12,7 @@ All app `DATETIME(3)` timestamps UTC; app UUID textual `CHAR(36)`; **Better Auth
 | `permissions` | `delegable BOOLEAN NOT NULL DEFAULT FALSE`, `sensitive BOOLEAN NOT NULL DEFAULT FALSE` | Registry-owned; unique code; check for enabled module at runtime |
 | `cms_page_revisions` | `save_key VARCHAR(128) NULL`, `request_hash CHAR(64) NULL` | UNIQUE(`page_id`,`save_key`), NULL for legacy saves, `(page_id,revision_no)` unique |
 | `media_assets` | `status VARCHAR(16) NOT NULL DEFAULT 'pending'`, `visibility VARCHAR(16) NOT NULL DEFAULT 'private'`, `ready_at DATETIME(3) NULL` | `status` pending/ready/failed/deleted; `visibility` private/public; UQ storage disk/key retained |
-| `system_jobs` | `dispatch_state VARCHAR(16)`, `payload_json JSON`, `idempotency_key VARCHAR(150) NULL`, `dispatch_attempts INT UNSIGNED DEFAULT 0`, `next_dispatch_at DATETIME(3)`, `dispatch_lease_until DATETIME(3) NULL`, `request_id VARCHAR(100) NULL` | UQ `queue_job_id`; UQ(`job_type`,`idempotency_key`) if globally scoped key by job type; index(dispatch_state,next_dispatch_at), lease expiry |
+| `system_jobs` | `dispatch_state VARCHAR(16)`, `payload_json JSON`, `idempotency_key VARCHAR(150) NULL`, `dispatch_attempts INT UNSIGNED DEFAULT 0`, `next_dispatch_at DATETIME(3)`, `dispatch_lease_until DATETIME(3) NULL`, `dispatch_lease_owner VARCHAR(128) NULL`, `request_id VARCHAR(100) NULL` | UQ `queue_job_id`; UQ(`job_type`,`idempotency_key`) if globally scoped key by job type; index(dispatch_state,next_dispatch_at), lease expiry |
 | `database_backups` | `backup_snapshot_id VARCHAR(128) NULL`, `verified_restore_at DATETIME(3) NULL`, `offsite_verified_at DATETIME(3) NULL`, `verification_error_code VARCHAR(100) NULL` | Verified archive != tested restore, separate statuses |
 | `audit_logs` | `actor_type VARCHAR(16)` and `reason_code VARCHAR(100) NULL` | historical rows backfill default `user/system` only when defensible |
 | `theme_configs` | Immutable snapshot contract (no mutating tokens); optional `source_theme_id CHAR(36) NULL` FK | Existing `preset_key` UQ remains; new snapshots get unique `custom-<uuid>` preset_key. `is_system` protected |
@@ -43,6 +43,7 @@ ALTER TABLE system_jobs
   ADD COLUMN dispatch_attempts INT UNSIGNED NOT NULL DEFAULT 0,
   ADD COLUMN next_dispatch_at DATETIME(3) NULL,
   ADD COLUMN dispatch_lease_until DATETIME(3) NULL,
+  ADD COLUMN dispatch_lease_owner VARCHAR(128) NULL,
   ADD COLUMN request_id VARCHAR(100) NULL,
   ADD UNIQUE KEY uq_job_type_idempotency (job_type, idempotency_key),
   ADD INDEX ix_job_dispatch (dispatch_state, next_dispatch_at);

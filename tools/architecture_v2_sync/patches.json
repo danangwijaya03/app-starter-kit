@@ -1,0 +1,186 @@
+{
+  "baseline": "2026-11-15 main, architecture v2 documentation",
+  "source": "https://github.com/danangwijaya03/app-starter-kit",
+  "file_changes": [
+    {
+      "path": "docs/PRD.md",
+      "replacements": [
+        {
+          "from": "| MEDIA-REQ-02 | SHOULD | Safe delete | Files referenced by published content cannot be deleted |",
+          "to": "| MEDIA-REQ-02 | SHOULD | Safe delete | Files referenced by any retained CMS revision or active branding/settings cannot be physically deleted |"
+        },
+        {
+          "from": "| SET-REQ-01 | MUST | General branding configuration | Name/logo update without rebuild after cache invalidation |",
+          "to": "| SET-REQ-01 | MUST | General branding configuration | Name/logo update without rebuild; subsequent public SSR request sees committed branding without persistent-cache invalidation |"
+        },
+        {
+          "from": "| BAK-REQ-02 | MUST | Controlled restore | Re-auth, staging validation, maintenance/lock, no auto-retry |",
+          "to": "| BAK-REQ-02 | MUST | Independent operator recovery | Offsite snapshot verification, isolated staging, external approval/journal, maintenance cutover; never an app HTTP endpoint or worker retry |"
+        },
+        {
+          "from": "| REL-REQ-01 | MUST | Manual clone + setup | Fresh project clone uses unique env/DB/Redis/storage, reviewed npm scripts, builds and runs web/api/worker without Docker |",
+          "to": "| REL-REQ-01 | MUST | Manual clone + setup | Fresh Core clone uses isolated env/MySQL/private storage, reviewed npm scripts, Web + API without Docker; Redis/worker required only by enabled jobs modules |"
+        },
+        {
+          "from": "- Protected role changes, backup restore and credential actions require recent re-authentication.",
+          "to": "- Protected role and credential actions require recent application re-authentication. Production recovery is an independent operator CLI workflow with out-of-band approval and external journal, never a web-session operation."
+        },
+        {
+          "from": "- Setting categories: General, Appearance, Backup & Restore, Audit Logs.",
+          "to": "- Core settings/navigation: General, Appearance and Audit Logs. An optional Operations area may display backup status/history; production restore is never a Settings/browser action."
+        },
+        {
+          "from": "| Reliability | Health probes for web, API, DB, Redis, worker; resumable jobs; controlled maintenance |",
+          "to": "| Reliability | Core probes Web/API/MySQL; optional Redis/worker subsystem monitoring only when jobs enabled; durable job intent where applicable and controlled maintenance |"
+        }
+      ]
+    },
+    {
+      "path": "docs/TRD.md",
+      "replacements": [
+        {
+          "from": "- Health: `/api/health/live` (no dependencies), `/api/health/ready` (DB probe with timeouts for Core and optional Redis/jobs subsystem probe, private/limited) and web `/health`; worker heartbeat in jobs/ops.",
+          "to": "- Health: `/api/health/live` (process only), `/api/health/ready` (Core MySQL/schema only, timeout bounded), protected `/api/health/subsystems` (optional Redis/jobs and backup freshness), and Web `/health`. Optional worker exposes a heartbeat; disabled modules cannot fail Core readiness."
+        },
+        {
+          "from": "- Fresh: clone authorized repo → provision isolated env/DB/Redis/storage → reviewed Drizzle migration → permission sync/roles seed → secure one-time admin → npm build → PM2 Web/API and optional worker → aaPanel Nginx + HTTPS → health/login tests.",
+          "to": "- Fresh: clone authorized repo → provision isolated env/MySQL/private storage (Redis only if jobs required) → reviewed Drizzle migration → permission sync/roles seed → secure one-time admin → npm build → PM2 Web/API and conditional worker → aaPanel Nginx + HTTPS → Core and enabled-module smoke tests."
+        },
+        {
+          "from": "- Only three app runtimes; manual setup commands, no installer. See [Manual Clone](MANUAL-CLONE-SETUP.md), [Server](../README-SERVER.md).",
+          "to": "- Two required app runtimes (Next.js Web and Hono API); a third BullMQ worker is conditional on active jobs modules. Manual setup only, no installer. See [Manual Clone](MANUAL-CLONE-SETUP.md), [Server](../README-SERVER.md)."
+        }
+      ]
+    },
+    {
+      "path": "docs/BSD.md",
+      "replacements": [
+        {
+          "from": "The installer should compare actual schema with pinned version.",
+          "to": "The reviewed schema-compatibility preflight must compare the generated schema against the pinned Better Auth version; there is no installer."
+        },
+        {
+          "from": "| `status` | VARCHAR(16) | NN, `active` / `inactive` / `suspended`, default `active` |",
+          "to": "| `status` | VARCHAR(16) | NN, `invited` / `active` / `inactive` / `suspended`, default `invited` for ordinary provisioning; bootstrap Super Admin explicitly set `active` |"
+        },
+        {
+          "from": "| `queue_job_id` | VARCHAR(150) | NN UQ (namespaced) |",
+          "to": "| `queue_job_id` | VARCHAR(150) | NN UQ (deterministic, namespaced) |\n| `dispatch_state` | VARCHAR(16) | NN default `pending` (`pending`,`claimed`,`sent`), separate from execution status |\n| `payload_json` | JSON | Nullable for existing-row migration; validated job references only, no secrets |\n| `idempotency_key` | VARCHAR(150) | Nullable; UQ with `job_type` for non-null values |\n| `dispatch_attempts` | INT UNSIGNED | NN default 0 |\n| `next_dispatch_at` | DATETIME(3) | Nullable; retry eligibility |\n| `dispatch_lease_until` | DATETIME(3) | Nullable; expired claims may be reclaimed |\n| `dispatch_lease_owner` | VARCHAR(128) | Nullable; fencing conditional ACK to current dispatcher |\n| `request_id` | VARCHAR(100) | Nullable; API/job correlation |"
+        },
+        {
+          "from": "INDEX `(status,created_at)`, `(job_type,created_at)`. Redis queue is execution source; DB status reconciled against queue. A restore has retries disabled and exclusive lock.",
+          "to": "INDEX `(status,created_at)`, `(job_type,created_at)`, `(dispatch_state,next_dispatch_at)`, `(dispatch_state,dispatch_lease_until)`; UNIQUE `(job_type,idempotency_key)`. MySQL records durable job intent; Redis/BullMQ is conditional execution transport with at-least-once delivery. Production restore is never a job and cannot be retried by a worker."
+        },
+        {
+          "from": "| Backups | `backups.view`, `backups.create`, `backups.verify`, `backups.download`, `backups.delete`, `backups.restore` |",
+          "to": "| Backups (optional Operations) | `backups.view`, `backups.create`, `backups.verify`, `backups.download`, `backups.delete` — sensitive operations require reviewed approval; **no `backups.restore` business permission/route** |"
+        },
+        {
+          "from": "- `administrator`: broad users/roles/content/dashboard/settings general/appearance permissions but **not** `backups.restore`, `backups.delete`, privileged super_admin assignment, or critical credential operations by default.",
+          "to": "- `administrator`: eligible operational grants subject to limited delegation; **not** `backups.delete`, protected super_admin assignment or critical credential operations by default. Production restore is operator-only CLI, not an app permission."
+        },
+        {
+          "from": "| Publish | Validate same-page revision, unique live slug, compare pointer; set pointer+slug and audit in transaction, invalidate cache after commit |",
+          "to": "| Publish | Validate same-page revision, unique live slug, compare pointer; set pointer+slug and audit in transaction; public CMS SSR reads latest published pointer on next request (no persistent-cache invalidation in MVP) |"
+        }
+      ]
+    },
+    {
+      "path": "docs/AFD.md",
+      "replacements": [
+        {
+          "from": "| `/admin/settings/backups` | `backups.view` | Backup list/create/verify/restore |",
+          "to": "| `/admin/settings/backups` | `backups.view` (Operations module only) | Backup status/history and approved non-restore actions; no production restore button/API |"
+        },
+        {
+          "from": "| FLOW-10 | Worker restart does not execute restore twice |",
+          "to": "| FLOW-10 | Production recovery is CLI-only and cannot be dispatched/retried via worker or HTTP |"
+        },
+        {
+          "from": "On delete, query `media_usages` and check published revision/current branding; deny referenced file; otherwise soft-delete and queue physical cleanup.",
+          "to": "On delete, query `media_usages` and check every retained revision plus active settings/branding; deny referenced file; otherwise soft-delete and perform safe physical cleanup (synchronously for Core-only Media or via optional jobs)."
+        },
+        {
+          "from": "GPT-5.6 Terra Medium may implement security-critical paths using curated references; independent qualified security review cannot be replaced by visual review.",
+          "to": "Any selected coding agent may implement security-critical paths using curated references; independent qualified security review cannot be replaced by visual review."
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/IMPLEMENTATION-CONTRACTS.md",
+      "replacements": [
+        {
+          "from": "- Canonical examples: `dashboard.view`, `users.view`, `users.create`, `users.roles.assign`, `roles.permissions.update`, `cms.pages.publish`, `settings.appearance.update`, `backups.restore`.",
+          "to": "- Canonical business examples: `dashboard.view`, `users.view`, `users.create`, `users.roles.assign`, `roles.permissions.update`, `cms.pages.publish`, `settings.appearance.update`, optional `backups.view`. Production restore has **no business permission**; it is an independent operator CLI process."
+        },
+        {
+          "from": "- Publishing switches published pointer and slug under DB transaction, handles uniqueness collision and invalidates old/new slug caches after commit.",
+          "to": "- Publishing switches published pointer and slug under DB transaction and handles uniqueness collisions. MVP published CMS uses SSR without persistent cache, so no `revalidatePath`/`revalidateTag` or cross-process cache invalidation is required."
+        },
+        {
+          "from": "Build/run web, API and worker with PM2 and Nginx same-origin routing.",
+          "to": "Build/run Web and API with PM2 and Nginx same-origin routing; start a worker only when enabled modules require jobs."
+        },
+        {
+          "from": "`user_profiles.status = invited|active|disabled`",
+          "to": "`user_profiles.status = invited|active|inactive|suspended`"
+        }
+      ]
+    },
+    {
+      "path": "docs/references/ARCHITECTURE-BASELINE.md",
+      "replacements": [
+        {
+          "from": "Status: **approved design baseline, not proof of implementation**. This document makes reference adoption safe even before the proposed ADR files have been merged. It summarizes the 16 decisions agreed in the architecture review; it does not replace PRD/TRD/BSD/AFD migration until their v2 changes are merged.",
+          "to": "Status: **approved v2 design baseline, not proof of implementation**. The 16 ADRs and v2 PRD/TRD/BSD/AFD integration are now present in this repository; this document summarizes them for reference adoption. In case of an actual conflict, stop and resolve it through a reviewed ADR/PR rather than assuming integration alone proves implementation."
+        },
+        {
+          "from": "1. Approved v2 Architecture Decision Records (when installed) and this baseline.",
+          "to": "1. Accepted v2 Architecture Decision Records in `docs/architecture/ADR/` and this baseline."
+        }
+      ]
+    },
+    {
+      "path": "docs/references/ADOPTION-PROTOCOL.md",
+      "replacements": [
+        {
+          "from": "Approved v2 ADRs (when installed) and current verified implementation contracts beat third-party examples. The old PRD/TASKS may still contain all-in-one assumptions; use them to identify legacy work, not to override approved decisions. If current canonical migration/API specifications contradict the baseline, stop affected changes and request a scoped resolution.",
+          "to": "Accepted v2 ADRs in `docs/architecture/ADR/`, current implementation contracts and the validated 162-task registry take precedence over third-party examples. PRD/TRD/BSD/AFD are integrated but may retain isolated legacy wording; when a concrete conflict is found, stop the affected change and open a scoped documentation/ADR correction. Never silently override a live task or assume a referenced module is already implemented."
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "replacements": [
+        {
+          "from": "## Integrasi dua ZIP oleh pengguna\n\nPaket **architecture-v2** adalah sumber ADR/kontrak dan addenda lama; paket **references-v2** adalah sumber pengganti 12 playbook serta 3 dokumen baru dalam [docs/references/INDEX-V2.md](../references/INDEX-V2.md). Keduanya menyatakan desain, tidak mengklaim fitur sudah live. Task registry direbase dari 156 menjadi 162 ID dengan sejarah status/evidence tidak dinaikkan. Integrasi dokumentasi tidak menjalankan migrasi MySQL, worker, server, atau backup.",
+          "to": "## Status integrasi dan pemeliharaan\n\nADR, kontrak arsitektur, addendum, dan reference playbooks v2 sudah berada di repository. Registry sudah memuat **162 task** (156 ID awal + 6 tambahan), tanpa menaikkan status/evidence hanya karena dokumentasi. Review konsistensi lanjutan terdokumentasi di [V2-CONSISTENCY-RECONCILIATION.md](V2-CONSISTENCY-RECONCILIATION.md). Semua file ini merupakan target desain, bukan bukti runtime atau migrasi produksi."
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/DATABASE-CONTRACT.md",
+      "replacements": [
+        {
+          "from": "`dispatch_lease_until DATETIME(3) NULL`, `request_id VARCHAR(100) NULL`",
+          "to": "`dispatch_lease_until DATETIME(3) NULL`, `dispatch_lease_owner VARCHAR(128) NULL`, `request_id VARCHAR(100) NULL`"
+        },
+        {
+          "from": "  ADD COLUMN dispatch_lease_until DATETIME(3) NULL,\n  ADD COLUMN request_id VARCHAR(100) NULL,",
+          "to": "  ADD COLUMN dispatch_lease_until DATETIME(3) NULL,\n  ADD COLUMN dispatch_lease_owner VARCHAR(128) NULL,\n  ADD COLUMN request_id VARCHAR(100) NULL,"
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/JOBS-CONTRACT.md",
+      "replacements": [
+        {
+          "from": "On success mark sent conditionally for matching claim owner/lease.",
+          "to": "On success mark sent conditionally for matching persisted `dispatch_lease_owner`/lease, using a fencing token or equivalent tested mechanism so a stale dispatcher cannot ACK a later claim."
+        }
+      ]
+    }
+  ],
+  "task_registry_expected": 162,
+  "adrs_expected": 16
+}

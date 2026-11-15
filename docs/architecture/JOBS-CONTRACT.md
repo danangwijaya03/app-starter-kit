@@ -25,7 +25,7 @@ Sent --> [*] : queue entry acknowledged
 @enduml
 ```
 
-On API request, atomically commit domain change + `system_jobs(pending)`; API returns 202 `jobId` only after DB commit. Claim with `FOR UPDATE SKIP LOCKED`, commit lease (`dispatch_lease_until`), then queue.add outside DB transaction. On success mark sent conditionally for matching claim owner/lease. If dispatcher crashes after successful Redis add but before DB mark sent, it may resend; **never claim exactly-once**. BullMQ duplicate job ID protection expires after removal, so processor must enforce idempotency with durable state/effects.
+On API request, atomically commit domain change + `system_jobs(pending)`; API returns 202 `jobId` only after DB commit. Claim with `FOR UPDATE SKIP LOCKED`, commit lease (`dispatch_lease_until`), then queue.add outside DB transaction. On success mark sent conditionally for matching persisted `dispatch_lease_owner`/lease, using a fencing token or equivalent tested mechanism so a stale dispatcher cannot ACK a later claim. If dispatcher crashes after successful Redis add but before DB mark sent, it may resend; **never claim exactly-once**. BullMQ duplicate job ID protection expires after removal, so processor must enforce idempotency with durable state/effects.
 
 ### Worker processor safety
 

@@ -1,10 +1,10 @@
 # Reference Architecture Baseline — v2.0
 
-Status: **approved design baseline, not proof of implementation**. This document makes reference adoption safe even before the proposed ADR files have been merged. It summarizes the 16 decisions agreed in the architecture review; it does not replace PRD/TRD/BSD/AFD migration until their v2 changes are merged.
+Status: **approved v2 design baseline, not proof of implementation**. The 16 ADRs and v2 PRD/TRD/BSD/AFD integration are now present in this repository; this document summarizes them for reference adoption. In case of an actual conflict, stop and resolve it through a reviewed ADR/PR rather than assuming integration alone proves implementation.
 
 ## Precedence when sources disagree
 
-1. Approved v2 Architecture Decision Records (when installed) and this baseline.
+1. Accepted v2 Architecture Decision Records in `docs/architecture/ADR/` and this baseline.
 2. Updated implementation contracts, active module configuration and verified DB/API schemas.
 3. Aligned PRD/TRD/BSD/AFD/roadmap and the active `TASKS.yaml` task.
 4. These domain reference playbooks.
