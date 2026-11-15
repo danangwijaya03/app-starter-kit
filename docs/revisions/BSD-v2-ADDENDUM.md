@@ -1,4 +1,4 @@
-## BSD v2 Addendum — Schema and API deltas (supersedes conflicting clauses of BSD-03..07)
+# BSD v2 Addendum — Schema and API deltas (supersedes conflicting clauses of BSD-03..07)
 
 Retain existing **21 logical tables**, all FKs and detailed existing columns unless the linked [DATABASE-CONTRACT](../architecture/DATABASE-CONTRACT.md) explicitly changes them. Add:
 - `user_profiles.status` permits `invited` default for normal created user; bootstrap admin active.

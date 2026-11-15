@@ -1,4 +1,4 @@
-## AFD v2 Addendum — User/Operator flows (supersedes conflicting AFD-01, 06, 07, 09, 10)
+# AFD v2 Addendum — User/Operator flows (supersedes conflicting AFD-01, 06, 07, 09, 10)
 
 ### Core-only navigation
 

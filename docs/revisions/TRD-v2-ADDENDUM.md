@@ -1,4 +1,4 @@
-## TRD v2 Addendum — Runtime, modules, SSR and operations (supersedes TRD-01, 03, 06, 07, 09, 12 where inconsistent)
+# TRD v2 Addendum — Runtime, modules, SSR and operations (supersedes TRD-01, 03, 06, 07, 09, 12 where inconsistent)
 
 - **Runtimes:** required Web Next.js + Hono API; optional Redis and BullMQ worker depending on checked-in static modules. No automatic env requirement for REDIS_URL in Core-only.
 - **Infrastructure:** Nginx same-origin `/api/*` proxy; Next SSR calls Hono via internal HTTP with selected Better Auth cookies; runtime services loopback; no Next business API duplication.

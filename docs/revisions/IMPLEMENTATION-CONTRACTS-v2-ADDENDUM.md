@@ -1,4 +1,4 @@
-## Implementation Contracts v2 — mandatory agent overrides
+# Implementation Contracts v2 — mandatory agent overrides
 
 1. Do not hardcode initial admin email. Read it from protected setup input; password non-echo and force change, never reset existing account.
 2. Core always on; `enabledModules` static map for media/cms/operations, validated at build/start. No dynamic dashboard toggle or conditional DB schema migration.

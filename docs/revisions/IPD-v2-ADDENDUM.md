@@ -1,4 +1,4 @@
-## IPD v2 Addendum — Cross-phase Core release and independent certification
+# IPD v2 Addendum — Cross-phase Core release and independent certification
 
 Historic phase IDs P00–P16 and original 156 task IDs remain unchanged unless a reviewed graph rebase adds IDs. Chronology of task IDs is not the release readiness order.
 

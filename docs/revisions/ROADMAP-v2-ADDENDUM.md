@@ -1,4 +1,4 @@
-## Roadmap v2 Addendum — Core-First delivery
+# Roadmap v2 Addendum — Core-First delivery
 
 **M0 specification:** ADR register / dependency graph / task rebase approved.
 **M1 Core functional:** P01–P08 subset + Auth/RBAC integration tests pass.

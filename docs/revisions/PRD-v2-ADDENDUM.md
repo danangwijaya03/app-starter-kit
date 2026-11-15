@@ -1,4 +1,4 @@
-## PRD v2 Addendum — Modular Core & MoSCoW (supersedes PRD-01 success and PRD-03 MVP scope)
+# PRD v2 Addendum — Modular Core & MoSCoW (supersedes PRD-01 success and PRD-03 MVP scope)
 
 **Product goal unchanged:** reusable single-tenant starter for business applications, manually cloned, no installer. **Success now has two milestones**: Core production-ready; optional modules certified independently. Existing `AUTH-REQ`, `USER-REQ`, `RBAC-REQ`, `CMS-REQ`, `MEDIA-REQ`, `NAV-REQ`, `SET-REQ` IDs remain unchanged. Their MoSCoW priority follows module classification below, without renaming them.
 
