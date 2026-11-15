@@ -1,40 +1,43 @@
-# P03 — Drizzle MySQL Foundation
+# P03 — Central MySQL Database
 
-**Ditujukan untuk: CODING AGENT.** This phase is a planned implementation, not evidence of completed functionality. **Provider/model agnostic:** use the active coding agent available (Codex/Claude Code/Antigravity/DeepSeek/etc.); risk gate is independent of model name.
+**Status:** planned implementation; no feature is complete based on architecture documentation alone. Coding-agent/provider neutral; one bounded task at a time.
 
-## Reviewable outcome
+## Accepted v2 outcome
 
-Versioned schema, reviewed migrations, read-only DB health. A demo/fixture is labelled as such; do not claim a working API, RBAC or DB because a static page renders.
+Drizzle single migration journal, 21 logical tables and Better Auth-generated schema. Review [Architecture v2 index](../../architecture/README.md), [ADR register](../../architecture/ADR/README.md), [v2 Reference Index](../../references/INDEX-V2.md) and the specific contract attached to the task. **Track:** core.
 
-## Implementation flow
+The **Core release checkpoint P16-11** is cross-phase and does not wait for the optional Media/CMS/Jobs/Operations modules. The **module certification checkpoint P16-12** is separate. Phase ID does not mean the task must wait for all preceding phase numbers.
 
-1. `python3 tools/bootstrap_agent.py`, check `git status --short`, `docs/agent/CHECKPOINT.md` and next ready task.
-2. Read one task card and [Reference Map](../../references/REFERENCE-MAP.md); follow the [Adoption Protocol](../../references/ADOPTION-PROTOCOL.md) and focused playbook [SECURITY](../../references/SECURITY.md).
-3. **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT.**
-4. Follow the exact `depends_on` graph from TASKS.yaml rather than assuming list order is executable.
-5. On security-sensitive work, run appropriate positive, negative and concurrency/recovery tests; an **independent qualified reviewer** must approve effective high-risk tasks, regardless of the implementer's model/provider. Production changes require separate operator approval.
-6. Record actual source/test evidence, the verified preview route (or unavailable), feature mode and next task. Do not deploy automatically. All work targets clone-based setup; no installer, feature generator or Docker dependency.
+## Agent procedure
 
-## Tasks in this phase (11)
+1. Run `python3 tools/bootstrap_agent.py`, inspect `git status`, `docs/agent/CHECKPOINT.md`, `.venv-agent/bin/python tools/agent_tasks.py next`.
+2. Read one card, relevant `spec_refs`, [Reference Adoption Protocol](../../references/ADOPTION-PROTOCOL.md), and real source. Do not research every upstream repo or assume example source is trusted.
+3. **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**.
+4. Test the last modified source against disposable database/storage with positive/negative assertions. For Core, verify module-disabled behavior; for optional modules, verify enablement dependencies and correct 404/permission behavior. No secrets or production mutations.
+5. For effective high-risk tasks, an independently qualified reviewer must sign off before technical completion. This is **not** a mandate to use a specific model or High Reasoning effort level.
+6. Record actual preview URL/mode or diagnostic (not verified if inaccessible), test evidence, reference URL/license and checkpoint.
 
-| ID | Work unit |
-|---|---|
-| [P03-01](../tasks/P03-01.md) | Generate Better Auth Drizzle MySQL schema |
-| [P03-02](../tasks/P03-02.md) | Define app user profile and RBAC tables |
-| [P03-03A](../tasks/P03-03A.md) | Define CMS pages and revisions schema |
-| [P03-03B](../tasks/P03-03B.md) | Define CMS menus and menu items schema |
-| [P03-03](../tasks/P03-03.md) | Add CMS pages/revisions and navigation schema |
-| [P03-04](../tasks/P03-04.md) | Add media, settings and user preferences schema |
-| [P03-05](../tasks/P03-05.md) | Add audit, system jobs and backup tables |
-| [P03-06](../tasks/P03-06.md) | Generate and review migration history |
-| [P03-07](../tasks/P03-07.md) | Build transaction helper and repository abstractions |
-| [P03-08](../tasks/P03-08.md) | Implement audit event service and seed base |
-| [P03-09](../tasks/P03-09.md) | Connect safe DB readiness to development health diagnostic |
+## Tasks (12)
 
-## Gate before advancing
+| ID | Delivery track | Planned work |
+|---|---|---|
+| [P03-01](../tasks/P03-01.md) | core | Generate Better Auth Drizzle MySQL schema |
+| [P03-02](../tasks/P03-02.md) | core | Define app user profile and RBAC tables |
+| [P03-03A](../tasks/P03-03A.md) | core | Define CMS pages and revisions schema |
+| [P03-03B](../tasks/P03-03B.md) | core | Define CMS menus and menu items schema |
+| [P03-03](../tasks/P03-03.md) | core | Add CMS pages/revisions and navigation schema |
+| [P03-04](../tasks/P03-04.md) | core | Add media, settings and user preferences schema |
+| [P03-05](../tasks/P03-05.md) | core | Add audit, system jobs and backup tables |
+| [P03-06](../tasks/P03-06.md) | core | Generate and review migration history |
+| [P03-07](../tasks/P03-07.md) | core | Build transaction helper and repository abstractions |
+| [P03-08](../tasks/P03-08.md) | core | Implement audit event service and seed base |
+| [P03-09](../tasks/P03-09.md) | core | Connect safe DB readiness to development health diagnostic |
+| [P03-10](../tasks/P03-10.md) | core | Verify centralized MySQL migrations and v2 schema deltas |
 
-Every task in the phase must have current-source scoped test evidence, meet the reviewable outcome, and pass any independent high-risk review required by `agent_tasks.py`. Tests on disposable databases only. Do not claim documentation validation proves the runtime is implemented.
+## Phase gate
 
-## Recovery
+All phase tasks require real source tests, acceptance and any relevant independent review. **Do not treat the entire phase gate as a prerequisite for Core release when the phase contains optional tasks.** Source of truth for dependencies is `docs/agent/TASKS.yaml`; never manually bypass it. Server operations are clone/build/PM2/Nginx; worker/Redis only if the static module configuration requires background jobs.
 
-Inspect Git diff, current task/evidence and real DB migration state before resuming. Never blindly repeat bootstrap, migrations or restore. Manual clone/setup reference: [Manual Clone Setup](../../MANUAL-CLONE-SETUP.md).
+## Recover
+
+Review current task, source diff and migration history before retry. Do not repeat seed/bootstrap/restore blindly.

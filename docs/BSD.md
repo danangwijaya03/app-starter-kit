@@ -1,5 +1,7 @@
 # BSD — Backend Schema Documentation
 
+> **Architecture v2 (2026-11-14), target not implemented.** [Accepted ADRs](architecture/ADR/README.md) and [v2 Architecture Contracts](architecture/README.md) supersede contradictory v1 clauses. Preserve stable requirement IDs; see [v2 addendum](revisions/BSD-v2-ADDENDUM.md). Runtime source is still the static Next.js preview, not a completed full stack.
+
 **ID:** BSD-1.0 | **Status:** Implementation baseline | **Database:** MySQL 8.4 / InnoDB / utf8mb4
 
 ## BSD-01 Database conventions
@@ -307,7 +309,7 @@ Each code below is one active registry entry; user-facing grouping aligns with f
 |---|---|
 | Dashboard | `dashboard.view`, `dashboard.widgets.activity.view` |
 | CMS Pages | `cms.pages.view`, `cms.pages.create`, `cms.pages.update`, `cms.pages.delete`, `cms.pages.publish`, `cms.pages.preview` |
-| CMS Media | `cms.media.view`, `cms.media.upload`, `cms.media.update`, `cms.media.delete` |
+| Media (optional) | `media.view`, `media.upload`, `media.update`, `media.delete` |
 | CMS Navigation | `cms.navigation.view`, `cms.navigation.create`, `cms.navigation.update`, `cms.navigation.delete` |
 | Users | `users.view`, `users.create`, `users.update`, `users.status.update`, `users.roles.assign`, `users.sessions.revoke` |
 | Roles | `roles.view`, `roles.create`, `roles.update`, `roles.delete`, `roles.permissions.update` |
@@ -326,7 +328,7 @@ Assigning `super_admin` is a **protected capability** requiring existing super-a
 
 ### Module registry contract
 
-Manifest must provide `id`, `name`, `version`, `permissions[{code,label,module,action,description}]`, `navigation[{id,parentId,href,requiredPermission}]`, optional public CMS block definitions. Validate duplicate IDs/routes/codes at CI and sync; no automatic permission grants to ordinary roles. Removals become deprecated. Generate editor checkbox groups and navigation from registry, with role permissions as DB bindings.
+Static source-controlled manifest must provide `id`, `name`, `version`, `permissions[{code,label,module,action,description}]`, `navigation[{id,parentId,href,requiredPermission}]`, optional public CMS block definitions. Validate duplicate IDs/routes/codes at CI and sync; no automatic permission grants to ordinary roles. Removals become deprecated. Generate editor checkbox groups and navigation from registry, with role permissions as DB bindings.
 
 ## BSD-06 REST API design
 
@@ -377,10 +379,10 @@ Business prefix `/api/v1`, native auth prefix `/api/auth/*`. Authenticated GET `
 
 | Method | Route | Permission | Notes |
 |---|---|---|---|
-| GET | `/media` | cms.media.view | paged/search |
-| POST | `/media` | cms.media.upload | multipart, validated content |
-| PATCH | `/media/:id` | cms.media.update | alt text and metadata |
-| DELETE | `/media/:id` | cms.media.delete | deny if published usage |
+| GET | `/media` | media.view | paged/search |
+| POST | `/media` | media.upload | multipart, validated content |
+| PATCH | `/media/:id` | media.update | alt text and metadata |
+| DELETE | `/media/:id` | media.delete | deny if published usage |
 | GET | `/settings/general` | settings.general.view | admin typed config |
 | PATCH | `/settings/general` | settings.general.update | allowlist partial update, version |
 | GET | `/settings/appearance` | settings.appearance.view | active tokens/preset list |
@@ -393,7 +395,7 @@ Business prefix `/api/v1`, native auth prefix `/api/auth/*`. Authenticated GET `
 | POST | `/backups/:id/verify` | backups.verify | 202 job ID |
 | GET | `/backups/:id/download` | backups.download | short-lived authorized download |
 | DELETE | `/backups/:id` | backups.delete | retention/reference checks |
-| POST | `/backups/:id/restore` | backups.restore + recent reauth | 202 job; lock; approval guard |
+<!-- Production restore is CLI-only in v2; no POST /backups/:id/restore route. -->
 | GET | `/system-jobs/:id` | permission derived from job type | user/type scope check |
 | GET | `/audit-logs` | audit_logs.view | paged filters, redacted |
 | GET | `/health/live` | limited public | no sensitive detail |
@@ -457,7 +459,7 @@ Role grant codes checked against registry and privilege of actor; type schema is
 2. App schema migrations with FKs and check constraints.
 3. Permission registry sync and system roles (`super_admin`,`administrator`,`content_editor`,`viewer`).
 4. Seed Salt & Pepper theme and safe `general` / `appearance` defaults, Header/Footer menus.
-5. Bootstrap initial `admin@codelight.id` using **private password input** via Better Auth-approved credential API, set `must_change_password`, assign `super_admin`.
+5. Bootstrap an **operator-supplied** initial admin email using **private password input** via Better Auth-approved credential API, set `must_change_password`, assign `super_admin`.
 6. Seed/idempotency verification; repeated bootstrap must not replace existing password or downgrade account role.
 
 No hardcoded password or insecure fixed secret in code/repo/archive. Manual first-admin bootstrap requires a unique password; user-supplied development password must not become a universal production default. Check migrations in isolated DB before deployment and maintain pre-migration recovery path.
@@ -473,3 +475,18 @@ No hardcoded password or insecure fixed secret in code/repo/archive. Manual firs
 - Settings unknown key/unsafe theme rejected; audit contains no secrets.
 - Backup job verifies checksum and staging restore; restore rejects corrupted archive and does not auto-retry.
 - Contract tests verify Zod/OpenAPI errors and all documented response shapes.
+## BSD-11 Architecture v2 schema/API deltas
+
+**Keep the existing 21 logical tables (four Better Auth-generated + 17 application tables) and existing FK/data history.** The following target changes are additive, centrally migrated in a single Drizzle journal, and documented in [Database Contract](architecture/DATABASE-CONTRACT.md) and [BSD v2 addendum](revisions/BSD-v2-ADDENDUM.md):
+
+- `user_profiles.status`: add `invited`; standard invitation defaults invited, operator's first administrator is activated separately.
+- `permissions`: add `delegable BOOLEAN NOT NULL DEFAULT FALSE`, `sensitive BOOLEAN NOT NULL DEFAULT FALSE`; registry owns metadata and protected grants.
+- `media_assets`: `status` pending/ready/failed/deleted, `visibility` public/private, `ready_at`; support safe backfill for existing verified files.
+- `cms_page_revisions`: `save_key`, `request_hash`, UNIQUE(page_id,save_key), immutable idempotent writes; same-page published-pointer constraint remains.
+- `system_jobs`: durable dispatch state, payload, lease owner/expiration, idempotency key, attempt count, next dispatch and indexes for safe replay.
+- `database_backups`: offsite snapshot ID, offsite verified timestamp, verified restore timestamp and failure code. Do not make SQL state the sole offsite recovery catalog.
+- `theme_configs`: immutable snapshots selected through typed versioned app setting; per-user light/dark/system preference remains separate.
+
+**Registry:** canonical `media.*` codes replace legacy `cms.media.*`; migrate existing grants in a reviewed one-time step when necessary. `backups.restore` is CLI/operator approval, not an exposed business API. Add read-only `/api/health/subsystems` with no secrets; `/api/health/live` and `/api/health/ready` existing routes remain. API/permission/route surface disabled when static module off, **without conditional tables/migrations**.
+
+These are implementation targets; generate schema from pinned dependencies and review actual MySQL migration SQL, not copy illustrative snippets into production.

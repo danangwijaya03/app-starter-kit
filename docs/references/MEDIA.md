@@ -1,9 +1,22 @@
-# Media & storage — local-first and safe by default
+# Media & storage — LocalFs with S3-ready adapter (ADR-010)
 
-Sources: https://github.com/dev-celestia/celestia-starter (media-R2 feature for design pattern); https://hono.dev/docs/ .
+Research: [Celestia Starter](https://github.com/dev-celestia/celestia-starter) media adapter patterns, [Hono docs](https://hono.dev/docs/), [Sharp docs](https://sharp.pixelplumbing.com/) for bounded processing.
 
-**MVP:** local filesystem adapter under private server path, server-owned storage keys, validated MIME/signature/size, explicit max uploads, metadata in MySQL, immutable reference/use records, prevent delete for published usages. API must enforce grants; never trust browser-provided filename/path as filesystem path.
+**Media is optional and independent of CMS**; CMS depends on Media, not vice versa. Core-only uses built-in static logo/favicon fallback.
 
-**Optional later:** S3-compatible/R2 adapter (never mandatory), transformations/thumbnails, direct upload with signed URLs after threat model. Cloud credentials only server-side.
+## Adopt
 
-**Tests:** happy upload/read, forbidden upload, forged MIME, path traversal, oversized stream, reused key collision, published-reference-safe delete, orphan cleanup. No media under public dir before rules are defined.
+- StorageAdapter methods `put/read/stat/delete` with server-generated opaque storage keys; LocalFs lives outside webroot and is the MVP provider. A future S3-compatible adapter must not alter business APIs.
+- Separate upload validation: auth/RBAC, request stream size, allowlisted content signatures + decode, safe dimensions (initial 10 MiB / 20 megapixels / JPEG/PNG/WebP; configurable), checksum and randomized path. Reject SVG/HTML/executable, symlink and traversal escape. Apply Nginx and Hono limits; no browser-provided filesystem paths.
+- Lifecycle: `pending → ready → deleted` plus `failed`. Stage in private temp path, persist pending metadata, atomically rename within same filesystem, mark ready; reconciliation handles orphan temp/final files after crash.
+- Separate **public delivery** by explicitly public, ready asset; **private delivery** requires session, permission and resource checks. Private responses `Cache-Control: private, no-store`; safe content type and `nosniff` for both.
+- Store `media_usages` for CMS revision history, settings and business references. Delete uses consistent locks/reference checks; no physical deletion while referenced by **any retained revision**. GC holds during production backup snapshot.
+- Synchronous bounded processing permitted without Redis. Heavy transformations are explicit jobs and require approved worker capability.
+
+## Exclude
+
+Direct uploads signed by client without reviewed policy, default public upload folders, trust in `Content-Type`/extension, unconditional thumbnail jobs, S3/R2 credentials in browser, implicit CMS dependency.
+
+## Tests
+
+Forbidden/private reads; MIME spoof, pixel bomb, oversized streams, traversal/symlink, duplicate keys; kill between metadata/rename/ready and verify reconciliation; concurrent add-reference versus delete; old revision media retained; Core-only fallback; media-disabled routes 404.

@@ -1,4 +1,4 @@
-# Single Active Coding Agent Workflow — model/provider agnostic
+# Single Active Coding Agent Workflow — Architecture v2, provider/model agnostic
 
 **Audience: CODING AGENT / DEVELOPER.** The architecture and task system **do not depend on a model or provider**. The active coding agent may be Codex, Claude Code, Google Antigravity, DeepSeek, or another compatible tool. Use **one implementation agent/model per bounded task or session**, and allow switching between tasks/sessions after checkpoint. A model's branding or reasoning-effort tier must never be a prerequisite to do a task.
 

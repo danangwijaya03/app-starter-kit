@@ -1,11 +1,24 @@
-# RBAC — reference patterns, one application permission engine
+# RBAC — single application permission engine (ADR-003/004/002)
 
-Sources: https://github.com/blurridge/blur-stack ; https://github.com/dev-celestia/celestia-starter ; https://better-auth.com/docs/plugins/admin .
+Research candidates: [Blur Stack](https://github.com/blurridge/blur-stack), [Celestia Starter](https://github.com/dev-celestia/celestia-starter), [Better Auth Admin Plugin](https://www.better-auth.com/docs/plugins/admin) **for comparison only**.
 
-**Adopt patterns:** typed permission catalog, permission-to-route map, server-side guards, grouped checkbox matrix, isolated role assignment service, dynamic authorized menu. Match BSD tables `roles`, `permissions`, `user_roles`, `role_permissions` and canonical immutable code registry.
+**Core required.** Better Auth authenticates users; the application RBAC service decides business authorization.
 
-**Reject:** an imported multi-tenant organization grant model, PostgreSQL column/SQL syntax, a second independent RBAC store hidden inside Better Auth. Better Auth handles session/identity, app permission service handles business authorization; adapter/config explicitly bridges any administrative plugin permissions.
+## Canonical rules
 
-**Security tests:** unauthenticated 401; authenticated ungranted 403; stale/disabled role invalidation; self-escalation denied; attempts to remove last active super admin (including race/concurrency) denied atomically; frontend menu hiding never replaces server checks. Review DB transactions/lock order with real MySQL.
+- MySQL tables `roles`, `permissions`, `user_roles`, `role_permissions` (central migrations) with typed immutable permission codes in source.
+- Deny by default. Effective permission = valid session + active account + known permission + enabled owning module + active permission definition + active role grant. Multiple roles use union; protected super admin exception applies **only after** status, module and permission-existence checks.
+- Permission catalog metadata: `code`, `module`, `label`, `delegable`, `sensitive`; server-synced, not freely editable.
+- Admin can only delegate permissions tagged `delegable`, within permissions they legitimately possess. `roles.permissions.update`, `users.roles.assign`, recovery/restore and other privileged scopes are protected from normal delegation. Prevent self-escalation, role-based escalation by proxy, and modification of protected roles.
+- Mutations of permissions/roles/status and related audit records commit in the **same MySQL transaction**. Protect last-active-super-admin with deterministic locking and concurrent tests.
+- Disabled modules: unmount API, 404 Next admin pages, hide nav, remove effective permissions, revoke module grants during controlled sync with audit. Re-enable must not resurrect previous grants.
 
-**Agent partition:** catalog → seed and sync → middleware → user/role CRUD → preview → negative/race tests. Independent signoff required.
+## Exclude
+
+Second RBAC store in auth plugin; multi-tenant organization grants; PostgreSQL SQL; authorization based on frontend menu or client-side cached permissions alone.
+
+## Tests
+
+`401/403` for direct API; protected code cannot be delegated; attempted self/proxy escalation denied; duplicate grants idempotent; role changes effective on next request; simultaneous disable/demotion cannot remove final super admin; disabled CMS/Media permissions ineffective and not resurrected on re-enable; failed audit insert rolls back security mutation. Use real disposable MySQL for locks.
+
+See [AUTH.md](AUTH.md), [SECURITY.md](SECURITY.md), [TESTING.md](TESTING.md).

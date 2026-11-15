@@ -1,11 +1,26 @@
-# Auth — Better Auth is the authoritative identity/session engine
+# Auth — Better Auth identity and session owner (ADR-003)
 
-Primary: https://better-auth.com/docs and https://better-auth.com/docs/plugins/admin ; comparative: https://github.com/dev-celestia/celestia-starter .
+References: [Better Auth docs](https://www.better-auth.com/docs/), [Drizzle adapter](https://www.better-auth.com/docs/adapters/drizzle), [session docs](https://www.better-auth.com/docs/concepts/session), [Celestia Starter](https://github.com/dev-celestia/celestia-starter) for patterns only.
 
-**Adopt:** version-pinned Better Auth MySQL/Drizzle adapter generated schema, session/login/logout/password-reset lifecycle, first-login password change and secure admin lifecycle. Better Auth Admin Plugin only where its authorization semantics are verified against our roles.
+**Core required**; available even when Media, CMS, Operations and Redis are disabled.
 
-**Do not copy:** custom JWT auth from Hono Starter, another starter's OAuth secrets, a duplicated user/password table or PostgreSQL schema. Public signup disabled by default. No credential in repo/log/test evidence. Never hardcode a default administrator password; secure non-echo prompt/private local input, idempotent first-admin command through npm script after migration/seed.
+## Adopt
 
-**Contracts:** BSD auth generation, AFD login/first-use, P04/P05; one canonical API/session owner. 401 without valid session; 403 with insufficient permission. Session revocation, ban/deactivate, reset single-use expiration and first-password-change tested.
+- Better Auth exclusively owns credential hashing, login/logout, password reset, session storage and authentication route `/api/auth/*` in Hono.
+- Generate auth tables from the **exact pinned installed Better Auth version**; use centralized Drizzle migration history. Do not replicate passwords or create a parallel identity store.
+- Disable public signup by default, implement secure invitation-first provisioning with `invited → active`; distinguish `inactive` and `suspended`. No privileged API access before activation.
+- Force first password change, protect reset tokens, revoke sessions on account disable/password reset and check account status on **every** private API request.
+- Browser uses same-origin HTTP-only secure cookies; Next.js server client selectively forwards only required auth cookies to internal Hono API with `no-store`; never store bearer tokens in localStorage.
+- First-admin command accepts approved email via secure operator input/env, without hardcoded address or default password; keep bootstrap idempotent and protect last active super admin.
 
-**selected coding agent microtasks:** (1) pinned auth adapter/schema; (2) session guard; (3) login/logout; (4) reset; (5) admin bootstrap/test. **Independent review** required before high-risk technical completion.
+## Explicit exclusions
+
+- No JWT ownership imported from Hono Starter; no second session provider or independent Better Auth Admin Plugin RBAC. If a Better Auth plugin is used, formally bridge its administrative endpoints to the application permission service and test privileges.
+- No credentials/secrets in code, test screenshots, logs or source attribution.
+- Do not treat a cookie's presence or a Next.js route guard as authorization.
+
+## Mandatory tests
+
+Anonymous `401`; insufficient permission `403`; revoked session denied next request; invited/inactive/suspended denied; reset token single-use and expiry; session fixation/CSRF/origin checks; account status and password change across all relevant auth endpoints; first admin bootstrap without hardcoded credentials. Review generated schema and compatibility on upgrades.
+
+**Ownership:** Hono auth integration + server-only application auth service; separate from business RBAC. See [RBAC.md](RBAC.md), [SECURITY.md](SECURITY.md).

@@ -1,5 +1,7 @@
 # AFD — Application Flow Documentation
 
+> **Architecture v2 (2026-11-14), target not implemented.** [Accepted ADRs](architecture/ADR/README.md) and [v2 Architecture Contracts](architecture/README.md) supersede contradictory v1 clauses. Preserve stable requirement IDs; see [v2 addendum](revisions/AFD-v2-ADDENDUM.md). Runtime source is still the static Next.js preview, not a completed full stack.
+
 **ID:** AFD-1.0 | **Status:** Implementation baseline
 
 ## AFD-01 Route map
@@ -15,7 +17,7 @@
 | `/admin/content/pages` | `cms.pages.view` | Filtered page list, status, actions |
 | `/admin/content/pages/new` | `cms.pages.create` | Page editor |
 | `/admin/content/pages/:id/edit` | `cms.pages.update` | Block/editor and revision controls |
-| `/admin/content/media` | `cms.media.view` | Library upload/edit/delete |
+| `/admin/content/media` | `media.view` | Library upload/edit/delete |
 | `/admin/content/navigation` | `cms.navigation.view` | Header/footer menu editor |
 | `/admin/users/list` | `users.view` | User list and role/status actions |
 | `/admin/users/roles` | `roles.view` | Role list/create |
@@ -76,7 +78,7 @@ flowchart TD
 
 1. Resolve authenticated viewer and grants.
 2. Render only widgets registered with matching permissions; server only serves authorized fields.
-3. Default widgets: user counts, CMS published/drafts, recent audit (permission-limited).
+3. Default Core widgets: user counts and recent audit (permission-limited); CMS widgets only when the CMS module is enabled and grants permit.
 4. Widget errors isolated; no entire dashboard crash if one metric fails.
 5. Responsive skeleton/empty state; refresh or filter only on pages where API supports it.
 
@@ -95,8 +97,8 @@ flowchart TD
  H -->|No| I[403]
  H -->|Yes| J[Transaction: validate slug, same-page revision, set published pointer]
  J --> K[Commit + audit]
- K --> L[Revalidate old/new public paths]
- L --> M[Public renders published revision]
+ K --> L[No persistent public CMS cache]
+ L --> M[Next SSR request reads published revision]
 ```
 
 Saving a new revision does not affect the public pointer, SEO, title, or live slug. Unpublish clears public pointer/slug while retaining history. Restore revision creates a **new draft** from old content; never mutates old revision. Reject duplicate published slug with 409. Handle simultaneous editor conflict with `expectedRevisionNo`/ETag; retries do not double-publish.
@@ -111,36 +113,33 @@ Open media picker → choose file → client size hints → server revalidates t
 
 ## AFD-08 Public navigation
 
-Admin opens Navigation, selects Header/Footer, adds internal page ref or validated external URL, orders items, optionally nests one level. Validate same-menu parent, no cycle, maximum depth=2. On publish, public menu renderer resolves page's current published slug; hide unpublished pages and inactive items; invalidate appropriate public menu cache after save.
+Admin opens Navigation, selects Header/Footer, adds internal page ref or validated external URL, orders items, optionally nests one level. Validate same-menu parent, no cycle, maximum depth=2. On publish, public menu renderer resolves page's current published slug; hide unpublished pages and inactive items; public SSR reads committed navigation on next request without persistent cache during MVP.
 
 ## AFD-09 General and appearance settings
 
-**General:** load typed settings → edit app name/locale/logo/favicon → validate → save with audit → invalidate branding cache → both public/admin show current settings without rebuild. Upload logo via media service, not arbitrary URL.
+**General:** load typed settings → edit app name/locale/logo/favicon → validate → save with audit → update typed current branding snapshot → both public/admin show current settings without rebuild. Static logo/favicon fallback is Core; optional Media-backed logo picker only when Media enabled.
 
 **Appearance:** select Salt & Pepper preset or modify semantic color tokens → preview local state → contrast/accessibility check → save global theme with revision/version → updated tokens on subsequent server render. Per-user light/dark/system preference is separate. On invalid token combination, show validation errors; no partial save.
 
-## AFD-10 Backup and restore
+## AFD-10 Independent encrypted backup & operator-only recovery
 
 ```mermaid
 flowchart TD
- A[Backup UI] --> B[POST backup -> 202 jobId]
- B --> C[Worker dump DB]
- C --> D[Encrypt + checksum + manifest]
- D --> E[Verify artifact/staging restore]
- E --> F[Mark VERIFIED or FAILED]
- F --> G[Authorized admin selects backup]
- G --> H[Recent re-auth + restore permission]
- H --> I[Verify checksum, schema, media coverage]
- I --> J[Restore dry-run to isolated DB]
- J --> K[Pre-restore backup + external journal]
- K --> L[Maintenance + drain writers/worker]
- L --> M[Controlled import]
- M --> N{Health/data validation passes?}
- N -->|Yes| O[Reconcile sessions + resume]
- N -->|No| P[Stay in maintenance + manual recovery]
+ A[Independent Linux timer + backup CLI] --> B[Consistent MySQL dump + private files if enabled]
+ B --> C[Encrypt in offsite restic repository]
+ C --> D[Manifest checksum + freshness verification]
+ D --> E[Restore rehearsal in separate staging DB/media]
+ E --> F{Operator approves cutover?}
+ F -->|No| G[Keep production unchanged]
+ F -->|Yes| H[External journal + pre-cutover backup]
+ H --> I[Operator maintenance and conditional job drain]
+ I --> J[Independent recovery CLI cutover]
+ J --> K{Verification succeeded?}
+ K -->|Yes| L[Reconcile sessions, API, media, audit]
+ K -->|No| M[Keep maintenance; manual recovery]
 ```
 
-Restore has an exclusive lock. Reject concurrent restore, unverified archive, incompatible schema, wrong environment, unsafe path, missing recovery space, and stale re-auth. Jobs are asynchronous; progress UI polls only authorized job. **No automatic restore retries and no implicit destructive production approval.** For failure, show reference ID and recovery instructions while retaining protected logs.
+The **Operations dashboard is optional**: backup freshness and history visibility only, never `POST /backups/:id/restore`, a one-click production restore control or automatic BullMQ retry. Backup/recovery must work even if Hono, Redis, worker or the original VPS is offline. Actual RPO/RTO measurements require a staged rehearsal.
 
 ## AFD-11 Common states
 
@@ -196,3 +195,6 @@ flowchart TD
 The initial `/` page is an illustrative static layout with four menu groups, not a real administration session. Early visual preview is intentionally available before P04/P05 auth/RBAC and P06 full authorized shell. Fixture mode may not fake login, user identity, saved settings or database metrics. All new `/dev/status` diagnostics must be disabled in production and return only safe availability signals.
 
 Feedback queue status `pending_review / approved / revision_requested` is distinct from task CLI statuses. Route, mode and test evidence must be factual. GPT-5.6 Terra Medium may implement security-critical paths using curated references; independent qualified security review cannot be replaced by visual review. See [Preview & Feedback](agent/PREVIEW-AND-FEEDBACK.md).
+## AFD-15 Static modules & Core-first flows
+
+[AFD v2 addendum](revisions/AFD-v2-ADDENDUM.md) is binding. Core-only: Dashboard/Users/Roles/Settings/Audit without Manage Content or optional Operations. Disabled module URL/API returns 404 and publishes no grants or OpenAPI; CMS depends on Media. Invitations start as `invited`, server checks active and required first-password change. CMS save uses idempotent `saveKey` and optimistic `expectedRevisionNo` with 409 on conflict; public published pages use SSR without persistent caching. Media public delivery requires ready/public status and private delivery requires permission.

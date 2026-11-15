@@ -1,48 +1,36 @@
-# README-SERVER — Manual Clone/Build/Deploy ke aaPanel (Tanpa Docker)
+# README-SERVER — Manual aaPanel Deployment for Modular Core v2 (No Docker)
 
-**Ditujukan untuk: USER / ADMINISTRATOR SERVER.** Ini adalah prosedur target untuk aplikasi selesai; saat ini source baru berisi baseline Next.js. **Bukan installer otomatis.** Perintah workspace/migration/PM2 di sini adalah contoh target sampai script/konfigurasi yang bersangkutan dibuat dan diuji pada fase P16. Jangan mengeksekusi perintah yang belum ada atau pada production DB tanpa review.
+**Ditujukan untuk: USER / ADMINISTRATOR SERVER.** **Status:** approved target procedure; current Git source contains static Next.js preview only. Most workspace, migration, recovery and PM2 commands are **not yet executable** until corresponding tasks are implemented/tested. No project installer, archive release manager, versioned symlink switch or one-click recovery.
 
-## 1. Topologi deployment
+## 1. Core topology, optional runtimes
 
-- Node.js 26 (gunakan versi patch yang diuji dengan dependency), npm, PM2.
-- MySQL 8.4 dan Redis tersedia sebagai layanan native/aaPanel (tanpa Docker).
-- Next.js web di loopback `127.0.0.1:3000`, Hono API `127.0.0.1:4000`, BullMQ worker tanpa port publik.
-- Nginx aaPanel: `/api/*` ke API dengan path tetap; selain itu ke web. HTTPS dan forwarded headers/cookie diuji.
-- Aplikasi, `.env`, media, backup dan log **di luar public webroot**. User deploy non-root dengan permission minimum.
+| Service | Core-only production | When optional module enabled |
+|---|---|---|
+| Node.js Next.js web | REQUIRED, private loopback :3000 | same |
+| Node.js Hono API | REQUIRED, private loopback :4000 | same |
+| MySQL 8.4/Drizzle | REQUIRED | one central schema/journal for all modules |
+| Redis | NOT REQUIRED | required when `requiresJobs=true` |
+| BullMQ worker via PM2 | NOT STARTED | only if enabled modules require jobs |
+| LocalFs media | static fallback branding only | enable private/public media when Media selected |
+| Independent encrypted offsite backup + CLI recovery | **REQUIRED before Core production** | same even if Operations UI absent |
 
-## 2. Folder manual — tanpa release directory/symlink manager
+Nginx aaPanel terminates HTTPS, forwards `/api/auth/*` and `/api/v1/*` to Hono without rewriting the route, sends `/*` to Next. Preserve trusted forwarded host/proto and secure same-origin cookies. Web/API and DB ports remain private. Core-only readiness must not fail because Redis is absent.
 
-```text
-/srv/apps/my-project/
-├── apps/              # cloned source: web/api/worker after monorepo P01
-├── packages/
-├── infra/
-├── package.json
-├── package-lock.json
-├── .env                # private, never committed
-└── storage/            # private media, backups, logs, temp
-```
-
-Gunakan path terpisah per proyek; dapat memilih layout lain dengan prinsip same security. **Tidak perlu** `releases/`, `current` symlink, archive manifest, `apps/installer`, atau installer.env.
-
-## 3. Clone dan konfigurasi pertama
+## 2. New project via manual clone
 
 ```bash
-# Run as unprivileged deployment user, in approved private directory:
-git clone <authorized-project-repository-url> my-project
+git clone <authorized-project-repo-url> my-project
 cd my-project
 node --version
 npm --version
 npm ci
 ```
 
-Set environment production secara manual dari `.env.example` (setelah file tersebut tersedia). Siapkan database MySQL dan user dengan grants minimum untuk runtime; kredensial migration dengan hak terbatas yang terpisah bila perlu. Set unique Redis prefix/queue, secret auth acak kuat, origin/hostname, private media and backup paths, restrictive file permissions. **Never copy** live users/sessions/media/backups/secrets from the starter.
+Create private `.env` and project-unique DB user/name, media/backups/storage directory and optional Redis prefix if jobs selected. Choose operator-specific admin email and secret; do not use a universal address/password or copy old project data. Use an unprivileged deployment user, nonpublic root such as `/srv/apps/<project>/`.
 
-**Jangan gunakan** `npm run db:push` ke production tanpa review; pakai migrasi versi yang telah diperiksa, bukan schema overwrite.
+Static `enabledModules` is source-controlled; validate module dependency closure and version hash parity between web/API on build/start. CMS requires Media. Disabled modules must have no route, menu, permission grant or OpenAPI entry; module selection **does not skip database migrations**.
 
-## 4. Initial database + admin setup — target npm scripts
-
-**Planned (not yet executable on current root Next scaffold):**
+## 3. Manual migration and bootstrap (target scripts only)
 
 ```bash
 npm run db:migrate:check
@@ -53,49 +41,39 @@ npm run setup:admin
 npm run setup:verify
 ```
 
-Urutan: preflight DB/environment → reviewed migration → permission registry sync → idempotent roles/system seed → one-time admin setup with non-echo private password input → verify actual login and first-password-change. Never use plaintext credentials in arguments, logs, scripts or Git. Re-run must not reset existing password or duplicate privileged users.
+Review generated SQL/migration compatibility, use distinct privileged migration credentials, ensure separate test/prod targets. Seeds are idempotent and permission grants revoked on disable are not auto-restored when modules re-enabled. `setup:admin` uses secure non-echo operator input (email + password) and never resets existing admin.
 
-If an operation fails, stop, inspect migration history and test fixtures; do not drop a schema, apply a guessed fix or re-seed blindly.
-
-## 5. Build, PM2, Nginx
-
-**Target** after P01/P16 scripts/PM2 config are implemented:
+## 4. Manual build and PM2/Nginx
 
 ```bash
+# Commands become real only after P16 setup/build tasks:
 npm run build
 pm2 start infra/pm2/ecosystem.config.cjs
 pm2 status
-pm2 logs --lines 50
 ```
 
-PM2 must use the tested actual built entrypoints for Next.js, Hono and worker, private env, independent restart policies and graceful stop. Do **not** assume these commands work until scripts exist. Nginx template will be `infra/nginx/locations.conf` after P16; keep app ports loopback, enforce HTTPS, test `/api/auth/*` cookies, headers, timeout and upload limit.
+Start **web+API**, not three processes unconditionally. Start worker/Redis only for configured Jobs capability and verify queue health separately. Validate PM2 entrypoint paths against actual build output. Nginx and TLS run through aaPanel; test `/api/health/live`, `/api/health/ready`, `/api/health/subsystems` and actual login cookie/401/403. Never expose private env, backup, media or logs from webroot.
 
-Use a deployment-specific service user rather than `root`; configure startup/restart only after verifying the real service paths. Use local health checks and a login/RBAC smoke test to verify after deployment.
+## 5. Independent backup + disaster recovery CLI
 
-## 6. Manual update with recovery plan
+Production requires a separate, operator-controlled CLI (target implementation under `tools/recovery`), Linux timer, consistent MySQL + LocalFs snapshot, restic encrypted offsite repository, manifest/checksum and controlled retention/GC. Operator verifies backup age and performs **isolated staging restore drill** before declaring production ready.
 
-1. Record currently running commit, modified/uncommitted files, exact service/environment versions and backup status.
-2. Ensure an independently verified backup and recovery access before any incompatible schema change; plan safe maintenance/drain if writes/worker jobs would conflict.
-3. Review migration SQL against a separate test MySQL DB, compatibility and potential irreversible data operations; **production approval is separate from code review**.
-4. Pull/fetch a trusted target commit with `git pull --ff-only` only if branch has no conflicting local edits; never force-reset live source.
-5. Run `npm ci` and actual production build; migrate only after approval, then restart/reload PM2 with checked entrypoints.
-6. Verify auth, permissions, CMS, uploads, worker, backup health and logs. If code is bad, a Git checkout to the previous commit is a **manual source rollback**, not database rollback.
+A destroyed VPS or broken Hono/Redis must not prevent restoring from offsite backup. Production cutover is **manual only**, after staging validation, approval, external journal, maintenance and a pre-cutover recovery snapshot. No HTTP `POST /backups/:id/restore` endpoint, no BullMQ automatic restore, no user-facing one-click production restore.
 
-## 7. Backup, restore, observability
+RPO **target** 24 h and RTO **target** 8 h; do not claim achieved until an actual drill has measured them. Optional Operations UI may show status/freshness but is not the recovery authority.
 
-Backups must be protected, encrypted and regularly verified by importing into a **disposable isolated database**, not directly into a live instance. Restore requires re-auth, explicit approval, maintenance/lock, checked archive and an operator-managed recovery plan. Never auto-repeat a destructive restore.
+## 6. CI, manual deploy and safe update
 
-Logs must redact tokens/passwords. Prefer structured logs with audit events for sensitive writes. Optional external observability should never be required for base installation.
+CI must automatically run scoped checks, Core-only no-Redis smoke, security negatives and dependency/license checks. Production deployment is **manual** from an approved commit SHA with proven CI result and migration plan. Verify offsite backup, stage migration in isolated MySQL, obtain operator approval, `git pull --ff-only` only on clean tree, run tested npm install/build/migrate commands, restart PM2, validate health/login/RBAC and monitor logs.
 
-## 8. Verify before calling this deployment production-ready
+A manual Git checkout to an older code commit **cannot roll back the MySQL schema**. If incompatible migration/failed deploy, remain in maintenance and follow operator recovery journal; no blind reset/drop/auto retry.
 
-- [ ] Three processes start, stop and survive restart using tested build scripts.
-- [ ] MySQL/Redis and storage are isolated per project.
-- [ ] Login, logout, password reset, first-admin password change and 401/403 paths pass.
-- [ ] CMS public renders only published revision; private media restricted.
-- [ ] Negative tests for uploads, permissions, idempotent seed and migration drift pass.
-- [ ] Verified encrypted backup, isolated restore test and manual recovery plan exist.
-- [ ] Full HTTPS/Nginx /api proxy and cookies validated.
-- [ ] No Docker, installer, archive version manager, secret in source or deployment by coding agent without approval.
+## 7. Release gates
 
-Reference: [Manual Clone Setup](docs/MANUAL-CLONE-SETUP.md), [Operations Patterns](docs/references/OPERATIONS.md), [P16 Tasks](docs/agent/phases/P16-manual-clone-and-deployment.md) (phase filename retained for compatibility; its content now targets manual deployment).
+- **Core M2/P16-11**: Next+Hono+MySQL Auth/RBAC/dashboard/settings/theme/audit, independent encrypted offsite backup and recovery CLI, manual deploy/CI, security review. **Redis, Worker, Media, CMS, Operations disabled**.
+- **Media M3/P09-07**: public/private file lifecycle + negative cases.
+- **CMS M4/P11-07**: requires certified Media; SSR published-only and private preview.
+- **Jobs/Operations M5/P13-06/P14-07**: Redis/BullMQ resilience and optional status UI.
+- **Full module matrix M6/P16-12**: selected combinations, config hash, invalid dependencies and clean clone tests.
+
+**Do not call the feature deployed** until real scripts, infrastructure, tests, and reviews are observed. See [Architecture Operations](docs/architecture/OPERATIONS-RUNBOOK.md), [Server v2 addendum](docs/revisions/README-SERVER-v2-ADDENDUM.md), [Manual Clone](docs/MANUAL-CLONE-SETUP.md).

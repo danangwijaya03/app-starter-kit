@@ -1,36 +1,38 @@
-# P11 — Public CMS & Navigation
+# P11 — Public CMS
 
-**Ditujukan untuk: CODING AGENT.** This phase is a planned implementation, not evidence of completed functionality. **Provider/model agnostic:** use the active coding agent available (Codex/Claude Code/Antigravity/DeepSeek/etc.); risk gate is independent of model name.
+**Status:** planned implementation; no feature is complete based on architecture documentation alone. Coding-agent/provider neutral; one bounded task at a time.
 
-## Reviewable outcome
+## Accepted v2 outcome
 
-Published-only public routing, SEO, protected preview. A demo/fixture is labelled as such; do not claim a working API, RBAC or DB because a static page renders.
+Optional published-only SSR without persistent cache and protected preview. Review [Architecture v2 index](../../architecture/README.md), [ADR register](../../architecture/ADR/README.md), [v2 Reference Index](../../references/INDEX-V2.md) and the specific contract attached to the task. **Track:** cms.
 
-## Implementation flow
+The **Core release checkpoint P16-11** is cross-phase and does not wait for the optional Media/CMS/Jobs/Operations modules. The **module certification checkpoint P16-12** is separate. Phase ID does not mean the task must wait for all preceding phase numbers.
 
-1. `python3 tools/bootstrap_agent.py`, check `git status --short`, `docs/agent/CHECKPOINT.md` and next ready task.
-2. Read one task card and [Reference Map](../../references/REFERENCE-MAP.md); follow the [Adoption Protocol](../../references/ADOPTION-PROTOCOL.md) and focused playbook [CMS](../../references/CMS.md).
-3. **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT.**
-4. Follow the exact `depends_on` graph from TASKS.yaml rather than assuming list order is executable.
-5. On security-sensitive work, run appropriate positive, negative and concurrency/recovery tests; an **independent qualified reviewer** must approve effective high-risk tasks, regardless of the implementer's model/provider. Production changes require separate operator approval.
-6. Record actual source/test evidence, the verified preview route (or unavailable), feature mode and next task. Do not deploy automatically. All work targets clone-based setup; no installer, feature generator or Docker dependency.
+## Agent procedure
 
-## Tasks in this phase (7)
+1. Run `python3 tools/bootstrap_agent.py`, inspect `git status`, `docs/agent/CHECKPOINT.md`, `.venv-agent/bin/python tools/agent_tasks.py next`.
+2. Read one card, relevant `spec_refs`, [Reference Adoption Protocol](../../references/ADOPTION-PROTOCOL.md), and real source. Do not research every upstream repo or assume example source is trusted.
+3. **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**.
+4. Test the last modified source against disposable database/storage with positive/negative assertions. For Core, verify module-disabled behavior; for optional modules, verify enablement dependencies and correct 404/permission behavior. No secrets or production mutations.
+5. For effective high-risk tasks, an independently qualified reviewer must sign off before technical completion. This is **not** a mandate to use a specific model or High Reasoning effort level.
+6. Record actual preview URL/mode or diagnostic (not verified if inaccessible), test evidence, reference URL/license and checkpoint.
 
-| ID | Work unit |
-|---|---|
-| [P11-01](../tasks/P11-01.md) | Implement public published-only page service |
-| [P11-02](../tasks/P11-02.md) | Implement Next.js public block renderer |
-| [P11-03](../tasks/P11-03.md) | Implement navigation menus API with tree validation |
-| [P11-04](../tasks/P11-04.md) | Implement public navigation and admin editor |
-| [P11-05](../tasks/P11-05.md) | Implement secure preview and draft mode |
-| [P11-06](../tasks/P11-06.md) | Implement SEO, sitemap and cache revalidation |
-| [P11-07](../tasks/P11-07.md) | Verify public CMS gate |
+## Tasks (7)
 
-## Gate before advancing
+| ID | Delivery track | Planned work |
+|---|---|---|
+| [P11-01](../tasks/P11-01.md) | cms | Implement public published-only page service |
+| [P11-02](../tasks/P11-02.md) | cms | Implement Next.js public block renderer |
+| [P11-03](../tasks/P11-03.md) | cms | Implement navigation menus API with tree validation |
+| [P11-04](../tasks/P11-04.md) | cms | Implement public navigation and admin editor |
+| [P11-05](../tasks/P11-05.md) | cms | Implement secure preview and draft mode |
+| [P11-06](../tasks/P11-06.md) | cms | Implement SEO, sitemap and cache revalidation |
+| [P11-07](../tasks/P11-07.md) | cms | Verify public CMS gate |
 
-Every task in the phase must have current-source scoped test evidence, meet the reviewable outcome, and pass any independent high-risk review required by `agent_tasks.py`. Tests on disposable databases only. Do not claim documentation validation proves the runtime is implemented.
+## Phase gate
 
-## Recovery
+All phase tasks require real source tests, acceptance and any relevant independent review. **Do not treat the entire phase gate as a prerequisite for Core release when the phase contains optional tasks.** Source of truth for dependencies is `docs/agent/TASKS.yaml`; never manually bypass it. Server operations are clone/build/PM2/Nginx; worker/Redis only if the static module configuration requires background jobs.
 
-Inspect Git diff, current task/evidence and real DB migration state before resuming. Never blindly repeat bootstrap, migrations or restore. Manual clone/setup reference: [Manual Clone Setup](../../MANUAL-CLONE-SETUP.md).
+## Recover
+
+Review current task, source diff and migration history before retry. Do not repeat seed/bootstrap/restore blindly.

@@ -1,5 +1,7 @@
 # PRD — Product Requirements Document
 
+> **Architecture v2 (2026-11-14), target not implemented.** [Accepted ADRs](architecture/ADR/README.md) and [v2 Architecture Contracts](architecture/README.md) supersede contradictory v1 clauses. Preserve stable requirement IDs; see [v2 addendum](revisions/PRD-v2-ADDENDUM.md). Runtime source is still the static Next.js preview, not a completed full stack.
+
 **ID:** PRD-1.0 | **Date:** 2026-10-28 | **Status:** Implementation baseline | **Owner:** Product/Engineering
 
 > **Existing repository baseline (2026-10-29):** Next.js 16.4.3 / React 19.3.0 already exists at the Git repository root. Development uses **Lerd + Node.js 26 + npm/npx + existing MySQL and Redis services**. P01 will migrate the existing app to npm Workspaces / apps/web; do not recreate it. For operational details see [LOCAL-LERD-NODE26.md](agent/LOCAL-LERD-NODE26.md). The requirements below describe the future completed product, not features already shipped.
@@ -8,7 +10,7 @@
 
 Provide a scalable, repeatable single-tenant starter kit for business dashboards, inventory/PO tools, CRM, company websites, and administrative applications. A newly initialized project must not inherit user data, secrets, sessions, audit trails or backups from the template. Backend remains useful for future native/mobile consumers.
 
-**Success criteria:** a development environment can be initialized from an existing clean clone; a fresh manual clone + configured production build produces a functioning login, permission-limited admin shell, CMS public pages, settings and backup workflows; adding a new module through module registry does not require changing existing RBAC internals or main menu shell.
+**Success criteria:** (1) Core-only clean clone deploys Next.js + Hono + MySQL with real Auth, RBAC, settings/theme, transactional audit, health, independent encrypted offsite backups and operator CLI recovery, without Redis/Media/CMS/Operations; (2) optional Media, CMS and Jobs/Operations are certified separately. No installer or default multi-tenant SaaS.
 
 ## PRD-02 Actors and roles
 
@@ -23,24 +25,19 @@ Provide a scalable, repeatable single-tenant starter kit for business dashboards
 
 Default roles are system seed templates. A user can hold multiple roles; grant union, no explicit deny for MVP. Public signup is disabled. Super Admin role has protected system semantics and sees all registered active permissions. Admin creation is private/secure, invitation-first when email is configured.
 
-## PRD-03 Scope and priority
+## PRD-03 Scope and priority — architecture v2
 
-**MVP (MUST):**
+**Core MUST (M0–M2):** Better Auth identity/session with invitation-first users; server-enforced app RBAC, protected Super Admin and limited delegation; public signup disabled; dashboard and user/role administration; typed settings, semantic themes, immutable snapshots and user color mode; transactional audit and health; Hono typed API with centralized MySQL migrations; encrypted offsite backup, independent CLI staging recovery and manual approved-commit CI+PM2/Nginx deployment. Initial admin email is operator-supplied, never a hardcoded default.
 
-1. Login/logout/password reset/first-login password change, session status, profile.
-2. Admin dashboard with permission-aware registry widgets and recent activity.
-3. Users CRUD (non-destructive deactivation), search/filter/pagination, role assignment, session revocation.
-4. Roles CRUD, grouped permission checkbox matrix, system role protection, module permission registry, authorization audit.
-5. CMS pages, versioned revisions, block editor, save draft, preview, publish/unpublish, public rendering, basic SEO.
-6. Media library: secure upload, metadata, reference-safe delete, filesystem storage adapter.
-7. Public navigation menus, 2-level nesting and ordered links.
-8. General settings (name, short name, logo, favicon, language, timezone/date format), theme appearance and Salt & Pepper default preset.
-9. Audit log viewer, system job status, verified MySQL backup; staged restore and documented recovery controls.
-10. OpenAPI docs for business API, typed contracts, migrations and repeatable system seed.
-11. Clone-based manual setup and production deployment without Docker; npm migrate/seed/admin scripts, PM2 and aaPanel/Nginx guidance.
-12. Reference-driven feature docs + server README + selected coding agent task/checkpoint workflow and CI/manual-deploy verification.
+**Optional SHOULD with independent certification:** Media (LocalFs public/private lifecycle, no Redis required for basic files); CMS (requires enabled Media; structured immutable revisions, preview/publish, published-only SSR, navigation); Jobs and Operations (Redis/BullMQ worker conditional when enabled modules declare `requiresJobs`; optional Operations status UI, **never** one-click production restore).
 
-**Later (SHOULD/OPTIONAL, not MVP):** multi-tenant organization management, 2FA/SSO/passkeys, scheduled publication, multilingual content, arbitrary custom content types, drag-and-drop Webflow-style builder, S3 storage adapter (interface in MVP), multi-node clustering, notification/webhook, feature flag UI, custom dashboard builder, theme marketplace, advanced workflow approvals.
+**COULD (deferred):** S3/R2 adapter, SSO/2FA, translations, scheduled publishing, telemetry, webhook/integration modules, optional persistent cache, SaaS extensions and PITR.
+
+**WON'T for MVP:** installer/project generator, dynamic module toggles, conditional DB schemas, mandatory worker/Redis, executable HTML/JS blocks, production restore over HTTP, automated production deployment or microservices.
+
+**Core navigation:** Dashboard, Manage User, Setting with Audit; Manage Content appears only if Media/CMS permissions/modules have visible entries. Operations UI is hidden unless enabled. Four approved top-level groups are a layout taxonomy, **not a requirement to render empty disabled groups**.
+
+**Core-first release:** phase task IDs preserve historical workstreams; [P16-11](agent/tasks/P16-11.md) is the cross-phase Core release checkpoint. Optional modules have independent test gates; [P16-12](agent/tasks/P16-12.md) certifies selected combinations.
 
 ## PRD-04 Information architecture
 
@@ -76,13 +73,13 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 | RBAC-REQ-01 | MUST | CRUD roles/permission matrix | Exact registry codes, group select-all, save/reload correct |
 | RBAC-REQ-02 | MUST | Deny by default backend | 401 no auth; 403 no permission, including direct API calls |
 | RBAC-REQ-03 | MUST | Module manifest + sync | New permission shows in editor after sync, not auto-granted |
-| CMS-REQ-01 | MUST | Pages and immutable revisions | Editing draft does not change published page or slug |
-| CMS-REQ-02 | MUST | Preview/publish/unpublish | Preview requires authorized short-lived session; public only published revision |
-| CMS-REQ-03 | MUST | Typed block registry | Invalid block props rejected; missing renderer handled safely |
-| CMS-REQ-04 | MUST | Public SEO | Title, description, OG assets reflect published revision |
-| MEDIA-REQ-01 | MUST | Safe upload | Server validates type, size, signature, authorized storage key |
-| MEDIA-REQ-02 | MUST | Safe delete | Files referenced by published content cannot be deleted |
-| NAV-REQ-01 | MUST | 2-level public nav | No cycle/cross-menu parent; unpublished links excluded |
+| CMS-REQ-01 | SHOULD | Pages and immutable revisions | Editing draft does not change published page or slug |
+| CMS-REQ-02 | SHOULD | Preview/publish/unpublish | Preview requires authorized short-lived session; public only published revision |
+| CMS-REQ-03 | SHOULD | Typed block registry | Invalid block props rejected; missing renderer handled safely |
+| CMS-REQ-04 | SHOULD | Public SEO | Title, description, OG assets reflect published revision |
+| MEDIA-REQ-01 | SHOULD | Safe upload | Server validates type, size, signature, authorized storage key |
+| MEDIA-REQ-02 | SHOULD | Safe delete | Files referenced by published content cannot be deleted |
+| NAV-REQ-01 | SHOULD | 2-level public nav | No cycle/cross-menu parent; unpublished links excluded |
 | SET-REQ-01 | MUST | General branding configuration | Name/logo update without rebuild after cache invalidation |
 | THEME-REQ-01 | MUST | Salt & Pepper preset customizable | Light/dark/system and validated semantic tokens |
 | AUDIT-REQ-01 | MUST | Non-editable audit history | Role, publishing, settings, backup and restore events searchable |
@@ -98,7 +95,7 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 
 - Only authenticated/active users can access admin business APIs; session revoke/disable becomes effective at next protected request.
 - First login sets a server-side must_change_password flag in user_profiles; enforcement also applies to API.
-- A bootstrap account uses admin@codelight.id; initial password supplied via protected non-echo manual setup input, never embedded in source/docs. Require unique production password and change on first login.
+- A bootstrap account uses operator-supplied initial admin email; initial password supplied via protected non-echo manual setup input, never embedded in source/docs. Require unique production password and change on first login.
 - Protected role changes, backup restore and credential actions require recent re-authentication.
 
 ### CMS
@@ -117,9 +114,9 @@ Profile/logout accessible from user dropdown, not top-level sidebar. Admin navig
 
 ### Backup/restore
 
-- Logical dump of compatible MySQL InnoDB tables; manifest includes schema/app version, checksum, encryption metadata and media coverage.
-- Backup database only is distinguished from full app backup. Restore from verified managed artifact only in MVP.
-- Restore workflow must maintain off-database journal, pre-restore snapshot and documented recovery path; never promise atomic import.
+- **Core MUST:** independent Linux CLI/scheduler for consistent MySQL and optional private LocalFs backup into encrypted offsite repository (restic or reviewed equivalent), with manifest, checksum and recurring isolated restore verification. The independent recovery CLI must be usable if Hono/Redis/MySQL production is down.
+- **Operations SHOULD:** authorized read-only backup/status verification dashboard. **No destructive production restore API or browser button.** Staging validation and operator-approved cutover are performed via independent CLI with an external journal, no automatic retry.
+- RPO target 24 hours and RTO target 8 hours are **unproven goals** until measured by a disaster-recovery drill.
 
 ## PRD-07 Nonfunctional acceptance
 
@@ -165,3 +162,7 @@ See [Development Roadmap](DEVELOPMENT-ROADMAP.md), [Preview/Feedback](agent/PREV
 - **REF-REQ-03 (SHOULD):** Catalog optional reusable ideas (2FA, notifications, i18n, observability, optional storage) without making them new MVP requirements automatically.
 
 See [Reference Map](references/REFERENCE-MAP.md), [Manual Clone](MANUAL-CLONE-SETUP.md), [Single Model](agent/SINGLE-MODEL-WORKFLOW.md).
+
+## PRD-12 Architecture v2 normative alignment
+
+Use [PRD v2 addendum](revisions/PRD-v2-ADDENDUM.md), [16 ADRs](architecture/ADR/README.md), [Core/Module Release Gates](architecture/TESTING-RELEASE.md) and [v2 Reference Baseline](references/ARCHITECTURE-BASELINE.md). Existing stable requirement IDs are retained; optional module requirements change MoSCoW priority, not identity. No new feature is considered implemented by this documentation revision.

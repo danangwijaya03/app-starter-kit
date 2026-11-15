@@ -1,105 +1,95 @@
-# IPD — Implementation Plan Documentation
+# IPD — Implementation Plan Documentation (Architecture v2)
 
-**Status:** executable task-plan contract, not proof of completed features. **17 phases P00–P16**, `docs/agent/TASKS.yaml` authoritative for the count, IDs and dependencies. Reuse architecture: clone/manual setup, curated references, selected coding agent.
+**Approved design as of 2026-11-14, not yet implemented.** `docs/agent/TASKS.yaml` is authoritative for task IDs, statuses and dependency edges. The original 156 IDs remain; six new scoped prerequisites/certification tasks yield **162 planned tasks**, all pending until source tests/reviews pass.
 
 ## IPD-01 Principles
 
-Keep `main` and existing Next.js root scaffold, move into monorepo at P01. Every task ID has a scoped card, dependency, testable outcome and safe checkpoint. A task is not complete because documentation, files or a fixture exist.
+Build a clone-based single-tenant Modular Core using npm workspaces, Next.js Web and standalone Hono API with MySQL/Drizzle. Worker/Redis only for selected jobs-enabled modules. No installer, Docker or dynamic module toggle UI. Do not regenerate existing Next.js source. [Accepted ADRs](architecture/ADR/README.md), [Unified SPEC](../SPEC-001-app-starter-kit-modular-core.md), [Technical Contracts](architecture/README.md), [v2 IPD addendum](revisions/IPD-v2-ADDENDUM.md).
 
-Lifecycle: **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. Select one ready task, one domain [reference](references/REFERENCE-MAP.md); adapt a tested official library/pattern instead of wholesale starter copy. Source URL/version/license and exclusions must be recorded when code is imported. Do not add optional features to MVP automatically.
+The active implementation loop is **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. One coding agent per bounded task/session (Codex, Claude, Antigravity, DeepSeek, etc.), model-neutral; independent high-risk review and production operator approval are separate.
 
-## IPD-02 Stable phase sequence and outcomes
+## IPD-02 Core-first milestones and dependency graph
 
 ```mermaid
-flowchart TD
- P00 --> P01 --> P02 --> P03 --> P04 --> P05 --> P06
- P05 --> P07
- P06 --> P07 --> P08
- P05 --> P09
- P06 --> P09 --> P10 --> P11
- P09 --> P12
- P02 --> P13
- P05 --> P13
- P13 --> P14
- P09 --> P14
- P12 --> P14 --> P15
- P11 --> P16
- P08 --> P16
- P12 --> P16
- P15 --> P16
+flowchart LR
+ A[M0 specs and module catalog] --> B[M1 Core functionality]
+ B --> C[M2 Core production readiness]
+ C --> D[M6 selected-module validation]
+ B --> E[M3 Media]
+ E --> F[M4 CMS]
+ B --> G[M5 Jobs and optional Operations]
+ E --> D
+ F --> D
+ G --> D
 ```
 
-This diagram is a high-level overview; **the exact `depends_on` edges in TASKS.yaml win**. Early web preview occurs at P00/P01 and is marked fixture, while authenticated shell completes at P06.
-
-| Milestone | Phases | Deliverable |
+| Gate | Exact technical proof | Dependencies |
 |---|---|---|
-| A | P00–P03 | Specs/reference playbooks, npm monorepo three apps, dev preview, MySQL/Redis integration |
-| B | P04–P08 | Better Auth, protected RBAC/first admin **manual script**, authorized shell, user/role and dashboard |
-| C | P09–P12 | Media, CMS editor, published pages/nav, settings/theme |
-| D | P13–P16 | Worker, encrypted backup, staged restore, **manual clone/build/PM2/Nginx setup verification** |
+| M0 (specs) | ADR-001..016, v2 docs, module config contract, task graph valid | P00 and P01-10 |
+| M1 (functional Core) | Hono/Next/MySQL, Better Auth, app RBAC, active/invited users, delegation/last-admin protection, dashboard | P03-10, P04, P05-10, P06–P08 |
+| **M2 Core release** | Core-only web/API/MySQL, settings/theme/audit, independent encrypted backup + CLI recovery and manual CI/PM2/Nginx readiness, **without Redis/worker/Media/CMS/Operations** | **P16-11**, including relevant P12, P14-08 and P15 |
+| M3 Media | safe LocalFs, private/public delivery, lifecycle and reference protection | P09-07 |
+| M4 CMS | Media-certified, immutable revisions/idempotent save, published-only SSR and guarded preview | P11-07 |
+| M5 Jobs/Operations | durable MySQL dispatcher and BullMQ replay; optional Operations backup status UI | P13-06 and P14-07 |
+| M6 full starter | active-module configuration/certification matrix, recovery drill and clean-clone verification | **P16-12**, independent of earlier M2 readiness |
+
+Phase numbers P00–P16 describe **historic workstreams** and do not require all optional-phase tasks to be completed before Core production readiness. DAG edges, not phase numbering, control execution.
 
 ## IPD-03 Atomic task and checkpoint
 
-1. RECOVER actual task status, Git diff, scoped requirements and tested safe fixtures.
-2. REFERENCE official package + at most one compatible source comparison, record license/version/expected adaptation and exclusions.
-3. IMPLEMENT one end-to-end bounded responsibility; split oversized pending tasks using reviewed split plan, retaining parent integration checkpoint.
-4. TEST scoped unit/integration/negative after last source edit; use disposable MySQL/Redis, no hidden skips.
-5. VERIFY permission, rollback/idempotency and concurrency as appropriate; for `effective_risk: high`, independent qualified reviewer must approve before `complete`.
-6. PREVIEW verified local route or read-only diagnostic, label fixture/integrated; user review queue separate from CLI status.
-7. CHECKPOINT source hash, commit, tests, source attribution, blocked risks and next ready task.
-8. NEXT continue independent safe ready task within current session; never imply background execution.
+1. RECOVER actual current source/branch/task/working tree, safe fixtures and prior proof.
+2. REFERENCE choose the [v2 Reference Index](references/INDEX-V2.md) and matching ADR/contracts; record upstream URL/version/license only when adapting code.
+3. IMPLEMENT a bounded end-to-end slice and direct dependencies. Honor static module dependency guard, centralized migration and source import boundaries.
+4. TEST real scoped unit/integration/negative, MySQL concurrency and recovery/Redis outage as relevant, after final edit. No production fixtures.
+5. VERIFY behavior and relevant permissions/transaction side-effects; effective high-risk requires qualified **independent** review, not a particular model.
+6. PREVIEW exact verified URL and fixture/integrated state, or a read-only terminal diagnostic with truthful limitations.
+7. CHECKPOINT test evidence, source fingerprint, references, review result, task status and next ready task.
+8. NEXT continue safe ready work; blocked high-risk review does not authorize self-approval.
 
-Technical states: `pending → in_progress → completed → verified`, with `blocked` when necessary. Phase gates require all child tasks completed and matching current-source test evidence. Human preview review does not promote technical status.
+State transitions remain in `agent_tasks.py`; user visual review is separate from technical verification and production approval.
 
-## IPD-04 Workstreams and agent assignment
+## IPD-04 Technical workstreams
 
-All task implementations use **selected coding agent**. No High Reasoning model is required, including for auth/RBAC/backup/restore; those areas nevertheless demand **stronger negative/concurrency tests and independent review**. Reviewer independence is about different qualified review, not model-name or effort selection.
+- P00/P01: accepted v2 docs, static module catalog `enabledModules` with dependency validation, monorepo web/API + optional worker.
+- P02/P03: MySQL dev/test and 21-table centralized Drizzle journal; Better Auth schema generated from pinned version, Redis optional; no conditional migrations.
+- P04/P05: invitation status, first-login enforcement, bounded role delegation, atomic audit, last-active-superadmin locking.
+- P06–P08: Core admin and dashboard with disabled-module links/widgets suppressed.
+- **Core prerequisite subset from P12:** typed general settings, immutable semantic themes, static fallback logo, per-user mode, audit. P12-03 Media branding is optional, not a Core blocker.
+- **Core prerequisite subset from P14/P15:** independent backup + offsite manifest/restic/staging verification and operator-only independent recovery CLI; Operations API/UI is optional.
+- **Core prerequisite subset from P16:** source clone, npm build, approved-SHA CI, Core-only PM2 web/API, Nginx/HTTPS, migration/seed/admin guards, backup/recovery drill. Optional worker build must not block Core.
+- P09: Media independent certification, then P10/P11 CMS, and P13 Jobs/Operations separately.
 
-P00 docs, P01 monorepo, P02 local Lerd, P03 MySQL/Drizzle, P04 authentication, P05 app RBAC/admin bootstrap, P06 admin UI, P07 users/roles, P08 dashboard, P09 media, P10 CMS editor, P11 public CMS, P12 settings, P13 worker, P14 backup, P15 recovery, **P16 manual setup and deployment**.
+## IPD-05 Security, migration and feature boundaries
 
-## IPD-05 Dependencies and risk boundaries
+Single Better Auth identity/session owner; single application RBAC owner. Delegation checks actor current grants, delegable/sensitive metadata, protected roles and self-elevation. Serialise all last-superadmin mutations via a consistent MySQL role-row lock order; transactional audit preserves history.
 
-- Auth schema generated from installed Better Auth version before reviewed Drizzle MySQL migration.
-- Business API authorization is server-side; admin menu hiding is insufficient. Admin created only after roles/permission sync.
-- CMS draft privacy, same-page published revision pointer and media reference safety maintained atomically.
-- Worker idempotency, backup verification and restore isolation are required; never auto-retry restore.
-- Production operations need explicit operator authorization. Tests never write to dev/shared/production DB by accident.
-- No `apps/installer`, project generator, artifact release manager, release manifest/checksum/symlink switching workflow or Docker dependency.
+Static module map: Core always enabled, Media optional, CMS→Media, Operations→Jobs. Reject unknown/cycles/mismatches at startup. Disabled modules have no API/page/navigation/grants/OpenAPI; all database tables remain migrated in a single history. Optional worker/Redis must never break Core-only startup.
 
-## IPD-06 Evidence matrix
+CMS uses save_key/request_hash/expectedRevisionNo immutable revisions; SSR public cache is not persistent for MVP. Jobs persist MySQL intent, leased dispatch and at-least-once idempotent worker execution. No HTTP or BullMQ production restore.
 
-| Work category | Minimum proof |
+## IPD-06 Evidence and risk gates
+
+| Track | Real acceptance evidence |
 |---|---|
-| P00 docs | Graph/docs validation with actual repository state |
-| P01–P03 | npm ci/build/launch, isolated service/DB checks, fixture/diagnostic preview |
-| P04–P05 | Auth 401/403, session lifecycle, negative and concurrent last-admin cases, independent review |
-| P06–P08 | Browser mobile/desktop, role-based navigation, real API data |
-| P09–P12 | Upload denial, CMS draft isolation/publish, settings persist, role-gated operations |
-| P13–P15 | Worker retry/replay, encrypted backup/checksum and disposable restore; independent review |
-| P16 | Clone/manual setup, npm commands and their failure modes, PM2/Nginx smoke and rehearsed recovery, no installer |
+| Core | no-Redis web/API boot, DB schema version parity, Auth session/user states, 401/403, RBAC delegation and race tests, Pino/audit, Core settings |
+| Media | private/public file tests, signature/dimension limits, pending→ready crash recovery, protected delete |
+| CMS | Media dependency validation, immutable save replay/409, renderer version, publish/preview isolation and fresh SSR |
+| Jobs | Redis outage, lease/replay after ack failure, no duplicated terminal side-effects |
+| Core production | offsite backup freshness, recovery from empty staging, manual approved commit/CI, PM2/Nginx/HTTPS and Core-only smoke |
+| Optional matrix | per-module config hash and separate certification, including invalid module combinations |
 
-## IPD-07 Manual clone and server setup
+CI passing, documentation validation or a static preview does not prove application behavior. Independent review required for high-risk changes regardless of coding model.
 
-Target after scripts are implemented:
-```bash
-npm ci
-# configure private .env, unique MySQL/Redis/storage first
-npm run db:migrate:check
-npm run db:migrate
-npm run permissions:sync
-npm run db:seed
-npm run setup:admin
-npm run setup:verify
-npm run build
-# review and start PM2 / Nginx manually
-```
+## IPD-07 Manual clone and operator setup
 
-The **current** root Next.js has only `dev`, `lint`, `build`. These other scripts are **planned** and must be implemented/tested before use; docs do not make them executable. See [Manual Clone Setup](MANUAL-CLONE-SETUP.md) and [Server README](../README-SERVER.md).
+After scripts are implemented (not currently available on initial Next.js root scaffold): `npm ci`, private env / unique MySQL, `npm run db:migrate:check`, `npm run db:migrate`, `npm run permissions:sync`, `npm run db:seed`, `npm run setup:admin` (operator-supplied email and secret), `npm run setup:verify`, `npm run build`, PM2 web/API and optional worker, Nginx same-origin.
 
-## IPD-08 Manual update and recovery
+See [Manual Clone](MANUAL-CLONE-SETUP.md), [Server Guide](../README-SERVER.md), [Operations Runbook](architecture/OPERATIONS-RUNBOOK.md). Production restore uses a **separate disaster-recovery CLI** capable of working when app runtimes fail; this is not an installer.
 
-Review/backup → test SQL migration in isolated MySQL → operator-approved migration → Git pull trusted commit → npm ci/build → PM2 restart → smoke test. A code rollback via Git does not undo a DB migration. No automated release/rollback service, versioned directory manager, destructive reset or auto-restore.
+## IPD-08 Update, rollback and recovery
 
-## IPD-09 Completion
+Automatic CI; manual production deploy from an approved commit SHA and reviewed migrations. Offsite recovery backup and staging drill before release, operator approval for destructive operations. Git source rollback does not roll back MySQL schema; never auto-retry recovery or silently alter database history.
 
-All task gates verified with current source evidence, real UI/auth/RBAC/CMS/media/queue/backup/restore tests, standalone new-project clone setup tested, production PM2/Nginx instructions reproduced on isolated equivalent environment, reference license ledger maintained, no private data or hardcoded secret shipped.
+## IPD-09 Definition of done
+
+**Core may be production-ready after P16-11** only with Core proofs, independent security review, real offsite backup/recovery drill and manual deployment verification. **Complete reusable starter including optional modules** requires separately selected module gates and P16-12 certification. No task status promoted on document edit.

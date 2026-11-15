@@ -14,7 +14,7 @@ Seluruh command `agent_tasks.py` dan `validate_plan.py` selanjutnya memakai `.ve
 
 Task lifecycle: **RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT**. At each slice capture actual scope, upstream reference/version/license when source adapted, safe tests, fixture/integrated/diagnostic status, actual URL if verified and user review queue. If dev server fails, record failure rather than falsely claiming preview. Use `main`; never force reset or install Docker/installer CLI.
 
-## Startup setiap sesi
+## Architecture v2 source priority\n\nRead [v2 ADRs](../architecture/ADR/README.md), [Reference v2 Index](../references/INDEX-V2.md), and only the active card contract. Always-on: Next.js + Hono + MySQL; optional: Media/CMS/Jobs/Operations. Worker/Redis conditional, CMS requires Media. Core independently gates at P16-11; optional module certification at P16-12. No hardcoded first-admin email or HTTP restore.\n\n## Startup setiap sesi
 
 ```bash
 git status --short

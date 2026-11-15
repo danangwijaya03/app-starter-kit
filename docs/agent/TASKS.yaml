@@ -1,9 +1,12 @@
 metadata:
-  version: 2.0-clone-reference-single-model
+  version: 2.1-modular-core-architecture-v2
   baseline_date: '2026-10-29'
   initial_status: pending
   canonical_branch: main
   delivery_policy: incremental_preview
+  architecture_baseline: docs/architecture/README.md
+  core_release_gate: P16-11
+  selected_module_certification: P16-12
   coding_agent_policy: provider_agnostic_one_agent_per_task
   agent_workflow: docs/agent/SINGLE-MODEL-WORKFLOW.md
   reference_catalog: docs/references/REFERENCE-MAP.md
@@ -11,7 +14,7 @@ metadata:
   preview_policy: docs/agent/PREVIEW-AND-FEEDBACK.md
   review_queue: docs/agent/REVIEW-QUEUE.md
   rules: TASKS.yaml authoritative, clone + manual setup, provider-agnostic coding agent, independent high-risk review, no installer.
-  task_count: 156
+  task_count: 162
   microtask_parent_ids:
   - P01-01
   - P01-04
@@ -27,6 +30,7 @@ metadata:
 tasks:
 - id: P00-01
   phase: P00
+  delivery_track: core
   title: Verify specification decisions
   task_complexity: low
   preview_expectation: when_reviewable
@@ -55,6 +59,7 @@ tasks:
     session
 - id: P00-02
   phase: P00
+  delivery_track: core
   title: Initialize documentation and link index
   task_complexity: low
   preview_expectation: when_reviewable
@@ -84,6 +89,7 @@ tasks:
     session
 - id: P00-03
   phase: P00
+  delivery_track: core
   title: Preserve root AGENTS and specify nested rules for later creation
   task_complexity: low
   preview_expectation: when_reviewable
@@ -113,6 +119,7 @@ tasks:
     session
 - id: P00-04
   phase: P00
+  delivery_track: core
   title: Initialize task registry and checkpoint tooling
   task_complexity: low
   preview_expectation: when_reviewable
@@ -143,6 +150,7 @@ tasks:
     session
 - id: P00-05
   phase: P00
+  delivery_track: core
   title: Document architecture decisions and starter baseline
   task_complexity: low
   preview_expectation: when_reviewable
@@ -171,6 +179,7 @@ tasks:
     session
 - id: P01-01A
   phase: P01
+  delivery_track: core
   title: "Prepare npm workspace root from existing Next.js project"
   task_complexity: low
   preview_expectation: when_reviewable
@@ -205,6 +214,7 @@ tasks:
     session
 - id: P01-01B
   phase: P01
+  delivery_track: core
   title: "Create three application package identities"
   task_complexity: low
   preview_expectation: when_reviewable
@@ -237,6 +247,7 @@ tasks:
     session
 - id: P01-01C
   phase: P01
+  delivery_track: core
   title: Create shared package identities
   task_complexity: low
   preview_expectation: when_reviewable
@@ -267,6 +278,7 @@ tasks:
     session
 - id: P01-01
   phase: P01
+  delivery_track: core
   title: Create npm workspace and package identities
   task_complexity: low
   preview_expectation: when_reviewable
@@ -300,6 +312,7 @@ tasks:
     session
 - id: P01-02
   phase: P01
+  delivery_track: core
   title: Pin Node, npm and TypeScript strict configuration
   task_complexity: low
   preview_expectation: when_reviewable
@@ -331,6 +344,7 @@ tasks:
     session
 - id: P01-03
   phase: P01
+  delivery_track: core
   title: Define Turborepo task graph and package exports
   task_complexity: low
   preview_expectation: when_reviewable
@@ -360,6 +374,7 @@ tasks:
     session
 - id: P01-04A
   phase: P01
+  delivery_track: core
   title: "Relocate existing root Next.js into apps/web"
   task_complexity: low
   preview_expectation: when_reviewable
@@ -398,6 +413,7 @@ tasks:
     session
 - id: P01-04B
   phase: P01
+  delivery_track: core
   title: Create minimal Hono API runtime
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -427,6 +443,7 @@ tasks:
     session
 - id: P01-04C
   phase: P01
+  delivery_track: core
   title: Create minimal BullMQ worker runtime
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -435,10 +452,10 @@ tasks:
   scope:
   - apps/worker/src/index.ts
   steps:
-  - Create worker entrypoint that logs only nonsecret readiness; validate Redis env and handle SIGTERM cleanly
+  - "Implement a BullMQ worker scaffold as an optional runtime; do not require Redis for Core-only app startup. Do not start a worker unless enabled static modules require background jobs."
   acceptance_criteria:
-  - Create worker entrypoint that logs only nonsecret readiness
-  - Verify expected artifact exists and affected checks pass
+  - "Optional worker can build independently; Core-only web/API startup passes without REDIS_URL or worker."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -456,6 +473,7 @@ tasks:
     session
 - id: P01-04
   phase: P01
+  delivery_track: core
   title: Scaffold independent Next.js, Hono and worker entrypoints
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -488,6 +506,7 @@ tasks:
     session
 - id: P01-08
   phase: P01
+  delivery_track: core
   title: Deliver early Salt & Pepper shell as explicit UI fixture
   task_complexity: low
   preview_expectation: fixture
@@ -522,6 +541,7 @@ tasks:
 
 - id: P01-06
   phase: P01
+  delivery_track: core
   title: "Verify web API worker dev build targets"
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -553,6 +573,7 @@ tasks:
     session
 - id: P01-07
   phase: P01
+  delivery_track: core
   title: Create CI checks and secret scanning baseline
   task_complexity: high
   preview_expectation: when_reviewable
@@ -582,6 +603,7 @@ tasks:
     session
 - id: P01-09
   phase: P01
+  delivery_track: core
   title: Add repeatable development preview smoke and review handoff
   task_complexity: low
   preview_expectation: fixture
@@ -616,8 +638,42 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
 
+- id: P01-10
+  phase: P01
+  delivery_track: core
+  title: "Define static module catalog and cross-runtime validation"
+  task_complexity: high
+  preview_expectation: when_reviewable
+  depends_on:
+  - P01-03
+  scope:
+  - packages/config
+  - apps/api
+  - apps/web
+  steps:
+  - "Implement typed static enabledModules map for Media, CMS, Operations with Core always-on; validate IDs, dependency DAG, CMS→Media and jobs capability."
+  - "Require same config/version hash in Hono and Next; reject invalid options; disabled module routes/permissions/nav/OpenAPI are absent or denied, no dynamic DB migration."
+  acceptance_criteria:
+  - "Core-only starts without Redis or worker; unknown modules and CMS without Media fail configuration validation."
+  - "Web/API config mismatch and direct access to disabled module return safe failure."
+  validation:
+  - Real scoped positive/negative tests on isolated fixtures and independent review for high risk
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P01-10.md
+  output_artifact: packages/config/src/modules.ts
+  risk: medium
+  spec_refs:
+  - docs/architecture/MODULE-BOUNDARIES.md
+  - docs/references/ARCHITECTURE-BASELINE.md
+  execution_mode: local_disposable_only
+  estimated_scope: one bounded integration unit; split pending task if needed
 - id: P02-01
   phase: P02
+  delivery_track: core
   title: Create typed environment validation and examples
   task_complexity: low
   preview_expectation: when_reviewable
@@ -649,6 +705,7 @@ tasks:
     session
 - id: P02-02
   phase: P02
+  delivery_track: core
   title: Reuse existing Lerd MySQL with isolated dev/test schemas
   task_complexity: low
   preview_expectation: when_reviewable
@@ -678,6 +735,7 @@ tasks:
     session
 - id: P02-03
   phase: P02
+  delivery_track: core
   title: Reuse existing Lerd Redis and isolate queue connectivity
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -707,6 +765,7 @@ tasks:
     session
 - id: P02-04
   phase: P02
+  delivery_track: core
   title: Build database pool and Redis clients
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -718,10 +777,10 @@ tasks:
   - apps/api
   - apps/worker
   steps:
-  - mysql2 pooled connection with UTC and timeouts; Redis clients with safe retries and shutdown
+  - "Document and test Redis connectivity only for enabled jobs capability; keep Core-only local bootstrap without Redis. Do not install duplicate Lerd services."
   acceptance_criteria:
-  - mysql2 pooled connection with UTC and timeouts
-  - Connection lifecycle tests pass
+  - "Core-only local environment runs without Redis; with jobs enabled missing Redis is diagnosed clearly."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Connection lifecycle tests pass
   status: pending
@@ -738,6 +797,7 @@ tasks:
     session
 - id: P02-05
   phase: P02
+  delivery_track: core
   title: Add local development orchestration
   task_complexity: low
   preview_expectation: when_reviewable
@@ -768,6 +828,7 @@ tasks:
     session
 - id: P02-06
   phase: P02
+  delivery_track: core
   title: Validate all environment isolation and secrets hygiene
   task_complexity: high
   preview_expectation: when_reviewable
@@ -797,6 +858,7 @@ tasks:
     session
 - id: P02-07
   phase: P02
+  delivery_track: core
   title: Expose safe dev-only health diagnostics for API and local services
   task_complexity: medium
   preview_expectation: diagnostic
@@ -833,6 +895,7 @@ tasks:
 
 - id: P03-01
   phase: P03
+  delivery_track: core
   title: Generate Better Auth Drizzle MySQL schema
   task_complexity: high
   preview_expectation: when_reviewable
@@ -863,6 +926,7 @@ tasks:
     session
 - id: P03-02
   phase: P03
+  delivery_track: core
   title: Define app user profile and RBAC tables
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -891,6 +955,7 @@ tasks:
     session
 - id: P03-03A
   phase: P03
+  delivery_track: core
   title: Define CMS pages and revisions schema
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -899,11 +964,11 @@ tasks:
   scope:
   - packages/database/src/schema/cms-pages.ts
   steps:
-  - Define cms_pages and cms_page_revisions per BSD, unique pageId/revisionNo and published slug; do not manually
+  - "Generate Better Auth tables from the exact installed version and integrate via Drizzle; retain existing vendor schema compatibility and one migration history."
     alter existing auth tables
   acceptance_criteria:
-  - Define cms_pages and cms_page_revisions per BSD, unique pageId/revisionNo and published slug
-  - Verify expected artifact exists and affected checks pass
+  - "Exactly one reviewed Better Auth schema owner; no manual guess or parallel migration journal."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -921,6 +986,7 @@ tasks:
     session
 - id: P03-03B
   phase: P03
+  delivery_track: core
   title: Define CMS menus and menu items schema
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -929,11 +995,11 @@ tasks:
   scope:
   - packages/database/src/schema/cms-navigation.ts
   steps:
-  - Define cms_menus and cms_menu_items with self reference, sort order and foreign keys; do not allow cross-menu
+  - "Apply v2 application table fields: user_profiles invited, permissions delegable/sensitive, media status/visibility, CMS save key, durable jobs lease and backup verification; preserve existing 21 tables."
     parents in service layer
   acceptance_criteria:
-  - Define cms_menus and cms_menu_items with self reference, sort order and foreign keys
-  - Verify expected artifact exists and affected checks pass
+  - "Drizzle MySQL migration/schema covers v2 DB contract with safe backfill/indexes, no lost old rows."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -951,6 +1017,7 @@ tasks:
     session
 - id: P03-03
   phase: P03
+  delivery_track: core
   title: Add CMS pages/revisions and navigation schema
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -959,12 +1026,11 @@ tasks:
   scope:
   - packages/database/src/schema
   steps:
-  - Integration-only gate for child tasks of P03-03. Inspect each child output, run cross-boundary tests and resolve
+  - "Integrate all 21 logical tables into ONE versioned Drizzle/MySQL migration journal, including disabled module tables; include Better Auth generated schema and v2 contract deltas."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Add pages, immutable revisions, published pointer same-page constraint, menus/items
-  - Migration and FK tests pass
+  - "Single Drizzle journal and MySQL 8.4 migration work; disabling a module never drops or skips tables."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Migration and FK tests pass
   status: pending
@@ -981,6 +1047,7 @@ tasks:
     session
 - id: P03-04
   phase: P03
+  delivery_track: core
   title: Add media, settings and user preferences schema
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -1009,6 +1076,7 @@ tasks:
     session
 - id: P03-05
   phase: P03
+  delivery_track: core
   title: Add audit, system jobs and backup tables
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1037,6 +1105,7 @@ tasks:
     session
 - id: P03-06
   phase: P03
+  delivery_track: core
   title: Generate and review migration history
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1068,6 +1137,7 @@ tasks:
     session
 - id: P03-07
   phase: P03
+  delivery_track: core
   title: Build transaction helper and repository abstractions
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -1097,6 +1167,7 @@ tasks:
     session
 - id: P03-08
   phase: P03
+  delivery_track: core
   title: Implement audit event service and seed base
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -1106,10 +1177,10 @@ tasks:
   - apps/api/src/modules/audit
   - tools/manual-setup
   steps:
-  - Central audit creation within transactions; seed framework with idempotent marker
+  - "Verify all 21 tables in shared Drizzle journal, backfills, indexes and migration drift using clean disposable MySQL 8.4; no conditional schemas for optional modules."
   acceptance_criteria:
-  - Central audit creation within transactions
-  - Audit integrity and seed rerun tests pass
+  - "DB migration tests pass and module toggle never changes table count or migrations."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Audit integrity and seed rerun tests pass
   status: pending
@@ -1126,6 +1197,7 @@ tasks:
     session
 - id: P03-09
   phase: P03
+  delivery_track: core
   title: Connect safe DB readiness to development health diagnostic
   task_complexity: high
   preview_expectation: diagnostic
@@ -1159,20 +1231,56 @@ tasks:
   - docs/agent/PREVIEW-AND-FEEDBACK.md
   execution_mode: local_disposable_only
   estimated_scope: one narrow unit; split if cross-package work exceeds safe review scope
+- id: P03-10
+  phase: P03
+  delivery_track: core
+  title: "Verify centralized MySQL migrations and v2 schema deltas"
+  task_complexity: high
+  preview_expectation: when_reviewable
+  depends_on:
+  - P03-08
+  - P01-10
+  scope:
+  - packages/database
+  - tests/database
+  steps:
+  - "Test single versioned Drizzle MySQL 8.4 journal for 21 logical tables including disabled modules, generated Better Auth schema and v2 columns/backfills."
+  - "Check migration drift/history and deployment compatibility; no schema creation/removal when module selection changes."
+  acceptance_criteria:
+  - "Fresh and upgrade fixture databases pass migration tests with stable schema across module variants."
+  - "Unknown/unsafe migration and missing reviewed approval fail closed."
+  validation:
+  - Real scoped positive/negative tests on isolated fixtures and independent review for high risk
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P03-10.md
+  output_artifact: tests/database/central-migrations.test.ts
+  risk: high
+  spec_refs:
+  - docs/architecture/DATABASE-CONTRACT.md
+  - docs/BSD.md
+  execution_mode: local_disposable_only
+  estimated_scope: one bounded integration unit; split pending task if needed
 - id: P04-01
   phase: P04
+  delivery_track: core
   title: Configure Better Auth MySQL adapter
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P03-07
+  - "P03-08"
+  - "P01-10"
+  - "P03-10"
   scope:
   - apps/api/src/modules/auth
   steps:
-  - Configure Better Auth with Drizzle MySQL, trusted origins, public signup disabled and safe session config
+  - "Configure Better Auth identity/session with invited user status, disabled public signup, first-password-change guard, and separate application RBAC. Ensure static module checks are available."
   acceptance_criteria:
-  - Configure Better Auth with Drizzle MySQL, trusted origins, public signup disabled and safe session config
-  - Auth init and DB session tests pass
+  - "Invited, disabled, active, revoked account/session behavior follows v2 contract; no duplicate RBAC."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Auth init and DB session tests pass
   status: pending
@@ -1191,6 +1299,7 @@ tasks:
     session
 - id: P04-02
   phase: P04
+  delivery_track: core
   title: Mount auth routes in Hono and session middleware
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1220,6 +1329,7 @@ tasks:
     session
 - id: P04-03
   phase: P04
+  delivery_track: core
   title: Implement login/logout UI and auth client
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1249,6 +1359,7 @@ tasks:
     session
 - id: P04-04
   phase: P04
+  delivery_track: core
   title: Implement password reset and activation flow
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1278,6 +1389,7 @@ tasks:
     session
 - id: P04-05
   phase: P04
+  delivery_track: core
   title: Enforce user status and must-change-password guard
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1308,6 +1420,7 @@ tasks:
     session
 - id: P04-06
   phase: P04
+  delivery_track: core
   title: Implement own profile/session termination
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1338,6 +1451,7 @@ tasks:
     session
 - id: P04-07
   phase: P04
+  delivery_track: core
   title: Complete authentication security gate
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1368,6 +1482,7 @@ tasks:
     session
 - id: P05-01
   phase: P05
+  delivery_track: core
   title: Define canonical permission manifest and validation
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1399,6 +1514,7 @@ tasks:
     session
 - id: P05-02
   phase: P05
+  delivery_track: core
   title: Build permission sync check/apply commands
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1429,6 +1545,7 @@ tasks:
     session
 - id: P05-03
   phase: P05
+  delivery_track: core
   title: Seed default protected roles
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1457,6 +1574,7 @@ tasks:
     session
 - id: P05-04
   phase: P05
+  delivery_track: core
   title: Implement authorization service and policies
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1466,10 +1584,10 @@ tasks:
   scope:
   - apps/api/src/modules/rbac
   steps:
-  - Role grant union, deny default, special protected super_admin, current status checks
+  - "Implement canonical server-side RBAC enforcing permission catalog including delegable/sensitive, actor effective grants, protected roles and audit; Better Auth remains identity/session owner."
   acceptance_criteria:
-  - Role grant union, deny default, special protected super_admin, current status checks
-  - Policy unit tests incl self-escalation pass
+  - "No effective grant exceeds actor delegation; privileged permissions never delegated; audit atomically recorded."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Policy unit tests incl self-escalation pass
   status: pending
@@ -1486,6 +1604,7 @@ tasks:
     session
 - id: P05-05
   phase: P05
+  delivery_track: core
   title: Implement route permission middleware
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1494,10 +1613,10 @@ tasks:
   scope:
   - apps/api/src/middleware
   steps:
-  - RequirePermission() per business route, 401 vs 403, requestId audit
+  - "Apply Hono deny-by-default private route and disabled-module gates; no unknown module route, grant, or menu; audit denied/privileged actions according to contract."
   acceptance_criteria:
-  - RequirePermission() per business route, 401 vs 403, requestId audit
-  - Negative API authorization tests pass
+  - "Unauthorized 401, ungranted 403, disabled module 404 and no self-elevation."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Negative API authorization tests pass
   status: pending
@@ -1514,6 +1633,7 @@ tasks:
     session
 - id: P05-06
   phase: P05
+  delivery_track: core
   title: Build role assignment concurrency invariants
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1523,10 +1643,10 @@ tasks:
   scope:
   - apps/api/src/modules/rbac
   steps:
-  - Locks/version checks protect last active super_admin, forbid privileged assignment by ordinary admin
+  - "Serialize role assignment and user status changes using same MySQL lock order on protected super_admin role row; audit role mutation in same transaction."
   acceptance_criteria:
-  - Locks/version checks protect last active super_admin, forbid privileged assignment by ordinary admin
-  - Concurrent race tests pass
+  - "Concurrent last active super_admin deletion/demotion/disable denied by real MySQL race tests."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Concurrent race tests pass
   status: pending
@@ -1543,6 +1663,7 @@ tasks:
     session
 - id: P05-07A
   phase: P05
+  delivery_track: core
   title: Create safe bootstrap credential input
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1554,11 +1675,11 @@ tasks:
   - "apps/api/src/modules/auth"
   - "tools/manual-setup"
   steps:
-  - Read initial password from secure prompt or private password file; forbid plaintext in argv/console/log; fail
+  - "Accept first-admin EMAIL and password from protected non-echo operator input, validate uniqueness; never hardcode admin@codelight.id or plaintext secrets."
     closed if unavailable
   acceptance_criteria:
-  - Read initial password from secure prompt or private password file
-  - Verify expected artifact exists and affected checks pass
+  - "Admin email is operator supplied and password never logged/argv; reruns do not reset existing administrator."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -1576,6 +1697,7 @@ tasks:
     session
 - id: P05-07B
   phase: P05
+  delivery_track: core
   title: Provision first user and assign super_admin
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1606,6 +1728,7 @@ tasks:
     session
 - id: P05-07C
   phase: P05
+  delivery_track: core
   title: Verify first login bootstrap flow
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1637,6 +1760,7 @@ tasks:
     session
 - id: P05-07
   phase: P05
+  delivery_track: core
   title: Implement secure idempotent first-admin bootstrap
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1668,6 +1792,7 @@ tasks:
     session
 - id: P05-08
   phase: P05
+  delivery_track: core
   title: Implement authorization invalidation and module nav registry
   task_complexity: high
   preview_expectation: when_reviewable
@@ -1699,12 +1824,13 @@ tasks:
     session
 - id: P05-09
   phase: P05
+  delivery_track: core
   title: Verify comprehensive RBAC/security gate
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P05-07
-  - P05-08
+  - "P05-08"
+  - "P05-10"
   scope:
   - tests/rbac
   steps:
@@ -1726,8 +1852,43 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
+- id: P05-10
+  phase: P05
+  delivery_track: core
+  title: "Certify limited RBAC delegation and transactional audit"
+  task_complexity: high
+  preview_expectation: when_reviewable
+  depends_on:
+  - P05-06
+  - P05-05
+  scope:
+  - packages/permissions
+  - apps/api/src/modules/auth
+  - tests/rbac
+  steps:
+  - "Implement/test delegable/sensitive permission metadata and bounded editor delegation; never delegate protected role-management grants."
+  - "Enforce last active superadmin row-lock ordering and transactionally audit role/status/privileged changes."
+  acceptance_criteria:
+  - "Actor cannot delegate unowned/sensitive/nondelegable grants, target protected, self elevation blocked."
+  - "Real MySQL races cannot remove final active superadmin; audit persisted atomically."
+  validation:
+  - Real scoped positive/negative tests on isolated fixtures and independent review for high risk
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P05-10.md
+  output_artifact: tests/rbac/delegation-invariants.test.ts
+  risk: high
+  spec_refs:
+  - docs/architecture/AUTH-RBAC-CONTRACT.md
+  - docs/references/RBAC.md
+  execution_mode: local_disposable_only
+  estimated_scope: one bounded integration unit; split pending task if needed
 - id: P06-01
   phase: P06
+  delivery_track: core
   title: Implement Salt & Pepper semantic tokens
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1759,6 +1920,7 @@ tasks:
     session
 - id: P06-02A
   phase: P06
+  delivery_track: core
   title: Install and configure shadcn base components
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1789,6 +1951,7 @@ tasks:
     session
 - id: P06-02B
   phase: P06
+  delivery_track: core
   title: Integrate limited Aceternity components
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1819,6 +1982,7 @@ tasks:
     session
 - id: P06-02
   phase: P06
+  delivery_track: core
   title: Set up shadcn UI, Aceternity and shared components
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1849,6 +2013,7 @@ tasks:
     session
 - id: P06-03
   phase: P06
+  delivery_track: core
   title: Implement responsive admin shell
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1878,6 +2043,7 @@ tasks:
     session
 - id: P06-04
   phase: P06
+  delivery_track: core
   title: Integrate dynamic navigation with RBAC
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1907,6 +2073,7 @@ tasks:
     session
 - id: P06-05
   phase: P06
+  delivery_track: core
   title: Implement reusable table/form/dialog patterns
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1935,6 +2102,7 @@ tasks:
     session
 - id: P06-06
   phase: P06
+  delivery_track: core
   title: Add theme mode and reduced motion handling
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1964,6 +2132,7 @@ tasks:
     session
 - id: P06-07
   phase: P06
+  delivery_track: core
   title: Verify UI/admin shell quality gate
   task_complexity: low
   preview_expectation: when_reviewable
@@ -1994,6 +2163,7 @@ tasks:
     session
 - id: P07-01
   phase: P07
+  delivery_track: core
   title: Implement user list and detail APIs
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2025,12 +2195,13 @@ tasks:
     session
 - id: P07-02
   phase: P07
+  delivery_track: core
   title: Implement invitation and user updates
   task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
-  - P07-01
-  - P04-04
+  - "P07-01"
+  - "P05-10"
   scope:
   - apps/api/src/modules/users
   steps:
@@ -2054,6 +2225,7 @@ tasks:
     session
 - id: P07-03
   phase: P07
+  delivery_track: core
   title: Implement roles CRUD and policy APIs
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2083,6 +2255,7 @@ tasks:
     session
 - id: P07-04
   phase: P07
+  delivery_track: core
   title: Build Users management UI
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2113,6 +2286,7 @@ tasks:
     session
 - id: P07-05
   phase: P07
+  delivery_track: core
   title: Build Roles and grouped permissions editor
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2142,6 +2316,7 @@ tasks:
     session
 - id: P07-06
   phase: P07
+  delivery_track: core
   title: Integrate multi-role assignment and audit
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2173,6 +2348,7 @@ tasks:
     session
 - id: P07-07
   phase: P07
+  delivery_track: core
   title: Verify user and role management gate
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2201,6 +2377,7 @@ tasks:
     session
 - id: P08-01
   phase: P08
+  delivery_track: core
   title: Define dashboard widget registry and contracts
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2232,6 +2409,7 @@ tasks:
     session
 - id: P08-02
   phase: P08
+  delivery_track: core
   title: Implement permission-scoped dashboard APIs
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2261,6 +2439,7 @@ tasks:
     session
 - id: P08-03
   phase: P08
+  delivery_track: core
   title: Build dashboard responsive widgets
   task_complexity: low
   preview_expectation: when_reviewable
@@ -2290,6 +2469,7 @@ tasks:
     session
 - id: P08-04
   phase: P08
+  delivery_track: core
   title: Add widget composition and error isolation
   task_complexity: low
   preview_expectation: when_reviewable
@@ -2318,6 +2498,7 @@ tasks:
     session
 - id: P08-05
   phase: P08
+  delivery_track: core
   title: Verify dashboard permission gate
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2326,10 +2507,10 @@ tasks:
   scope:
   - tests/dashboard
   steps:
-  - Viewer/editor/admin see only permitted stats and actions
+  - "Test Core-only dashboard rendering and permission scopes with media/cms/operations disabled; no empty CMS widgets or modules visible."
   acceptance_criteria:
-  - Viewer/editor/admin see only permitted stats and actions
-  - Dashboard E2E passes
+  - "Core dashboard works without Redis, Media or CMS; disabled modules expose no widgets."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Dashboard E2E passes
   status: pending
@@ -2346,6 +2527,7 @@ tasks:
     session
 - id: P09-01
   phase: P09
+  delivery_track: media
   title: Define storage interface and filesystem adapter
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2377,6 +2559,7 @@ tasks:
     session
 - id: P09-02
   phase: P09
+  delivery_track: media
   title: Implement media validation and temp upload pipeline
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2406,6 +2589,7 @@ tasks:
     session
 - id: P09-03
   phase: P09
+  delivery_track: media
   title: Implement media metadata and usage repository
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2435,6 +2619,7 @@ tasks:
     session
 - id: P09-04
   phase: P09
+  delivery_track: media
   title: Implement media CRUD and protected delivery API
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2443,10 +2628,10 @@ tasks:
   scope:
   - apps/api/src/modules/media
   steps:
-  - Paged listing, alt update, reference-safe delete and URL delivery
+  - "Provide safe public/private media API delivery, use media.* grants, ready-only public files, pending/failed lifecycle, strict signature/dimensions/size, no worker needed for limited images."
   acceptance_criteria:
-  - Paged listing, alt update, reference-safe delete and URL delivery
-  - 403, in-use delete and path safety tests pass
+  - "Private/public media guards, ready-only delivery and reference-retaining delete pass."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - 403, in-use delete and path safety tests pass
   status: pending
@@ -2463,6 +2648,7 @@ tasks:
     session
 - id: P09-05
   phase: P09
+  delivery_track: media
   title: Build Media Library and file picker UI
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2492,6 +2678,7 @@ tasks:
     session
 - id: P09-06
   phase: P09
+  delivery_track: media
   title: Add thumbnail/orphan reconciliation path
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2521,6 +2708,7 @@ tasks:
     session
 - id: P09-07
   phase: P09
+  delivery_track: media
   title: Verify media security and persistence gate
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2550,6 +2738,7 @@ tasks:
     session
 - id: P10-01
   phase: P10
+  delivery_track: cms
   title: Define typed CMS block schema and registry
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2582,6 +2771,7 @@ tasks:
     session
 - id: P10-02
   phase: P10
+  delivery_track: cms
   title: Implement CMS page/revision repository
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2611,6 +2801,7 @@ tasks:
     session
 - id: P10-03
   phase: P10
+  delivery_track: cms
   title: Implement CMS Pages CRUD and paginated routes
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2640,6 +2831,7 @@ tasks:
     session
 - id: P10-04
   phase: P10
+  delivery_track: cms
   title: Implement rich text Tiptap client editor
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2669,6 +2861,7 @@ tasks:
     session
 - id: P10-05A
   phase: P10
+  delivery_track: cms
   title: Create block palette and add/remove actions
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2699,6 +2892,7 @@ tasks:
     session
 - id: P10-05B
   phase: P10
+  delivery_track: cms
   title: Create properties panel with validated writes
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2728,6 +2922,7 @@ tasks:
     session
 - id: P10-05C
   phase: P10
+  delivery_track: cms
   title: Create reorder and responsive canvas
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2757,6 +2952,7 @@ tasks:
     session
 - id: P10-05
   phase: P10
+  delivery_track: cms
   title: Implement block canvas and properties editor
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2765,12 +2961,11 @@ tasks:
   scope:
   - apps/web/src/features/cms/editor
   steps:
-  - Integration-only gate for child tasks of P10-05. Inspect each child output, run cross-boundary tests and resolve
+  - "Verify CMS immutable revision save with save_key + request_hash + expectedRevisionNo, idempotent retries, 409 stale conflict and same-page pointer."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Palette/canvas/properties, reorder, controlled block config, mobile drawers
-  - Block edit/reorder tests pass
+  - "Replay same key is idempotent; mismatched hash/stale revision 409; no cross-page publication."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Block edit/reorder tests pass
   status: pending
@@ -2787,6 +2982,7 @@ tasks:
     session
 - id: P10-06
   phase: P10
+  delivery_track: cms
   title: Implement revision save and conflicts
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2817,6 +3013,7 @@ tasks:
     session
 - id: P10-07
   phase: P10
+  delivery_track: cms
   title: Implement publish/unpublish transactions
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2846,6 +3043,7 @@ tasks:
     session
 - id: P10-08
   phase: P10
+  delivery_track: cms
   title: Implement revision restore as new draft
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2875,6 +3073,7 @@ tasks:
     session
 - id: P10-09
   phase: P10
+  delivery_track: cms
   title: Verify CMS editor/revision gate
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2903,6 +3102,7 @@ tasks:
     session
 - id: P11-01
   phase: P11
+  delivery_track: cms
   title: Implement public published-only page service
   task_complexity: high
   preview_expectation: when_reviewable
@@ -2933,6 +3133,7 @@ tasks:
     session
 - id: P11-02
   phase: P11
+  delivery_track: cms
   title: Implement Next.js public block renderer
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2962,6 +3163,7 @@ tasks:
     session
 - id: P11-03
   phase: P11
+  delivery_track: cms
   title: Implement navigation menus API with tree validation
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -2991,6 +3193,7 @@ tasks:
     session
 - id: P11-04
   phase: P11
+  delivery_track: cms
   title: Implement public navigation and admin editor
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3020,6 +3223,7 @@ tasks:
     session
 - id: P11-05
   phase: P11
+  delivery_track: cms
   title: Implement secure preview and draft mode
   task_complexity: high
   preview_expectation: when_reviewable
@@ -3050,6 +3254,7 @@ tasks:
     session
 - id: P11-06
   phase: P11
+  delivery_track: cms
   title: Implement SEO, sitemap and cache revalidation
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3060,10 +3265,10 @@ tasks:
   - apps/web/src/app
   - apps/api
   steps:
-  - Published SEO metadata, OG assets, revalidate old/new slug on publish
+  - "Implement public CMS SSR without persistent cache; published revision pointer only; do not require revalidatePath/tag webhooks for MVP."
   acceptance_criteria:
-  - Published SEO metadata, OG assets, revalidate old/new slug on publish
-  - SEO and old slug invalidation tests pass
+  - "Next request observes published data, drafts never public, old slug returns 404 as agreed."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - SEO and old slug invalidation tests pass
   status: pending
@@ -3080,6 +3285,7 @@ tasks:
     session
 - id: P11-07
   phase: P11
+  delivery_track: cms
   title: Verify public CMS gate
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3088,10 +3294,10 @@ tasks:
   scope:
   - tests/public-cms
   steps:
-  - Published-only public pages/navigation, preview safety, SEO and cache
+  - "Certify CMS only with Media enabled, SSR published-only, private preview no-store and legacy block compatibility; do not introduce persistent cache invalidation."
   acceptance_criteria:
-  - Published-only public pages/navigation, preview safety, SEO and cache
-  - CMS-T05/T06 pass
+  - "CMS module disabled=404; CMS enabled without Media fails configuration validation; publish/preview and no-cache tests pass."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - CMS-T05/T06 pass
   status: pending
@@ -3108,6 +3314,7 @@ tasks:
     session
 - id: P12-01
   phase: P12
+  delivery_track: core
   title: Define typed settings registry and service
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3117,10 +3324,10 @@ tasks:
   scope:
   - apps/api/src/modules/settings
   steps:
-  - Allowed general/appearance keys, versioned JSON and role checks, reject secrets
+  - "Define typed Core settings service, immutable semantic theme snapshots, global branding and per-user mode; static logo fallback without Media."
   acceptance_criteria:
-  - Allowed general/appearance keys, versioned JSON and role checks, reject secrets
-  - Unknown key/403/409 tests pass
+  - "Core settings are functional with Media/CMS/Operations disabled."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Unknown key/403/409 tests pass
   status: pending
@@ -3139,6 +3346,7 @@ tasks:
     session
 - id: P12-02
   phase: P12
+  delivery_track: core
   title: Implement general settings API and audit
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3148,10 +3356,10 @@ tasks:
   scope:
   - apps/api/src/modules/settings
   steps:
-  - Safe public branding projection, admin update, revision checks, audit event
+  - "Expose audited Core general settings API; enforce server permission and typed input, theme/version pointers; use static branding fallback without media."
   acceptance_criteria:
-  - Safe public branding projection, admin update, revision checks, audit event
-  - Update persists, secrets hidden tests pass
+  - "Core-only general settings persist and are permission-scoped with transactional audit."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Update persists, secrets hidden tests pass
   status: pending
@@ -3168,7 +3376,8 @@ tasks:
     session
 - id: P12-03
   phase: P12
-  title: Build branding upload and General UI
+  delivery_track: media
+  title: "Add optional Media-backed branding picker"
   task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
@@ -3177,10 +3386,10 @@ tasks:
   scope:
   - apps/web/src/features/settings
   steps:
-  - Name/locale/timezone/logo/favicon preview and safe media picker
+  - "Implement optional Media-backed logo/favicon upload and selection for general settings; hidden when Media is disabled, preserve Core static fallback."
   acceptance_criteria:
-  - Name/locale/timezone/logo/favicon preview and safe media picker
-  - Branding E2E passes
+  - "Media branding enhancement gated on P09, does not block Core settings verification."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Branding E2E passes
   status: pending
@@ -3197,6 +3406,7 @@ tasks:
     session
 - id: P12-04
   phase: P12
+  delivery_track: core
   title: Implement theme configuration schema and contrast gate
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3207,10 +3417,10 @@ tasks:
   - apps/api/src/modules/settings
   - packages/ui
   steps:
-  - Salt & Pepper preset, semantic token Zod, enforce WCAG contrast, fallback
+  - "Implement immutable theme snapshot schema, selected pointer, semantic light/dark tokens and WCAG AA contrast checks."
   acceptance_criteria:
-  - Salt & Pepper preset, semantic token Zod, enforce WCAG contrast, fallback
-  - Invalid/low contrast rejected
+  - "Theme snapshot immutable, invalid tokens/contrast rejected and changes preserve old snapshot."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Invalid/low contrast rejected
   status: pending
@@ -3227,6 +3437,7 @@ tasks:
     session
 - id: P12-05
   phase: P12
+  delivery_track: core
   title: Implement Appearance UI global theme preview
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3236,10 +3447,10 @@ tasks:
   scope:
   - apps/web/src/features/settings
   steps:
-  - Preset select, light/dark preview, apply/reset, per-user preference
+  - "Implement appearance UI with shared semantic themes and per-user light/dark/system mode; no Media dependency."
   acceptance_criteria:
-  - Preset select, light/dark preview, apply/reset, per-user preference
-  - Theme UI/E2E passes
+  - "Global branding and per-user mode persist; static logo works without Media."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Theme UI/E2E passes
   status: pending
@@ -3256,6 +3467,7 @@ tasks:
     session
 - id: P12-06
   phase: P12
+  delivery_track: core
   title: Implement audit logs query and page
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3287,20 +3499,21 @@ tasks:
     session
 - id: P12-07
   phase: P12
-  title: Implement runtime branding revalidation
+  delivery_track: core
+  title: "Serve runtime Core branding and immutable theme snapshots"
   task_complexity: medium
   preview_expectation: when_reviewable
   depends_on:
-  - P12-03
-  - P12-05
+  - "P12-02"
+  - "P12-05"
   scope:
   - apps/api
   - apps/web
   steps:
-  - Update public branding/theme without Next rebuild or stale cache
+  - "Serve typed general settings and immutable selected theme snapshot from Core API; media logo is optional; no persistent public CMS cache invalidation is required."
   acceptance_criteria:
-  - Update public branding/theme without Next rebuild or stale cache
-  - SSR branding change test passes
+  - "Core branding works without Media, immutable theme snapshots selected safely, no forced revalidatePath/tag."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - SSR branding change test passes
   status: pending
@@ -3317,6 +3530,7 @@ tasks:
     session
 - id: P12-08
   phase: P12
+  delivery_track: core
   title: Verify settings/accessibility gate
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3326,10 +3540,10 @@ tasks:
   scope:
   - tests/settings
   steps:
-  - Appearance/General/accessibility/audit permissions and persistence
+  - "Verify Core-only settings, audit and theme accessibility without Media/CMS/Operations/Redis; optional media branding has its separate P12-03 gate."
   acceptance_criteria:
-  - Appearance/General/accessibility/audit permissions and persistence
-  - SET/THEME gates pass
+  - "Settings Core gate passes with static logo and proper semantic color modes."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - SET/THEME gates pass
   status: pending
@@ -3346,6 +3560,7 @@ tasks:
     session
 - id: P13-01
   phase: P13
+  delivery_track: jobs
   title: Initialize BullMQ worker and Redis queues
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3378,6 +3593,7 @@ tasks:
     session
 - id: P13-02
   phase: P13
+  delivery_track: jobs
   title: Implement job metadata, status and owner security
   task_complexity: high
   preview_expectation: when_reviewable
@@ -3387,10 +3603,10 @@ tasks:
   scope:
   - apps/api/src/modules/jobs
   steps:
-  - Enqueue typed jobs, 202 jobId, scoped job status/permissions
+  - "Store durable MySQL system_jobs intent with dispatch_state and ownership, deterministic IDs and lease fields; API enqueues only after DB transaction."
   acceptance_criteria:
-  - Enqueue typed jobs, 202 jobId, scoped job status/permissions
-  - Job visibility and status tests pass
+  - "Jobs intent survives Redis outage and is permission scoped."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Job visibility and status tests pass
   status: pending
@@ -3407,6 +3623,7 @@ tasks:
     session
 - id: P13-03
   phase: P13
+  delivery_track: jobs
   title: Implement retry/idempotency and reconciliation
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3415,10 +3632,10 @@ tasks:
   scope:
   - apps/worker/src/lib
   steps:
-  - Bounded retry for safe jobs, non-retriable restore, DB/Redis reconciliation
+  - "Implement lease-based MySQL dispatcher replay, BullMQ deterministic job IDs, idempotent worker retries, crash/ACK reconciliation."
   acceptance_criteria:
-  - Bounded retry for safe jobs, non-retriable restore, DB/Redis reconciliation
-  - Restart/retry simulation passes
+  - "Redis outage and ACK crash do not lose intent or duplicate terminal side effects."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Restart/retry simulation passes
   status: pending
@@ -3435,6 +3652,7 @@ tasks:
     session
 - id: P13-04
   phase: P13
+  delivery_track: jobs
   title: Implement job locks and concurrency policy
   task_complexity: high
   preview_expectation: when_reviewable
@@ -3463,6 +3681,7 @@ tasks:
     session
 - id: P13-05
   phase: P13
+  delivery_track: jobs
   title: Implement operational health and request IDs
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3493,6 +3712,7 @@ tasks:
     session
 - id: P13-06
   phase: P13
+  delivery_track: jobs
   title: Verify worker resilience gate
   task_complexity: medium
   preview_expectation: when_reviewable
@@ -3520,21 +3740,57 @@ tasks:
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
-- id: P14-01
-  phase: P14
-  title: Implement backup manifest and encryption interface
+- id: P13-07
+  phase: P13
+  delivery_track: jobs
+  title: "Implement durable MySQL job intent and leased dispatcher"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P13-04
-  - P03-05
+  - P13-02
+  - P03-10
   scope:
-  - apps/worker/src/jobs/backup
+  - apps/api/src/modules/jobs
+  - apps/worker/src
+  - packages/database
   steps:
-  - Define versioned manifest, key ID/checksum/coverage, encryption, secure storage
+  - "Persist system_jobs dispatch_state=pending in MySQL before enqueue; claim rows with lease and deterministic BullMQ job ID when Redis available."
+  - "Implement reconciliation after dispatch ACK loss and side-effect idempotency; Core readiness unaffected by missing Redis when jobs disabled."
   acceptance_criteria:
-  - Define versioned manifest, key ID/checksum/coverage, encryption, secure storage
-  - Manifest and cryptography tests pass
+  - "Redis outage retains pending intent, recovery dispatcher retries safely."
+  - "Duplicate ACK/replay never duplicates terminal side effects and missing Redis does not fail Core-only startup."
+  validation:
+  - Real scoped positive/negative tests on isolated fixtures and independent review for high risk
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P13-07.md
+  output_artifact: apps/worker/src/dispatch/leased-dispatcher.ts
+  risk: high
+  spec_refs:
+  - docs/architecture/JOBS-CONTRACT.md
+  - docs/references/WORKER.md
+  execution_mode: local_disposable_only
+  estimated_scope: one bounded integration unit; split pending task if needed
+- id: P14-01
+  phase: P14
+  delivery_track: core
+  title: "Define independent encrypted offsite backup and recovery contract"
+  task_complexity: high
+  preview_expectation: when_reviewable
+  depends_on:
+  - "P03-05"
+  - "P03-10"
+  scope:
+  - "tools/recovery"
+  - "packages/database"
+  steps:
+  - "Define backup manifest and restic encrypted offsite repository independent of Hono/Redis/worker, with MySQL 8.4 consistent dump, media coverage and verification markers."
+  acceptance_criteria:
+  - "Core can backup without Redis or Operations UI, using private credentials/offsite key and test target."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Manifest and cryptography tests pass
   status: pending
@@ -3543,7 +3799,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P14-01.md
-  output_artifact: apps/worker/src/jobs/backup/manifest.ts
+  output_artifact: tools/recovery/manifest.ts
   risk: high
   spec_refs: &id015
   - docs/TRD.md
@@ -3553,19 +3809,20 @@ tasks:
     session
 - id: P14-02A
   phase: P14
-  title: Prepare safe mysqldump command builder
+  delivery_track: core
+  title: "Prepare safe independent mysqldump command builder"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-01
   scope:
-  - apps/worker/src/jobs/backup/mysql-dump.ts
+  - "tools/recovery/mysql-dump.ts"
   steps:
-  - Use argument array and temporary credential file with restricted permissions; add --single-transaction and --quick;
+  - "Use argv arrays and restricted temporary credentials for MySQL consistent dump, with --single-transaction and safe SQL version checks. No worker dependency."
     prohibit shell interpolation
   acceptance_criteria:
-  - Use argument array and temporary credential file with restricted permissions
-  - Verify expected artifact exists and affected checks pass
+  - "Safe independent dump argv builder, no command injection/credential leakage."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -3575,7 +3832,7 @@ tasks:
   tests_evidence: []
   parent_task: P14-02
   card: docs/agent/tasks/P14-02A.md
-  output_artifact: apps/worker/src/jobs/backup/mysql-dump.ts
+  output_artifact: tools/recovery/mysql-dump.ts
   risk: high
   spec_refs: *id015
   execution_mode: local_disposable_only
@@ -3583,19 +3840,20 @@ tasks:
     session
 - id: P14-02B
   phase: P14
-  title: Implement dump streaming and cancellation
+  delivery_track: core
+  title: "Stream and cancel independent backup CLI dump"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-02A
   scope:
-  - apps/worker/src/jobs/backup/dump-runner.ts
+  - "tools/recovery/dump-runner.ts"
   steps:
-  - Stream dump to protected temporary output, enforce timeout and fail on non-zero process exit; wipe temp credentials
+  - "Run protected MySQL dump streaming to temporary files with timeout, cancellation and non-zero exit guard, erasing credentials after use."
     and partial files
   acceptance_criteria:
-  - Stream dump to protected temporary output, enforce timeout and fail on non-zero process exit
-  - Verify expected artifact exists and affected checks pass
+  - "Interrupted dump leaves no verified partial backup and wipes temporary secret."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -3605,7 +3863,7 @@ tasks:
   tests_evidence: []
   parent_task: P14-02
   card: docs/agent/tasks/P14-02B.md
-  output_artifact: apps/worker/src/jobs/backup/dump-runner.ts
+  output_artifact: tools/recovery/dump-runner.ts
   risk: high
   spec_refs: *id015
   execution_mode: local_disposable_only
@@ -3613,20 +3871,20 @@ tasks:
     session
 - id: P14-02
   phase: P14
-  title: Implement safe MySQL logical dump
+  delivery_track: core
+  title: "Integrate independent MySQL logical dump CLI"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-02B
   scope:
-  - apps/worker/src/jobs/backup
+  - "tools/recovery"
   steps:
-  - Integration-only gate for child tasks of P14-02. Inspect each child output, run cross-boundary tests and resolve
+  - "Compose child tasks into independent CLI, not BullMQ job or Operations dashboard; test without Redis."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Credentials protected option file
-  - Dump reproducibility tests pass
+  - "Backup CLI functions with Hono/worker stopped on disposable MySQL."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Dump reproducibility tests pass
   status: pending
@@ -3635,7 +3893,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P14-02.md
-  output_artifact: apps/worker/src/jobs/backup/mysql-dump.ts
+  output_artifact: tools/recovery/mysql-dump.ts
   risk: high
   spec_refs: *id015
   execution_mode: local_disposable_only
@@ -3643,20 +3901,21 @@ tasks:
     session
 - id: P14-03
   phase: P14
-  title: Implement archive write/verify and metadata
+  delivery_track: core
+  title: "Encrypt and verify offsite backup manifest"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P14-02
-  - P09-01
+  - "P14-02"
+  - "P03-08"
   scope:
-  - apps/worker
-  - apps/api/src/modules/backups
+  - "tools/recovery"
+  - "packages/database"
   steps:
-  - Encrypt archive, sha256 verify, metadata status, cleanup failed partials
+  - "Write immutable backup metadata, restic encrypted offsite object set, signed/checksummed manifest, coordinate retention/GC; optional media coverage."
   acceptance_criteria:
-  - Encrypt archive, sha256 verify, metadata status, cleanup failed partials
-  - Corrupt backup rejected
+  - "Offsite backup verified independently, no secrets in manifest and no dependency on Media/Redis."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Corrupt backup rejected
   status: pending
@@ -3665,7 +3924,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P14-03.md
-  output_artifact: apps/worker/src/jobs/backup/archive.ts
+  output_artifact: tools/recovery/offsite-archive.ts
   risk: high
   spec_refs: *id015
   execution_mode: local_disposable_only
@@ -3673,18 +3932,19 @@ tasks:
     session
 - id: P14-04
   phase: P14
-  title: Implement isolated restore verification
+  delivery_track: core
+  title: "Verify independent staging recovery from encrypted offsite backup"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P14-03
   scope:
-  - apps/worker/src/jobs/backup
+  - "tools/recovery"
   steps:
-  - Import backup into disposable isolated DB and validate schema/data without production mutation
+  - "Restore offsite snapshot to isolated DB and media staging, verify schema/row counts/checksums with app services unavailable."
   acceptance_criteria:
-  - Import backup into disposable isolated DB and validate schema/data without production mutation
-  - Staging restore smoke passes
+  - "Recover from empty isolated VPS without Hono/Redis; no production mutation."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Staging restore smoke passes
   status: pending
@@ -3693,7 +3953,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P14-04.md
-  output_artifact: apps/worker/src/jobs/backup/verify-restore.ts
+  output_artifact: tools/recovery/verify-restore.ts
   risk: high
   spec_refs: *id015
   execution_mode: manual_authorized_only
@@ -3701,7 +3961,8 @@ tasks:
     session
 - id: P14-05
   phase: P14
-  title: Implement backup API and protected download
+  delivery_track: operations
+  title: "Optional Operations backup metadata API"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
@@ -3710,10 +3971,10 @@ tasks:
   scope:
   - apps/api/src/modules/backups
   steps:
-  - Create/list/verify/download/delete with permission, job owner, retention
+  - "Expose read-only/protected backup status/download metadata in Operations only; production restore API is prohibited."
   acceptance_criteria:
-  - Create/list/verify/download/delete with permission, job owner, retention
-  - Backup API auth tests pass
+  - "Disabled Operations returns 404; no POST /backups/:id/restore route."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Backup API auth tests pass
   status: pending
@@ -3730,19 +3991,20 @@ tasks:
     session
 - id: P14-06
   phase: P14
-  title: Build Backup UI and job progress
+  delivery_track: operations
+  title: "Optional Operations backup status and verification UI"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P14-05
-  - P12-03
+  - "P14-05"
+  - "P12-05"
   scope:
   - apps/web/src/features/backups
   steps:
-  - Backup list/details, create/progress/download, failure and media coverage alerts
+  - "Show backup freshness, status and verification in Operations UI only; never a one-click destructive restore control."
   acceptance_criteria:
-  - Backup list/details, create/progress/download, failure and media coverage alerts
-  - Backup UI E2E passes
+  - "Operations disabled hides UI/routes; production restore cannot be started in browser."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Backup UI E2E passes
   status: pending
@@ -3759,7 +4021,8 @@ tasks:
     session
 - id: P14-07
   phase: P14
-  title: Verify backup security and restorability gate
+  delivery_track: operations
+  title: "Certify optional Operations backup UI and protected metadata"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
@@ -3768,10 +4031,10 @@ tasks:
   scope:
   - tests/backups
   steps:
-  - Encryption/checksum/staged restore, storage isolation, RBAC, error handling
+  - "Test Operations API/UI only when module is enabled, auth/permission denial, offsite verifier status and absence of destructive restore endpoint."
   acceptance_criteria:
-  - Encryption/checksum/staged restore, storage isolation, RBAC, error handling
-  - BAK-T01 passes
+  - "Operations UI disabled=404, no production restore API, proof of backup ownership/access."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - BAK-T01 passes
   status: pending
@@ -3780,28 +4043,62 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P14-07.md
-  output_artifact: apps/worker/src/jobs/backup/backup.integration.test.ts
+  output_artifact: tests/operations/backup-ui.integration.test.ts
   risk: high
   spec_refs: *id015
   execution_mode: local_disposable_only
   estimated_scope: one narrow file/module or one integration checkpoint; split again if unable to verify in one
     session
-- id: P15-01
-  phase: P15
-  title: Define restore workflow, policy and approval gates
+- id: P14-08
+  phase: P14
+  delivery_track: core
+  title: "Certify Core independent offsite backup and staging restore"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - P14-07
-  - P13-04
+  - P14-04
+  - P03-10
   scope:
-  - apps/api/src/modules/backups
-  - docs/agent
+  - tools/recovery
+  - tests/recovery
+  - docs/architecture
   steps:
-  - Implement recent reauth, environment approval, exclusive lock, no auto retry
+  - "Verify independent CLI MySQL/LocalFs backup + restic encrypted offsite retention/manifest with Linux scheduler, while Hono/Redis/worker are unavailable."
+  - "Rehearse restore into isolated DB/storage, check backup age/freshness, restricted keys, marker and recovery journal."
   acceptance_criteria:
-  - Implement recent reauth, environment approval, exclusive lock, no auto retry
-  - Unauthorized/unverified restore denied
+  - "Core-only encrypted offsite backup and restore pass without Redis, worker or Operations UI."
+  - "Missing/invalid manifest/key, interrupted backup, wrong target or stale snapshot fail safely."
+  validation:
+  - Real scoped positive/negative tests on isolated fixtures and independent review for high risk
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P14-08.md
+  output_artifact: tests/recovery/offsite-core.test.ts
+  risk: high
+  spec_refs:
+  - docs/architecture/OPERATIONS-RUNBOOK.md
+  - docs/architecture/ADR/ADR-013-independent-disaster-recovery-cli.md
+  execution_mode: local_disposable_only
+  estimated_scope: one bounded integration unit; split pending task if needed
+- id: P15-01
+  phase: P15
+  delivery_track: core
+  title: "Define operator-only independent production recovery workflow"
+  task_complexity: high
+  preview_expectation: when_reviewable
+  depends_on:
+  - "P14-08"
+  scope:
+  - "tools/recovery"
+  - "docs/architecture"
+  steps:
+  - "Define operator-only CLI staging recovery, verified offsite source, maintenance, approval gate, audit external journal and no retry; no Redis requirement."
+  acceptance_criteria:
+  - "No UI/HTTP route can initiate live production restore."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Unauthorized/unverified restore denied
   status: pending
@@ -3810,7 +4107,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-01.md
-  output_artifact: apps/api/src/modules/backups/restore.policy.ts
+  output_artifact: tools/recovery/restore-policy.ts
   risk: high
   spec_refs: &id016
   - docs/TRD.md
@@ -3820,18 +4117,19 @@ tasks:
     session
 - id: P15-02
   phase: P15
-  title: Implement restoration archive preflight
+  delivery_track: core
+  title: "Implement independent recovery CLI archive preflight"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-01
   scope:
-  - apps/worker/src/jobs/restore
+  - "tools/recovery"
   steps:
-  - Validate manifest/schema/versions/checksum/media, reject unsafe path and missing dependencies
+  - "Verify restic snapshot and backup manifest/keys/schema before any staged import; wrong target rejected."
   acceptance_criteria:
-  - Validate manifest/schema/versions/checksum/media, reject unsafe path and missing dependencies
-  - Incompatible archive preflight tests pass
+  - "Invalid snapshot/schema or missing private key fails safely without production writes."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Incompatible archive preflight tests pass
   status: pending
@@ -3840,7 +4138,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-02.md
-  output_artifact: apps/worker/src/jobs/restore/preflight.ts
+  output_artifact: tools/recovery/preflight.ts
   risk: high
   spec_refs: *id016
   execution_mode: local_disposable_only
@@ -3848,18 +4146,19 @@ tasks:
     session
 - id: P15-03
   phase: P15
-  title: Implement isolated staging restore and comparison
+  delivery_track: core
+  title: "Implement isolated staging DB/LocalFs recovery CLI"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-02
   scope:
-  - apps/worker/src/jobs/restore
+  - "tools/recovery"
   steps:
-  - Restore in separate disposable DB, check migration marker, record verification
+  - "Restore into separate staging MySQL and private file paths, check all required data/refs without touching production."
   acceptance_criteria:
-  - Restore in separate disposable DB, check migration marker, record verification
-  - Staging restoration tests pass
+  - "Recovery rehearsal works with API/worker unavailable, stage isolated from live instance."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Staging restoration tests pass
   status: pending
@@ -3868,7 +4167,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-03.md
-  output_artifact: apps/worker/src/jobs/restore/staging.ts
+  output_artifact: tools/recovery/staging.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -3876,18 +4175,19 @@ tasks:
     session
 - id: P15-04
   phase: P15
-  title: Implement external journal and pre-restore backup
+  delivery_track: core
+  title: "Implement independent external recovery journal and pre-cutover backup"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-03
   scope:
-  - apps/worker/src/jobs/restore
+  - "tools/recovery"
   steps:
-  - Persist journal outside DB target, make recovery snapshot and verify before change
+  - "Record operator approvals and external append-only journal independent from DB being restored; fresh recovery snapshot before production cutover."
   acceptance_criteria:
-  - Persist journal outside DB target, make recovery snapshot and verify before change
-  - Recovery journal and snapshot tests pass
+  - "Journal persists even if production DB corrupted; no auto cutover."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Recovery journal and snapshot tests pass
   status: pending
@@ -3896,7 +4196,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-04.md
-  output_artifact: apps/worker/src/jobs/restore/journal.ts
+  output_artifact: tools/recovery/journal.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -3904,18 +4204,20 @@ tasks:
     session
 - id: P15-05A
   phase: P15
-  title: Implement maintenance mode and queue draining
+  delivery_track: core
+  title: "Implement operator maintenance guard without queue requirement"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-04
   scope:
-  - apps/api/src/modules/system/maintenance.service.ts
+  - "tools/recovery"
+  - "apps/api/src/modules/system"
   steps:
-  - Reject writes in maintenance with 503; allow documented health/recovery paths; drain active jobs before import
+  - "Provide operator-controlled maintenance lock and conditional worker drain only if jobs enabled; deny public writes."
   acceptance_criteria:
-  - Reject writes in maintenance with 503
-  - Verify expected artifact exists and affected checks pass
+  - "Maintenance works with Redis absent, no self-releasing lock after failure."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -3925,7 +4227,7 @@ tasks:
   tests_evidence: []
   parent_task: P15-05
   card: docs/agent/tasks/P15-05A.md
-  output_artifact: apps/api/src/modules/system/maintenance.service.ts
+  output_artifact: tools/recovery/maintenance.ts
   risk: high
   spec_refs: *id016
   execution_mode: local_disposable_only
@@ -3933,19 +4235,20 @@ tasks:
     session
 - id: P15-05B
   phase: P15
-  title: Implement controlled import stage
+  delivery_track: core
+  title: "Implement controlled independent CLI cutover stage"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05A
   scope:
-  - apps/worker/src/jobs/restore/import-runner.ts
+  - "tools/recovery/import-runner.ts"
   steps:
-  - Import only validated archive into prepared target while maintenance active; no automatic retry; journal every
+  - "Perform reviewed operator-approved DB/media cutover from verified staging; never through background BullMQ job or Hono route."
     stage externally
   acceptance_criteria:
-  - Import only validated archive into prepared target while maintenance active
-  - Verify expected artifact exists and affected checks pass
+  - "Operator gate, target isolation and manual verification before cutover."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -3955,7 +4258,7 @@ tasks:
   tests_evidence: []
   parent_task: P15-05
   card: docs/agent/tasks/P15-05B.md
-  output_artifact: apps/worker/src/jobs/restore/import-runner.ts
+  output_artifact: tools/recovery/import-runner.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -3963,18 +4266,19 @@ tasks:
     session
 - id: P15-05C
   phase: P15
-  title: Implement restore failure hold and response
+  delivery_track: core
+  title: "Implement failed recovery hold and safe response"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05B
   scope:
-  - apps/worker/src/jobs/restore/recovery-state.ts
+  - "tools/recovery/recovery-state.ts"
   steps:
-  - On import failure keep maintenance enabled, record off-DB status and require operator-guided recovery
+  - "Hold maintenance and external journal on partial restore, no automated retry, require human reconciliation."
   acceptance_criteria:
-  - On import failure keep maintenance enabled, record off-DB status and require operator-guided recovery
-  - Verify expected artifact exists and affected checks pass
+  - "Failed cutover doesn't pretend success or unfreeze writes automatically."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Relevant focused checks pass; record command + exit code
   status: pending
@@ -3984,7 +4288,7 @@ tasks:
   tests_evidence: []
   parent_task: P15-05
   card: docs/agent/tasks/P15-05C.md
-  output_artifact: apps/worker/src/jobs/restore/recovery-state.ts
+  output_artifact: tools/recovery/recovery-state.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -3992,21 +4296,21 @@ tasks:
     session
 - id: P15-05
   phase: P15
-  title: Implement maintenance/drain/import orchestration
+  delivery_track: core
+  title: "Gate independent CLI maintenance and recovery cutover"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05C
   scope:
-  - apps/worker
-  - apps/api
+  - "tools/recovery"
+  - "apps/api"
   steps:
-  - Integration-only gate for child tasks of P15-05. Inspect each child output, run cross-boundary tests and resolve
+  - "Verify operator-only CLI recovery and conditional worker drain, staged validation, journal, failure hold and no HTTP restore."
     mismatches. Do not reimplement child work.
   acceptance_criteria:
-  - All child tasks completed with real test evidence
-  - Block writes, drain worker/writers, controlled import
-  - Failure injection leaves safe maintenance
+  - "Independent CLI recovery works without running Hono/Redis; full destructive action only on test fixtures."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Failure injection leaves safe maintenance
   status: pending
@@ -4015,7 +4319,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-05.md
-  output_artifact: apps/worker/src/jobs/restore/import-runner.ts
+  output_artifact: tools/recovery/import-runner.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -4023,19 +4327,20 @@ tasks:
     session
 - id: P15-06
   phase: P15
-  title: Implement post-restore reconciliation and runbook
+  delivery_track: core
+  title: "Document operator post-recovery reconciliation"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-05
   scope:
-  - apps/worker
-  - README-SERVER.md
+  - "tools/recovery"
+  - "README-SERVER.md"
   steps:
-  - Validate DB/app, revoke/reconcile sessions, reconcile queue; manual recovery steps
+  - "Reconcile DB/media/session invalidation, audit and job state after CLI cutover, verify manual runbook and backup RPO/RTO drill."
   acceptance_criteria:
-  - Validate DB/app, revoke/reconcile sessions, reconcile queue
-  - Recovery tests and manual rehearsal pass
+  - "Operator runbook recovers on disposable infrastructure with no auto-restore or Redis dependency."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - Recovery tests and manual rehearsal pass
   status: pending
@@ -4044,7 +4349,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-06.md
-  output_artifact: apps/worker/src/jobs/restore/reconcile.ts
+  output_artifact: tools/recovery/reconcile.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -4052,18 +4357,19 @@ tasks:
     session
 - id: P15-07
   phase: P15
-  title: Verify restore chaos and rollback gate
+  delivery_track: core
+  title: "Certify independent disaster recovery CLI drill"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - P15-06
   scope:
-  - tests/restore
+  - "tests/recovery"
   steps:
-  - Corrupt archive, midway fail, concurrent runs, no retry and off-db journal
+  - "Exercise loss of VPS/app/API/Redis on disposable hosts with offsite backups, verify integrity and operator steps, measure RPO/RTO."
   acceptance_criteria:
-  - Corrupt archive, midway fail, concurrent runs, no retry and off-db journal
-  - BAK-T02..T04 pass
+  - "Clean-machine recovery passes, actual RPO/RTO recorded (targets not claimed achieved without drill)."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - BAK-T02..T04 pass
   status: pending
@@ -4072,7 +4378,7 @@ tasks:
   completed_commit: null
   tests_evidence: []
   card: docs/agent/tasks/P15-07.md
-  output_artifact: apps/worker/src/jobs/restore/restore.integration.test.ts
+  output_artifact: tests/recovery/recovery.integration.test.ts
   risk: high
   spec_refs: *id016
   execution_mode: manual_authorized_only
@@ -4080,6 +4386,7 @@ tasks:
     session
 - id: P16-01
   phase: P16
+  delivery_track: core
   title: "Document manual production runtime prerequisites"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4090,13 +4397,10 @@ tasks:
   - "docs/architecture"
   - "infra/pm2"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Document verified Node/npm/Linux/MySQL/Redis/PM2/Nginx manual clone requirements and private paths"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Document Core deployment requirements with only Web/API/MySQL required; Redis/worker optional based on static enabledModules; no Docker/installer."
   acceptance_criteria:
-  - "Document verified Node/npm/Linux/MySQL/Redis/PM2/Nginx manual clone requirements and private paths"
-  - "Incompatible target or shared secrets/DB rejected"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Clean Core-only runtime matrix documented with no unconditional worker."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4111,29 +4415,27 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/TESTING-RELEASE.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02A
   phase: P16
+  delivery_track: core
   title: "Validate web production build from source"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - "P16-01"
-  - "P11-07"
   - "P12-08"
   - "P08-05"
   scope:
   - "apps/web"
   - "package.json"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Verify Next.js build/start and static assets from npm workspace without archive packaging"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Build Next.js web for Core-only production with Hono-only API links and no CMS dependency."
   acceptance_criteria:
-  - "Verify Next.js build/start and static assets from npm workspace without archive packaging"
-  - "Missing build/static asset or invalid config fails"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Web build runs Core-only without CMS/Media/Redis."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4149,10 +4451,12 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/TESTING-RELEASE.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02B
   phase: P16
+  delivery_track: core
   title: "Validate Hono API production build from source"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4188,7 +4492,8 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02C
   phase: P16
-  title: "Validate BullMQ worker production build from source"
+  delivery_track: jobs
+  title: "Validate conditional BullMQ worker build for jobs-enabled modules"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
@@ -4198,13 +4503,10 @@ tasks:
   - "apps/worker"
   - "package.json"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Verify worker build, isolated Redis connection, shutdown and retry"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Build/start worker only when static enabledModules requiresJobs, otherwise worker process may be absent and app readiness healthy."
   acceptance_criteria:
-  - "Verify worker build, isolated Redis connection, shutdown and retry"
-  - "Wrong queue or unavailable Redis fails safely"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Worker missing in Core-only is acceptable; enabled jobs with missing worker/Redis reject or show degraded per policy."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4220,27 +4522,26 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/TESTING-RELEASE.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-02
   phase: P16
-  title: "Integrate web API and worker npm build"
+  delivery_track: core
+  title: "Integrate Core web+API and conditional worker npm build"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
-  - "P16-02C"
+  - "P16-02B"
   scope:
   - "package.json"
   - "turbo.json"
   - "apps"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Check three processes build and independent runtime targets with one npm lockfile"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Integrate always-on Next.js/Hono builds and optional worker target; do not require Redis in Core-only test."
   acceptance_criteria:
-  - "Check three processes build and independent runtime targets with one npm lockfile"
-  - "Missing workspace/build target fails, no CLI/archive created"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Core-only build/start passes without worker/Redis; selected module builds validated separately."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4255,10 +4556,12 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/TESTING-RELEASE.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-03
   phase: P16
+  delivery_track: core
   title: "Create read-only manual production environment preflight"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4268,13 +4571,10 @@ tasks:
   - "tools/manual-setup"
   - "packages/config"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Verify required env keys, database/Redis targets, paths and Node version without provisioning"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Read-only production preflight validates static module catalog/config hash parity between web/API, required runtimes and private DB/secret paths; Redis only if jobs enabled."
   acceptance_criteria:
-  - "Verify required env keys, database/Redis targets, paths and Node version without provisioning"
-  - "Wrong DB/secret or missing env fails closed without leaking values"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Unknown module/dependency/config mismatch fails; Core-only does not require REDIS_URL."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4293,24 +4593,23 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04A
   phase: P16
+  delivery_track: core
   title: "Implement guarded manual Drizzle migration npm scripts"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - "P16-03"
   - "P05-07"
+  - "P03-10"
   scope:
   - "packages/database"
   - "tools/manual-setup"
   - "package.json"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Expose db:migrate:check and db:migrate with reviewed SQL and explicit DB target guard"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Manual Drizzle migrate check/apply for all 21 tables with one journal, reviewed SQL and separate migration user, no dynamic module schemas."
   acceptance_criteria:
-  - "Expose db:migrate:check and db:migrate with reviewed SQL and explicit DB target guard"
-  - "Drift destructive migration or wrong DB rejected"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Wrong DB, migration drift and destructive DDL require approval; all tables independent of enabled modules."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4330,6 +4629,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04B
   phase: P16
+  delivery_track: core
   title: "Implement idempotent manual permission sync and seed"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4367,6 +4667,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04C
   phase: P16
+  delivery_track: core
   title: "Wire secure manual admin bootstrap npm command"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4377,13 +4678,10 @@ tasks:
   - "apps/api/src/modules/auth"
   - "package.json"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Expose setup:admin as non-echo TTY/private input wrapper around P05 service"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Secure manual first-admin bootstrap with operator-supplied email/password, no hardcoded identity; idempotent."
   acceptance_criteria:
-  - "Expose setup:admin as non-echo TTY/private input wrapper around P05 service"
-  - "No plaintext argv log or reset/duplicate admin on rerun"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "No universal initial admin identity/password, existing admin untouched."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4403,6 +4701,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04D
   phase: P16
+  delivery_track: core
   title: "Implement read-only manual setup verification"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4438,6 +4737,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-04
   phase: P16
+  delivery_track: core
   title: "Gate manual npm setup commands on disposable clone"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4473,22 +4773,19 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-05
   phase: P16
-  title: "Configure PM2 for three service runtimes"
+  delivery_track: core
+  title: "Configure Core PM2 web/API and optional worker"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - "P16-03"
-  - "P13-05"
   scope:
   - "infra/pm2"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Define web API worker with private env, correct cwd, tested start/stop/restart"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "PM2 always manages Next.js web and Hono API; worker managed only when enabledModules requiresJobs; loopback and graceful stop."
   acceptance_criteria:
-  - "Define web API worker with private env, correct cwd, tested start/stop/restart"
-  - "Missing build entrypoint/secret exposure or unsafe public bind rejected"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Core-only starts with two processes and no Redis; worker startup conditional."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4503,10 +4800,12 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/OPERATIONS-RUNBOOK.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-06
   phase: P16
+  delivery_track: core
   title: "Verify aaPanel Nginx HTTPS same-origin proxy"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4516,13 +4815,10 @@ tasks:
   - "infra/nginx"
   - "README-SERVER.md"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Proxy /api/* to Hono preserving path and /* to Next.js with HTTPS/cookies"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Nginx same-origin /api/* proxy with secure cookies, Hono auth and health endpoints, Core-only smoke."
   acceptance_criteria:
-  - "Proxy /api/* to Hono preserving path and /* to Next.js with HTTPS/cookies"
-  - "Wrong auth proxy header or publicly exposed Redis rejected"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Core API and web pass Nginx smoke without optional modules or Redis."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4537,10 +4833,12 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/OPERATIONS-RUNBOOK.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-07
   phase: P16
+  delivery_track: core
   title: "Rehearse manual Git update build and restart"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4551,13 +4849,10 @@ tasks:
   - "docs/architecture"
   - "tests/manual-deploy"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Document and test git pull --ff-only npm ci build migration gate PM2 restart and health on disposable environment"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Rehearse approved-commit manual deployment with CI pass, checked migration, optional worker service, backup preflight and Core-only health."
   acceptance_criteria:
-  - "Document and test git pull --ff-only npm ci build migration gate PM2 restart and health on disposable environment"
-  - "Dirty tree or failed migration/health stops without force reset"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Deploy refuses unapproved SHA/migration; no installer or automatic production rollout."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4576,6 +4871,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-08
   phase: P16
+  delivery_track: core
   title: "Document manual source rollback and database recovery"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4612,6 +4908,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-09A
   phase: P16
+  delivery_track: core
   title: "Validate developer clone and npm script guide"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4649,6 +4946,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-09B
   phase: P16
+  delivery_track: core
   title: "Validate manual aaPanel server documentation"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4683,6 +4981,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-09
   phase: P16
+  delivery_track: core
   title: "Gate manual user and operator documentation"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4718,6 +5017,7 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-10
   phase: P16
+  delivery_track: core
   title: "Verify new clone isolation without project initializer"
   task_complexity: high
   preview_expectation: when_reviewable
@@ -4753,23 +5053,21 @@ tasks:
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
 - id: P16-11
   phase: P16
-  title: "Run manual deployment and security end-to-end gate"
+  delivery_track: core-release
+  title: "Certify Core-only production release gate"
   task_complexity: high
   preview_expectation: when_reviewable
   depends_on:
   - "P16-09"
   - "P16-10"
   scope:
-  - "tests/manual-deploy"
+  - "tests/core-release"
   - "docs/architecture"
   steps:
-  - "Read active task, app code and manual setup/reference contract; do not assume target scripts exist."
-  - "Verify isolated clone three-app startup auth RBAC CMS uploads queue backup restore and operator docs"
-  - "Run scoped isolated positive/negative tests after last change and record actual checkpoint."
+  - "Gate Core-only (Web/API/MySQL) auth/RBAC/UI/settings/audit, independent offsite backup/recovery, manual CI deploy and health with Redis/Media/CMS/Operations disabled."
   acceptance_criteria:
-  - "Verify isolated clone three-app startup auth RBAC CMS uploads queue backup restore and operator docs"
-  - "Negative env migration authorization and recovery cases fail safely without production mutation"
-  - "Observed tests and preview/manual diagnostic; no unrelated file/secret changes"
+  - "Core-only clean clone runs without Redis/worker/Media/CMS and has verified independent backup recovery, CI and security signoff."
+  - "Run scoped positive/negative tests and independent review when effective risk is high; no false implementation claims."
   validation:
   - "Positive and negative tests on isolated target, no live production mutations"
   status: pending
@@ -4784,5 +5082,43 @@ tasks:
   - docs/MANUAL-CLONE-SETUP.md
   - docs/references/OPERATIONS.md
   - README-SERVER.md
+  - docs/architecture/TESTING-RELEASE.md
   execution_mode: local_disposable_only
   estimated_scope: "one bounded unit; split if implementation exceeds safe review scope"
+- id: P16-12
+  phase: P16
+  delivery_track: full-matrix
+  title: "Certify optional module matrix independently of Core release"
+  task_complexity: high
+  preview_expectation: when_reviewable
+  depends_on:
+  - P16-11
+  - P09-07
+  - P11-07
+  - P13-06
+  - P14-07
+  - P16-02C
+  scope:
+  - tests/module-certification
+  - docs/architecture
+  steps:
+  - "After Core-only P16-11 gate, test independent Media, CMS requiring Media, Jobs+Operations with Redis/worker and all-supported module combinations."
+  - "Record certification per selected module/config hash, auth/permission/public routes, migrations and uptime; avoid allowing optional tests to block prior Core readiness."
+  acceptance_criteria:
+  - "Each optional module combination has independently reproducible success and disabled-route denial evidence."
+  - "CMS without Media or jobs-required module without proper runtime is refused; no accidental feature exposure."
+  validation:
+  - Real scoped positive/negative tests on isolated fixtures and independent review for high risk
+  status: pending
+  priority: normal
+  blocked_reason: null
+  completed_commit: null
+  tests_evidence: []
+  card: docs/agent/tasks/P16-12.md
+  output_artifact: docs/architecture/MODULE-CERTIFICATION.md
+  risk: high
+  spec_refs:
+  - docs/architecture/TESTING-RELEASE.md
+  - docs/architecture/MODULE-BOUNDARIES.md
+  execution_mode: local_disposable_only
+  estimated_scope: one bounded integration unit; split pending task if needed

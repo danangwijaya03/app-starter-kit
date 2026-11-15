@@ -2,7 +2,7 @@
 
 **Ditujukan untuk: CODING AGENT / reviewer independen.** Aturan ini mengikat task CLI; tidak menggantikan review keamanan nyata.
 
-## Klasifikasi risiko
+## Architecture v2 — Core and optional release evidence\n\n- **M2 Core release P16-11:** independently verified Next.js/Hono/MySQL Auth/RBAC/core settings/audit, offsite encrypted backup and operator CLI staging restore, CI/manual approved-commit deploy; **no Redis or worker/Media/CMS/Operations required**.\n- **M3 Media / M4 CMS / M5 Jobs+Operations:** separately certified through P09-07/P11-07/P13-06/P14-07. **M6 selected-module matrix P16-12** is separate.\n- For enabled modules, test static dependency/cycle/config hash, disabled-route 404, no leftover permission grants or hidden API surface, no conditional DB schema migrations.\n- Review production restore only by independent operator CLI (never API/BullMQ). Evidence must include offsite-restic freshness, isolated recovery drill and measured RPO/RTO, not claim targets without tests.\n\n## Klasifikasi risiko
 
 - **Low**: dokumentasi, UI biasa, scaffolding; tes relevan sesuai output.
 - **Medium**: validasi input, database CRUD, media/queue; tes positif dan jalur gagal sesuai kontrak.
@@ -18,7 +18,7 @@ Risiko registry `risk: low` lama tidak dapat dipakai untuk menurunkan risiko hig
 | P01/P02/P06/P08 UI | `unit` atau `integration` atau `build` yang benar-benar memeriksa hasil |
 | P03/P04/P05/P07/P09/P10/P11/P12/P13 | `unit` atau `integration`; tambahkan `negative` untuk auth/role, upload, dan publishing |
 | P14/P15 backup/restore | `integration` dalam database test disposable; `negative` untuk checksum / permission / kegagalan |
-| P16 manual clone/deploy | `integration`/isolated manual setup + PM2/Nginx smoke and `negative`; production deploy is not a test fixture |
+| P16 Core and module deployment | `integration` Core-only without Redis + PM2/Nginx/security `negative`; selected module certifications have separate suites; production deploy not a test fixture |
 
 CLI `run` menerima `--kind unit|integration|negative|build|docs` sebelum `--` perintah pengujian; bukti berupa exit code, fingerprint isi repository saat tes, dan perintah yang dijalankan. Negative test berarti **assertion memang menguji penolakan/gagal aman**, bukan menjalankan command yang gagal lalu menganggapnya lulus. `npm run build` tidak boleh menggantikan tes keamanan.
 
@@ -34,7 +34,7 @@ Jangan mengeksekusi contoh jika script/nama test belum tersedia. `run` adalah re
 ## Tinjauan independen risiko high
 
 1. Implementer selected coding agent menyiapkan implementasi, referensi dan tes, lalu laporkan task ke reviewer independen; jangan mengisi persetujuan atas pekerjaannya sendiri.
-2. Reviewer independen yang kompeten (manusia atau agent terpisah dengan sumber konteks berbeda dan bukan implementer) membaca diff, referensi upstream, test assertions, invariants dari BSD/TRD, dan jalur gagal. Tidak harus menggunakan model High Reasoning.
+2. Reviewer independen yang kompeten (manusia atau agent terpisah yang bukan implementer; jangan menganggap satu model membaca ulang outputnya sendiri sebagai pemeriksaan independen) membaca diff, referensi upstream, test assertions, invariants dari BSD/TRD, dan jalur gagal. Tidak harus menggunakan model High Reasoning.
 3. Reviewer membuat catatan tertulis di `docs/agent/reviews/<TASK_ID>.md`, dengan keputusan **APPROVED**, identitas reviewer, commit/diff yang ditinjau, hasil test dan temuan; bukan sekadar "looks good".
 4. Operator merekam review dengan CLI `review <ID> --reviewer ... --evidence docs/agent/reviews/<ID>.md`. CLI memeriksa file dan fingerprint terkini; tidak membuktikan bahwa reviewer independen. Jika source berubah sesudah review, persetujuan gugur.
 5. Tanpa review, task high tidak bisa `complete` dan gate fase ditolak. Low agent tidak boleh menyamar sebagai reviewer atau menurunkan label risiko.

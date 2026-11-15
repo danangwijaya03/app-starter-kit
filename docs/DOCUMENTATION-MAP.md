@@ -1,4 +1,4 @@
-# Peta Dokumentasi — clone-based reusable starter
+# Peta Dokumentasi — Modular Core v2, clone-based reusable starter\n\n**Accepted design / not implemented:** [Unified SPEC](../SPEC-001-app-starter-kit-modular-core.md) · [Architecture](architecture/README.md) · [16 ADRs](architecture/ADR/README.md) · [Reference v2 Index](references/INDEX-V2.md) · [v2 Task Rebase](architecture/TASK-REBASE-PLAN.md). Two Core processes (Web/API), MySQL; optional Redis/worker/Media/CMS/Operations. Core release P16-11, selected module gate P16-12.
 
 ## Untuk pengguna dan operator
 

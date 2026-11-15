@@ -124,11 +124,11 @@ For a Hono business endpoint, middleware order is auth → RBAC → request vali
 
 **Tests:** draft changes do not appear publicly, invalid block props rejected, published slug collisions return 409, preview token cannot be reused as a public link, old/new slugs handled on publish.
 
-## Recipe G: Backup/restore boundary
+## Recipe G: Independent encrypted offsite backup / recovery CLI
 
 - Backup worker calls `mysqldump` with **argument array**, credentials from protected temporary file (never visible in process command-line arguments), and InnoDB-safe flags such as `--single-transaction --quick` as applicable.
 - Streams to protected storage, encrypts, adds manifest/checksum. A backup is not `verified` until it restores into disposable MySQL.
-- Restore uses a separate high-risk workflow: authorization and recent reauth → checksum + compatibility preflight → staging test restore → pre-restore recovery snapshot → maintenance/drain → controlled import → health/reconcile.
+- Operator-only CLI restore uses a separate high-risk workflow: authorization and recent reauth → checksum + compatibility preflight → staging test restore → pre-restore recovery snapshot → maintenance/drain → controlled import → health/reconcile.
 - **Never auto-retry restore** and never let SQL import failure clear maintenance automatically. Journal must live outside restored DB.
 
 ## Recipe H: Clone-based production build and manual operations
@@ -142,3 +142,10 @@ For a Hono business endpoint, middleware order is auth → RBAC → request vali
 ## P01–P16 final rule
 
 Read the matching [Reference Map](../references/REFERENCE-MAP.md) and [Adoption Protocol](../references/ADOPTION-PROTOCOL.md) first. Use these recipes for shapes, but **the atomic task card defines the next permitted change**, and `docs/BSD.md` defines final fields, permission codes, indexes, and endpoints. Do not implement everything from a recipe in a single task.
+## Recipe I: Modular Core v2 and conditional jobs
+
+- [Module catalog](../architecture/MODULE-BOUNDARIES.md): Core always on; static Media/CMS/Operations selection with strict dependency closure; CMS→Media, Jobs capability→conditional Redis/worker. Disabled modules have no route/grants/OpenAPI/menu; centrally migrate all 21 tables.
+- [RBAC](../architecture/AUTH-RBAC-CONTRACT.md): Better Auth owns identity, app RBAC owns permissions; invited status, no self-elevation, limited delegation, consistent last-admin MySQL lock/audit.
+- [CMS](../architecture/MEDIA-CMS-CONTRACT.md): save_key/request_hash/expectedRevisionNo, immutable revision, published-only SSR without persistent cache; Media independent.
+- [Jobs](../architecture/JOBS-CONTRACT.md): transactional MySQL intent, lease dispatcher, replay-safe deterministic BullMQ IDs; Core operates when Redis unavailable.
+- [Recovery](../architecture/OPERATIONS-RUNBOOK.md): offsite restic/encrypted CLI independent of Hono/Redis; no POST production restore endpoint. Core [P16-11](tasks/P16-11.md) does not wait for selected-module gate [P16-12](tasks/P16-12.md).

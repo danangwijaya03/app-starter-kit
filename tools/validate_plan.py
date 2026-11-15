@@ -78,6 +78,55 @@ for p, audience in (
   errors.append("Missing correct document audience: "+p)
 checked_docs,content_errors=scan_documentation()
 errors.extend(content_errors)
+# Architecture v2: guard Core-first, static modules and source-reference invariants.
+ARCH_V2 = {
+ "docs/architecture/README.md", "docs/architecture/MODULE-BOUNDARIES.md",
+ "docs/architecture/DATABASE-CONTRACT.md", "docs/architecture/AUTH-RBAC-CONTRACT.md",
+ "docs/architecture/OPERATIONS-RUNBOOK.md", "docs/architecture/TESTING-RELEASE.md",
+ "SPEC-001-app-starter-kit-modular-core.md", "docs/references/INDEX-V2.md",
+ "docs/references/ARCHITECTURE-BASELINE.md",
+ "docs/references/REFERENCE-ADOPTION-MATRIX.md"
+}
+for path in ARCH_V2:
+ if not (R/path).is_file():errors.append("Missing v2 architecture contract "+path)
+if len(list((R/"docs/architecture/ADR").glob("ADR-*.md"))) != 16:
+ errors.append("Architecture v2 requires 16 ADR documents")
+if D["metadata"].get("architecture_baseline") != "docs/architecture/README.md":
+ errors.append("Missing architecture v2 metadata")
+if D["metadata"].get("core_release_gate") != "P16-11":
+ errors.append("Core production release gate must remain P16-11")
+if D["metadata"].get("selected_module_certification") != "P16-12":
+ errors.append("Optional module gate must remain P16-12")
+new_v2_ids={"P01-10","P03-10","P05-10","P13-07","P14-08","P16-12"}
+for task_id in new_v2_ids:
+ if task_id not in m: errors.append("Missing v2 task "+task_id)
+allowed_tracks={"core","core-release","media","cms","jobs","operations","full-matrix"}
+for item in T:
+ if item.get("delivery_track") not in allowed_tracks:
+  errors.append("Invalid/missing v2 delivery_track "+str(item.get("id")))
+def dependency_closure(task_id):
+ found=set();queue=[task_id]
+ while queue:
+  current=queue.pop()
+  if current in found or current not in m:continue
+  found.add(current);queue.extend(m[current].get("depends_on",[]))
+ return found
+if "P16-11" in m:
+ closure=dependency_closure("P16-11")
+ optional=[id for id in closure if m[id].get("delivery_track") not in {"core","core-release"}]
+ if optional:errors.append("Core gate improperly requires optional modules: "+",".join(sorted(optional)))
+ for needed in ("P12-08","P14-08","P15-07","P16-04","P16-05","P16-06"):
+  if needed not in closure:errors.append("Core gate missing required prerequisite "+needed)
+if "P16-12" in m:
+ for needed in ("P16-11","P09-07","P11-07","P13-06","P14-07","P16-02C"):
+  if needed not in dependency_closure("P16-12"):
+   errors.append("Selected module matrix missing certification "+needed)
+bsd_text=(R/"docs/BSD.md").read_text(encoding="utf-8")
+if "| POST | `/backups/:id/restore`" in bsd_text:
+ errors.append("Forbidden HTTP production restore endpoint in BSD")
+if any(line.startswith("| CMS Media |") for line in bsd_text.splitlines()):
+ errors.append("Legacy CMS-owned media permission group remains")
+
 if errors:
  for e in errors[:50]:print("ERROR",e)
  print("Total errors:",len(errors));sys.exit(1)

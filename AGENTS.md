@@ -2,14 +2,14 @@
 
 **Ditujukan untuk: CODING AGENT.** User-facing guide: [PANDUAN-MULAI-LOW-AGENT.md](PANDUAN-MULAI-LOW-AGENT.md). Approved development branch: **main**; no destructive reset.
 
-**Baseline:** existing root Next.js 16.4.3 + React 19.3, Tailwind v4, npm/npx and one `package-lock.json`. P01 migrates the **existing** app using Git moves into `apps/web`. Local environment: Lerd, Node.js 26, existing MySQL/Redis. **Do not run create-next-app, install duplicate services, or create Docker requirements.**
+**Architecture v2:** [16 accepted ADRs](docs/architecture/ADR/README.md), [Module Contracts](docs/architecture/MODULE-BOUNDARIES.md), [Reference v2 Index](docs/references/INDEX-V2.md), [Unified SPEC](SPEC-001-app-starter-kit-modular-core.md). Core Web/Hono/MySQL always on; Media/CMS/Operations and jobs worker/Redis are optional. CMS requires Media; startup validates static module config; 21 tables centrally migrated. [Core M2 gate](docs/agent/tasks/P16-11.md) independently of optional certification [P16-12](docs/agent/tasks/P16-12.md). Source currently Next.js fixture only.\n\n**Baseline:** existing root Next.js 16.4.3 + React 19.3, Tailwind v4, npm/npx and one `package-lock.json`. P01 migrates the **existing** app using Git moves into `apps/web`. Local environment: Lerd, Node.js 26, existing MySQL/Redis. **Do not run create-next-app, install duplicate services, or create Docker requirements.**
 
 ## Mandatory startup (START and RESUME)
 
 1. `git status --short`; inspect `docs/agent/CHECKPOINT.md`. Run **`python3 tools/bootstrap_agent.py`** (automatic scoped Python venv; Fish/Bash/Zsh compatible, no `source`).
 2. Use `.venv-agent/bin/python tools/agent_tasks.py doctor`, `next`, and `summary`. If bootstrap fails, report actual blocker; do not change global Python/Lerd or task statuses.
 3. Recover any `in_progress` task and actual Git evidence first. Otherwise, take only one `ready` task according to `docs/agent/TASKS.yaml`.
-4. Read that single task card, `spec_refs`, corresponding domain [Reference Map](docs/references/REFERENCE-MAP.md), [Adoption Protocol](docs/references/ADOPTION-PROTOCOL.md), and relevant source. No wholesale research or all-task loading.
+4. Read that single task card, `spec_refs`, corresponding domain [Reference v2 Index](docs/references/INDEX-V2.md), [Adoption Protocol](docs/references/ADOPTION-PROTOCOL.md), and relevant source. No wholesale research or all-task loading.
 
 ## Single required model and flow
 
@@ -25,9 +25,9 @@
 
 ## Architecture / non-negotiable boundaries
 
-- Only three app runtimes: **Next.js web**, **Hono API**, **BullMQ worker**. MySQL/Drizzle, Better Auth, database-driven application RBAC, Redis, Salt & Pepper UI, typed Zod contracts.
+- Two required app runtimes: **Next.js web**, **Hono API**; optional **BullMQ worker**. MySQL/Drizzle, Better Auth, database-driven application RBAC, Redis conditional, Salt & Pepper UI, typed Zod contracts.
 - **Clone-based new projects only.** Do not implement `apps/installer`, `init-project`, release archive packaging, switch-release scripts, versioned-symlink deployment, or a feature installer. Manual npm scripts for migrate/seed/permission-sync/admin-bootstrap/verify are retained.
-- Production **without Docker**: clone/pull trusted source, environment setup, review-gated migration, build, PM2, aaPanel/Nginx and health check. Live mutations/deploy/restore require explicit operator approval.
+- **Core-only startup** must not require `REDIS_URL` or worker; CMS routes/permissions only with Media enabled, Operations only when selected. First-admin email is provided by operator; no hardcoded default. Independent offsite backup + operator-only CLI recovery is required for Core production; never implement a destructive HTTP restore endpoint.\n- Production **without Docker**: clone/pull trusted source, environment setup, review-gated migration, build, PM2, aaPanel/Nginx and health check. Live mutations/deploy/restore require explicit operator approval.
 - Never store credentials, user data, uploaded media, backup archives or secrets in a starter clone. Test with isolated DB/Redis; never use live production data for fixtures.
 - Preserve Next.js generated rules below and baseline config until a verified scoped migration.
 

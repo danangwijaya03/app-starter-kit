@@ -1,33 +1,32 @@
-# Manual Clone Setup — reusable starter kit, no installer
+# Manual Clone Setup — Modular Core v2
 
-**Status:** approved target procedure; only the root Next.js scaffold currently exists. Many workspace/npm scripts named below **do not yet exist** and must be implemented under their task IDs before running. No installer CLI, generator, release archive, version symlink or Docker dependency is planned.
+**Status:** approved target; source remains Next.js preview. No installer or project generator. Clone the approved template into a distinct repository/working directory. Never clone production data, credentials, backups, sessions or media.
 
-## 1. Start a separate project from a template clone
+## 1. Select static modules before build
 
-```bash
-# Example: clone the starter as a new project directory
-git clone <authorized-starter-repository-url> my-new-project
-cd my-new-project
+```text
+Core: always on = Web + Hono API + MySQL
+Media: optional, no Redis for simple images
+CMS: optional, requires Media
+Operations: optional UI, requires jobs for its queue-dependent features
+Jobs capability: conditional Redis + BullMQ worker
 ```
 
-Choose how to retain Git history:
+`packages/config/modules.config.ts` is a **planned file**, not present in current source. Static config validates known IDs, dependency DAG, Web/API config hash parity and worker requirement; disabled modules have no page/API/menu/permission/processor or OpenAPI entry. All 21 DB tables are centrally migrated regardless of module selection. No dynamic toggle/migration runner.
 
-- If maintaining upstream updates: keep `origin` and add the new app repository as a separate remote with explicit naming, after checking permissions.
-- If creating an independent project: initialize the new repository's history intentionally (e.g. GitHub's **Use this template** workflow when available), not by deleting a working tree blindly. Do not accidentally push project secrets or unrelated project data to the starter remote.
-
-## 2. Local environment (Lerd preferred)
-
-Baseline: Node 26, npm, existing local Lerd MySQL and Redis, one root npm lockfile. Verify versions and current services without installing duplicates. Copy `.env.example` to private `.env` once the template exists; set a **new** unique database/schema, Redis prefix, media path, session secret, canonical origin and project branding. **Never copy another project's .env/data**.
+## 2. Clone/setup local
 
 ```bash
+git clone <authorized-starter-repo-url> new-project
+cd new-project
 npm ci
-# Create dedicated MySQL DB/user and isolated Redis prefix manually.
-# Configure .env privately; do not commit it.
+# create private .env; unique MySQL DB/user and private storage;
+# Redis prefix/REDIS_URL only if enabled jobs need it
 ```
 
-## 3. Database, roles and initial administrator
+Root Next.js already has `npm run dev`, `npm run lint`, `npm run build`. After P01 migration to workspaces use actual tested scripts, not imaginary commands. Do not create-next-app again or install duplicate Lerd DB/Redis services.
 
-**Target scripts (to be built and verified during P03/P05/P16; not available on today's root scaffold):**
+## 3. Core manual setup scripts (planned after P03/P05/P16)
 
 ```bash
 npm run db:migrate:check
@@ -36,30 +35,21 @@ npm run permissions:sync
 npm run db:seed
 npm run setup:admin
 npm run setup:verify
-```
-
-Migrations must reject wrong environment and incompatible history, fail closed on destructive changes, and protect production writes. Seeds/permission sync are idempotent and must not overwrite an existing administrator credential. Admin bootstrap consumes a protected interactive prompt or private secret input, **never a password argument/committed secret**. Verify first login forced password change and account/session/role guards.
-
-## 4. Development, verification and review
-
-Current root scaffold:
-
-```bash
-npm run lint
 npm run build
-npm run dev
 ```
 
-After P01 moves the app to `apps/web`, use only the workspace scripts actually added and tested. Start web/API/worker separately or via a verified npm workspace dev orchestration. The UI is initially a clearly labeled static demo; never infer that API, auth, RBAC or MySQL already works from the page.
+Review migrations, create all 21 logical tables via one Drizzle journal and Better Auth generated schema. Sync permissions with careful revoke-on-disable and **no automatic re-grant**. Seed roles/core themes idempotently. `setup:admin` gets **email and password from secure operator input**, never a universal identity/password. Test first login and server authorization.
 
-## 5. Manual deployment to aaPanel/VPS (no Docker)
+## 4. Preview and development
 
-See [README-SERVER](../README-SERVER.md). Prepare Node/PM2/Nginx/MySQL/Redis on the target, clone/pull source into a nonpublic directory, create production-only env and storage, `npm ci`, run review-gated migration/seed/admin commands, build and run three PM2 services, connect Nginx/HTTPS, smoke test and configure protected backups. **Manual steps require operator approval**, particularly live migrations and restore.
+Next.js static fixture at `/` is not a real admin dashboard. Implement and verify each small vertical slice; for Core-only smoke **stop/omit Redis and worker**, disable Media/CMS/Operations and check health. Optional-module test suites are independent and should not block Core readiness.
 
-## 6. What must never be inherited by a new clone
+## 5. Manual aaPanel/VPS deployment
 
-Sessions, users, hashed passwords, secrets, reset links, uploaded media, backup archives, audit events, job queues, cache prefixes or production database dumps. A clone contains only code and safe default templates. Reusing admin email identifier is allowed by policy; reusing initial password is not.
+Use [Server Guide](../README-SERVER.md): approved Git SHA + passing CI → private env/MySQL → reviewed migrate/seed/bootstrap → npm build → PM2 web/API (conditional worker) → Nginx HTTPS → real login/health/API smoke. Production release requires **independent offsite backup and operator CLI recovery** even when Operations UI is disabled.
 
-## 7. Acceptance
+## 6. Separation & validation
 
-Fresh clone into distinct project name and DB/Redis/storage, repeat migrations/seed without duplicates, first-admin secure setup, valid login, protected API deny tests, working web/API/worker under tested local configuration and documented PM2/Nginx deployment. Failure must be explicit and resumable, no destructive reinitialization.
+Use unique session secrets, MySQL DB/user, external storage, Media, backup repository, audit history, queue prefixes and domain for each clone. Never carry over user records/roles/sessions/media/logs from another project; default structural roles are generated by secure idempotent seed.
+
+Verification: Core M2 release with zero Redis; Media M3, CMS M4, Jobs/Operations M5 and selected module matrix M6. See [v2 Architecture](architecture/README.md), [Reference Index](references/INDEX-V2.md).

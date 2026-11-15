@@ -1,11 +1,13 @@
-# Coding-agent checkpoint — clone-based reference-driven plan
+# Coding agent checkpoint — Architecture v2 documentation baseline
 
-- Repo: `danangwijaya03/app-starter-kit`, branch `main`.
-- Existing Next.js 16.4.3 root scaffold and **static demo preview**; web/api/worker monorepo, MySQL integration, auth, RBAC, CMS, operations remain task targets.
-- Architecture decision: **Clone-Based Reusable Starter Kit + Reference-Driven Development + Single Active Coding Agent**.
-- Active implementer (provider-independent): **coding agent yang dipilih**. High reasoning AI model not mandatory. Effective **high-risk task** still requires **independent qualified review** under `agent_tasks.py`; do not self-approve.
-- **NO** `apps/installer`, project generator, release archive/version-symlink deployment manager, or Docker requirement. New projects = clone + private env + new DB/Redis/storage + reviewed manual npm setup scripts; deploy manually using PM2 + Nginx.
-- Current documentation task statuses are pending; never mark tasks completed based on planning changes. Start `python3 tools/bootstrap_agent.py`, run `.venv-agent/bin/python tools/validate_plan.py`, `agent_tasks.py doctor`, `next`, `summary`.
-- Read one active card + one matching domain under `docs/references/`. Record source URL/version/license only if verified and adapted; tests after last edit, actual preview (or not verified) and user feedback.
-- No live DB mutations, restore, production deploy or secrets in repository. Existing working tree should never be force-reset or reinitialized.
-- **Documentation-only change:** monorepo and target npm scripts have **not** been implemented/tested as part of this update. Validate docs integrity/CI and npm baseline separately.
+- Repository: `danangwijaya03/app-starter-kit`, branch `main`.
+- **Source truth:** root Next.js 16.4.3 static UI-only demo, not yet a monorepo or working API/MySQL/Auth/RBAC/CMS/worker/backup. No migration, seed, production rollout or feature code is claimed completed from this documentation update.
+- **Approved v2:** clone-based Modular Core, web/API + MySQL always on, Redis/worker conditional, Media/CMS/Operations optional with static enabledModules; no installer/Docker. 16 accepted ADRs, one Drizzle journal for 21 tables.
+- **Task registry:** `docs/agent/TASKS.yaml` v2.1, **162 planned tasks** = 156 preserved IDs plus P01-10, P03-10, P05-10, P13-07, P14-08 and P16-12. All states remain pending unless independently supported by current-source evidence. Exact status/next via CLI.
+- **Core release P16-11** has cross-phase prerequisites: P12 typed settings/theme/audit; P14-08 offsite encrypted Core backup; P15 independent recovery CLI; P16 manual CI/PM2/Nginx. No optional module or Redis dependency for Core.
+- Optional certification: P09 Media, P11 CMS requiring Media, P13 Jobs, P14 optional Operations UI; P16-12 selected active-module matrix. The P16-02C worker build must not block Core.
+- **Selected coding agent** can be Codex, Claude, Antigravity, DeepSeek, etc; one active implementer per task/session. No required High Reasoning model, but independent qualified security review for high-risk tasks and separate operator approval for live actions.
+- Workflow: RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT. Read active card, [ADR](../architecture/ADR/README.md), [Reference v2](../references/INDEX-V2.md), relevant contract and verify source/license.
+- Bootstrap existing tools via `python3 tools/bootstrap_agent.py`, then `.venv-agent/bin/python tools/agent_tasks.py doctor`, `next`, `summary`; run docs/graph validation before starting tasks.
+- Never force-reset root Next.js scaffold, copy user data/secrets into template, launch Redis for Core-only, invent passed tests or use production restore HTTP endpoints.
+- This checkpoint records **documentation integration only**. Actual CI status and tested source checks must be recorded in subsequent task executions.

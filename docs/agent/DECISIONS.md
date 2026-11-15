@@ -1,14 +1,18 @@
-# Accepted architecture decisions — current
+# Accepted Architecture Decisions — v2 Modular Core
 
-**Date:** 2026-11-14. This document supersedes earlier installer/release-artifact plans. Retained historical implementation IDs were migrated where still relevant.
+**Accepted design:** 2026-11-14. **Implementation:** pending code/tests. Supersedes previous "three required Node runtimes, CMS in every MVP, backup via worker, default admin email and all-or-nothing P16 release" assumptions. Full [ADR register](../architecture/ADR/README.md), [Unified SPEC](../../SPEC-001-app-starter-kit-modular-core.md), [Proposed v2 source](DECISIONS.v2-PROPOSED.md).
 
-- Repository `danangwijaya03/app-starter-kit`, development on `main`, preserve existing root Next.js 16.4.3/React 19.3 until P01 moves files by Git, not re-scaffolding.
-- Reusable **single-tenant per clone**, MySQL 8.4 + Drizzle, Better Auth, database-driven app RBAC, standalone Hono API, Next.js public/admin, BullMQ worker + Redis; npm workspaces/Turborepo/one package lock, Node 26 baseline.
-- **No installer**, no `apps/installer`, no project initializer/generator, portable release artifact, symlink switch manager, Docker requirement, or installer-specific metadata/secrets. New apps use clone + manual environment/database setup.
-- Manual npm scripts for migration, permission sync, idempotent seed, first-super-admin bootstrap with non-echo secret, verification are **retained** and will be implemented through P03/P05/P16; no universal default password.
-- Production deployment **manually from source** using npm build, PM2, aaPanel/Nginx, isolated MySQL/Redis and protected local storage. Live migration/backup/restore requires operator authorization.
-- **Reference-driven implementation:** curated official libraries and examples (Celestia, Blur Stack, Hono Starter etc) with source pinning, license attribution, exclusions and testable invariants. See `docs/references/`. No wholesale template copying.
-- **Single active coding agent per task/session (provider/model-agnostic)**. High Reasoning AI optional, not required. Keep actual high-risk independent security review and negative/concurrency tests; risk is not model-effort classification.
-- Visual preview-first incremental workflow: RECOVER → REFERENCE → IMPLEMENT → TEST → VERIFY → PREVIEW → CHECKPOINT → NEXT; visible UI fixture early, real auth/API/DB only once implemented.
-- CMS block/revision/published-pointer, Salt & Pepper theme, Dashboard / Manage Content / Manage User / Setting main menu, private media, backup/restore, audit, worker and typed contracts remain MVP.
-- Optional reference ideas (2FA, notifications, i18n, extra storage, monitoring) do **not** become MVP tasks without a later scoped decision.
+- Clone-based reusable **single-tenant Modular Core**, npm workspaces/Turborepo, Next.js web + standalone Hono API + MySQL/Drizzle; NO installer, Docker or auto-deploy.
+- **Core MUST:** Better Auth, application-only RBAC (one effective grants source), user invites/status/first-password-change, limited delegation, Core dashboard, typed settings + immutable semantic theme snapshots, audit, Pino/health/external monitoring, offsite encrypted backups, **independent operator CLI recovery**, automatic CI and manual production deployment.
+- **Optional SHOULD:** Media LocalFs (independent), CMS (requires Media) published-only SSR, Jobs (durable MySQL intent + BullMQ/Redis worker only when needed), optional Operations status UI. Core can deploy with Redis/worker/Media/CMS/Operations all disabled.
+- Static source-controlled `enabledModules` validated at build/start, unknown/dependency cycle/config hash mismatches rejected; no dynamic UI toggles or conditional database migrations. Disabled modules have no route/permissions/nav/OpenAPI/worker processors.
+- All **21 logical tables** centrally versioned via Drizzle; generated Better Auth tables not manually assumed. Schema delta: invited, delegable/sensitive, media ready/public lifecycle, CMS save idempotency, jobs lease fields, offsite backup verification; history preserved.
+- Server route architecture: Better Auth `/api/auth/*`, Hono business `/api/v1/*`; Next SSR internal Hono HTTP with selected auth cookies; auth/admin/draft no-store. Public CMS SSR no persistent cache in MVP.
+- Auth and RBAC: no hardcoded initial admin email/password; operator-supplied secure inputs; permissions `media.*`, limited delegation, active account state, consistent MySQL last-superadmin lock and transactional audit.
+- Production recovery **never** `POST /backups/:id/restore`, never one-click dashboard, worker auto-retry or app-coupled service. Linux CLI/restic encrypted offsite + isolated staging + operator-approved cutover and external journal.
+- Observability: lightweight Core Pino JSON redacted logs + transactional audit, live/ready/subsystems health, external uptime.
+- Core-first release [P16-11](tasks/P16-11.md), optional module certifications independently and all-module matrix [P16-12](tasks/P16-12.md). Phase IDs remain historical workstreams, not strict release order.
+- Coding-agent workflow is model/provider-neutral: one active agent/model per bounded task or session. Independent security review mandatory for effective high risk; a High Reasoning model is **not** a product requirement.
+- Existing root Next.js preview is demo only; no code feature is marked complete by adopting these documents.
+
+**Explicit legal item still pending:** review GPL-3.0 distribution/compatibility implications before incorporating external licensed source or distributing a derivative. [Library Reference Checks](../architecture/LIBRARY-REFERENCE-CHECKS.md) and [Source Attribution](../references/SOURCE-ATTRIBUTION.md) are research records, not license approval.

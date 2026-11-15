@@ -1,49 +1,59 @@
-# Reference Map — curated reuse candidates
+# Reference Map — architecture-v2 curated sources
 
-**Status:** architecture/development research. No third-party source has been incorporated into this repository by this documentation change. References are patterns to evaluate, not proof that the same stack, database or API version already works here.
+**Status:** research/adoption plan, not proof of dependency installation or source-code reuse. Prefer official documentation for package behavior. The current repository may still be a Next.js preview until the monorepo tasks are implemented.
 
-**Project invariants:** Next.js 16 + React 19 frontend, standalone Hono API, BullMQ worker, MySQL/Drizzle, Better Auth and server-side permission checks. npm workspaces/Turborepo, one lockfile, single tenant per clone, no installer, no Docker requirement, deployment via build + PM2 + aaPanel/Nginx. Coding implementer: **coding agent yang dipilih** for all bounded tasks. See [Adoption Protocol](ADOPTION-PROTOCOL.md), [Single Model Workflow](../agent/SINGLE-MODEL-WORKFLOW.md).
+**Binding decisions:** [Architecture Baseline v2](ARCHITECTURE-BASELINE.md) and [Adoption Protocol](ADOPTION-PROTOCOL.md). The chosen starter architecture is single-tenant **Modular Core**, not a feature installer or mandatory all-in-one CMS/worker. Core is Next.js + Hono + MySQL with Centralized Migration, Better Auth, app-level RBAC, Settings/Theme, audit, monitoring; Media, CMS and Operations are optional. Worker/Redis are conditional; independent offsite backup is required operationally for production.
 
 ## Primary reference candidates
 
-| Capability | References (verified pages) | Reuse approach | Important mismatch |
+| Source | Study / adapt | Target and ADR | Reject |
 |---|---|---|---|
-| Web/API separation, typed contracts, CMS workflow | [Celestia Starter](https://github.com/dev-celestia/celestia-starter) | Study architecture, auth/dashboard/CMS/access feature patterns | PostgreSQL, pnpm, CLI/feature installer and optional mobile are **not** our architecture |
-| Backend MySQL, Hono, queue | [Hono Starter](https://github.com/Joker666/hono-starter) | Study layered API, MySQL/Drizzle, BullMQ worker patterns | JWT-based auth and Docker examples; do not replace Better Auth or require Docker |
-| Role/permission and navigation maps | [Blur Stack](https://github.com/blurridge/blur-stack) | Study permissions matrix and API middleware | PostgreSQL and multi-tenant concepts; adapt to MySQL/single-tenant |
-| Auth/session/admin APIs | [Better Auth docs](https://better-auth.com/docs), [Admin Plugin](https://better-auth.com/docs/plugins/admin) | **Use official package**; generate schema from installed version | Review plugin permission semantics against app-level DB RBAC; one canonical authorization decision |
-| API hardening | [Hono CSRF](https://hono.dev/docs/middleware/builtin/csrf), [Secure Headers](https://hono.dev/docs/middleware/builtin/secure-headers) | Official middleware + threat-model-specific tests | Middleware defaults alone do not cover API authorization/business logic |
-| Security acceptance | [OWASP ASVS](https://asvs.owasp.org/) | Testable security requirements, not copy/paste source | Apply relevant controls and record how implemented |
-| CMS editing | [Tiptap](https://github.com/ueberdosis/tiptap) | Core editor library for typed block editing | Headless editor is not a complete safe CMS/revision workflow |
-| Async jobs | [BullMQ](https://github.com/taskforcesh/bullmq) | Official queue primitives and worker patterns | Job idempotency, retry, cancellation and backup safety remain app-specific |
+| [Celestia Starter](https://github.com/dev-celestia/celestia-starter) | Separation of Web/API, CMS editorial workflow, media, dashboard UX | Web/API 006-008, CMS 011, Media 010 | PostgreSQL, pnpm, installer, mobile, bundled all-on modules |
+| [Hono Starter](https://github.com/Joker666/hono-starter) | Hono services, MySQL/Drizzle patterns, worker structure | API 006, database 005, jobs 009 | JWT auth ownership, Docker requirement, direct Redis enqueue without durable intent |
+| [Blur Stack](https://github.com/blurridge/blur-stack) | Permission catalog, role editor, authorization-aware menu | RBAC 003-004 | Multi-tenant organization grants, PostgreSQL, second permission system |
+| [Better Auth](https://www.better-auth.com/docs/) | Credential/session handling, schema generation, session revocation | Core Auth 003 | Independent RBAC created via Admin Plugin without bridge; public signup by default |
+| [Hono security docs](https://hono.dev/docs/middleware/builtin/csrf) | CSRF, secure headers, middleware and API routing | Core API 006 | Assuming middleware alone replaces resource-level policy |
+| [OWASP ASVS](https://github.com/OWASP/ASVS) | Testable security requirements | Security gates 003-016 | Treating a reference checklist as proof of implementation |
+| [Tiptap](https://tiptap.dev/docs) | Rich text JSON within typed CMS blocks | CMS 011 | Raw HTML/JS editor, unversioned arbitrary widgets |
+| [BullMQ](https://docs.bullmq.io/) | Worker, retry, backoff, deduplication behavior | Jobs 009 | Exactly-once assumptions or Redis as durable business intent |
 
-## Additional reusable ideas — evaluate individually, not automatic MVP
+## Other approved research and official libraries
 
-| Feature family | Potential source | Value for business starters | Decision |
+| Source | Use when needed | Module | Gate |
 |---|---|---|---|
-| UI primitives / accessible patterns | [shadcn/ui](https://ui.shadcn.com/), [TanStack Table](https://tanstack.com/table/latest) | Forms, dense data tables, keyboard UX | Prefer existing design tokens and minimal dependencies |
-| Typed forms / schema validation | [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) | Validation shared across UI and Hono | Server validates input independently of client |
-| Audit logs and structured logging | [Pino](https://github.com/pinojs/pino) | Action traceability and operations | Never log tokens/passwords/PII by default; audit log is distinct from debug log |
-| Error monitoring | [Sentry JavaScript](https://github.com/getsentry/sentry-javascript) | Production exception reporting | Optional external service; redact data and review retention costs |
-| In-app / multi-channel notifications | [Novu](https://github.com/novuhq/novu) | Reusable notification ideas/workflow | **Optional**; mixed/open-core license, verify module licenses and do not add full platform as default |
-| Internationalization | [next-intl](https://next-intl.dev/) | Future multilingual apps | Optional after MVP; keep language/timezone settings |
-| 2FA/passkeys and session management | [Better Auth Plugins](https://better-auth.com/docs/concepts/plugins) | Optional stronger login | Keep authentication ownership inside Better Auth |
-| Media adapters | [Celestia media-R2 feature](https://github.com/dev-celestia/celestia-starter) | Abstract local/S3-compatible media | Local-first; optional R2/S3 driver, no secrets in browser |
-| Job dashboard | [BullMQ documentation](https://docs.bullmq.io/) | Queue visibility for operators | Authorization and retry controls mandatory; no publicly exposed queue UI |
-| Automated UI/API tests | [Playwright](https://playwright.dev/), [Vitest](https://vitest.dev/) | Low-effort repeatable regressions | Fixtures isolated from development/production DB |
+| [shadcn/ui](https://ui.shadcn.com/), [TanStack Table](https://tanstack.com/table/latest) | Accessible components, data grid | Core UI | Preserve semantic theme; RBAC server-side |
+| [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) | Interactive forms and shared validation | Core/active modules | Hono validates independently |
+| [Pino](https://getpino.io/) | Redacted operational JSON logs | Core | Audit stored separately in MySQL |
+| [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) | Unit/integration/browser | Core and module certification | Real MySQL; optional Redis only for jobs suites |
+| [Sharp](https://sharp.pixelplumbing.com/) | Bounded image processing | Media | Input pixel, size and timeout ceilings |
+| [restic](https://restic.readthedocs.io/en/stable/) | Encrypted offsite backups and restore validation | Production operations | CLI independent of app/Redis |
+| [Sentry](https://docs.sentry.io/platforms/javascript/) | Optional exception reporting | Optional | Redaction, contract and cost review |
+| [Novu](https://github.com/novuhq/novu) | Optional notification ideas | Future | Open-core license review; no platform import |
+| [next-intl](https://next-intl.dev/) | Optional localization | Future | Separate ADR/task |
+| [Better Auth plugins](https://www.better-auth.com/docs/plugins) | Optional MFA/passkeys | Future | Keep session ownership with Better Auth |
 
-**Priority:** Core MUST = auth/RBAC/CMS/security, MySQL/API, media, worker, backup/restore. Suggested optional features above are **reference candidates only**, not automatic additional task IDs, tables, dependencies, or scope expansion.
+## Release placement
 
-## Rules for starting a feature
+| Release | Mandatory scope | Reference playbooks |
+|---|---|---|
+| Core-first production gate | Web, API, MySQL, Auth/RBAC, Users, Settings/Theme, audit/health, CI and manual deployment, independent backup | AUTH, RBAC, SECURITY, UI-FORMS, OPERATIONS, TESTING |
+| Media certification | Safe LocalFs upload, visibility, usage retention and reconciliation | MEDIA, SECURITY, TESTING |
+| CMS certification | Media passed; structured blocks, immutable revisions, preview/publish/public SSR | CMS, MEDIA, UI-FORMS, TESTING |
+| Jobs/Operations certification | Durable DB dispatch, Redis/worker failure recovery, Operations UI as enabled | WORKER, OPERATIONS, SECURITY, TESTING |
 
-1. Choose **one** relevant reference page and its pinned commit/tag; verify maintenance status and LICENSE before reusing **source code**.
-2. Record a short source-to-target map and security expectations in the domain document below.
-3. Copy as little source as needed, preferably consume official packages rather than copying implementations. Record attribution in [SOURCE-ATTRIBUTION.md](SOURCE-ATTRIBUTION.md).
-4. Avoid importing source project package manager (pnpm), DB driver (PostgreSQL), multi-tenancy, Docker, build tool, or installer just to get one feature.
-5. Implement only the active TASKS.yaml work unit; run scoped positive/negative tests. For high-risk tasks, require an independent reviewer before completion, not a specific High Reasoning model.
+**Do not assume task IDs:** map each adaptation to the actual existing ID from `docs/agent/TASKS.yaml` at implementation time. Do not introduce extra tasks or an installer solely because a reference contains them. Implementation contracts and schema migration changes must be approved before code copying.
+
+## Rules before adopting
+
+1. Read the active task and [ARCHITECTURE-BASELINE.md](ARCHITECTURE-BASELINE.md).
+2. Select a source and **pin upstream commit/tag, path, library version and license**.
+3. Produce source-to-target gap against MySQL, npm, static modules, Better Auth, domain permissions, and current code.
+4. Prefer supported packages/API contracts over copied source; never automatically import full starter.
+5. Record licensing evidence in [SOURCE-ATTRIBUTION.md](SOURCE-ATTRIBUTION.md), and test negative/security paths.
+6. Require independent review for high-risk auth, RBAC, recovery, and upload security changes.
 
 ## Domain playbooks
 
-- [AUTH.md](AUTH.md) · [RBAC.md](RBAC.md) · [CMS.md](CMS.md) · [SECURITY.md](SECURITY.md)
-- [MEDIA.md](MEDIA.md) · [WORKER.md](WORKER.md) · [UI-FORMS.md](UI-FORMS.md)
-- [OPERATIONS.md](OPERATIONS.md) · [TESTING.md](TESTING.md) · [ADOPTION-PROTOCOL.md](ADOPTION-PROTOCOL.md)
+[AUTH.md](AUTH.md) · [RBAC.md](RBAC.md) · [CMS.md](CMS.md) · [MEDIA.md](MEDIA.md) · [WORKER.md](WORKER.md) · [SECURITY.md](SECURITY.md) · [UI-FORMS.md](UI-FORMS.md) · [OPERATIONS.md](OPERATIONS.md) · [TESTING.md](TESTING.md) · [ADOPTION-PROTOCOL.md](ADOPTION-PROTOCOL.md)
+
+The detailed source-to-decision matrix and evidence template live in [REFERENCE-ADOPTION-MATRIX.md](REFERENCE-ADOPTION-MATRIX.md).
